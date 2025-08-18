@@ -1,10 +1,10 @@
 from flask_wtf import FlaskForm
 from tna_frontend_jinja.wtforms import TnaRadiosWidget
 from wtforms import RadioField
-from wtforms.validators import InputRequired
+from wtforms.validators import DataRequired
 
 
-class TypeOfChocolate(FlaskForm):
+class TypeOfChocolateForm(FlaskForm):
     chocolate_preference = RadioField(
         "Which type of chocolate do you prefer?",
         description="Select your favourite type of chocolate",
@@ -14,7 +14,7 @@ class TypeOfChocolate(FlaskForm):
             ("white", "White Chocolate"),
         ],
         validators=[
-            InputRequired(message="Select your favourite type of chocolate"),
+            DataRequired(message="Select your favourite type of chocolate"),
         ],
         widget=TnaRadiosWidget(),
     )

@@ -1,29 +1,60 @@
 from app.forms import bp
+from app.forms.config import form_flow_from_config, load_config
 from flask import redirect, render_template, request, session
 
-from .config.example import forms
+# from .config.example import forms
+
+
+def get_form_flow(form_slug: str):
+    try:
+        config = load_config(form_slug)
+        return form_flow_from_config(config, form_slug)
+    except Exception as e:
+        print(f"Error loading configuration for form {form_slug}: {e}")
+        return None
 
 
 @bp.route("/<string:form_slug>/", methods=["GET", "POST"])
 def start_page(form_slug):
-    if form_slug in forms:
-        if forms[form_slug].get_starting_path() != request.path:
-            return redirect(forms[form_slug].get_starting_path())
-        return forms[form_slug].get_starting_page().serve()
-    return render_template("errors/page_not_found.html"), 404
+    try:
+        form_flow = get_form_flow(form_slug)
+    except Exception as e:
+        return render_template("errors/server.html"), 500
+
+    if not form_flow:
+        return render_template("errors/page_not_found.html"), 404
+
+    if form_flow.get_starting_path() != request.path:
+        return redirect(form_flow.get_starting_path())
+
+    return form_flow.get_starting_page().serve()
 
 
 @bp.route("/<string:form_slug>/reset/")
 def reset_form(form_slug):
-    if form_slug in forms:
-        session.clear()
-        return redirect(forms[form_slug].get_starting_path())
-    return render_template("errors/page_not_found.html"), 404
+    try:
+        form_flow = get_form_flow(form_slug)
+    except Exception as e:
+        return render_template("errors/server.html"), 500
+
+    if not form_flow:
+        return render_template("errors/page_not_found.html"), 404
+
+    session.clear()
+    return redirect(form_flow.get_starting_path())
 
 
 @bp.route("/<string:form_slug>/<string:page_slug>/", methods=["GET", "POST"])
 def page(form_slug, page_slug):
-    if form_slug in forms:
-        if form_page := forms[form_slug].get_page_by_slug(page_slug):
-            return form_page.serve(pages=forms[form_slug].get_all_pages())
+    try:
+        form_flow = get_form_flow(form_slug)
+    except Exception as e:
+        return render_template("errors/server.html"), 500
+
+    if not form_flow:
+        return render_template("errors/page_not_found.html"), 404
+
+    if form_page := form_flow.get_page_by_slug(page_slug):
+        return form_page.serve(pages=form_flow.get_all_pages())
+
     return render_template("errors/page_not_found.html"), 404

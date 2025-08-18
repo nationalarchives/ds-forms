@@ -18,47 +18,61 @@ class FormFlow:
 
     def create_starting_page(
         self,
+        id: str,
         name: str,
         slug: str = "/",
-        description: str = None,
-        template: str = None,
+        description: str = "",
+        template: str = "",
         form: Optional[FlaskForm] = None,
+        yaml_config: Optional[dict] = None,
     ):
         """
         Set the starting page of the flow.
         """
-        starting_page = self.create_page(name, slug, description, template, form)
+        starting_page = self.create_page(
+            id, name, slug, description, template, form, yaml_config
+        )
         self.starting_page_slug = slug
         return starting_page
 
     def create_page(
         self,
+        id: str,
         name: str,
         slug: str,
-        description: str = None,
-        template: str = None,
+        description: str = "",
+        template: str = "",
         form: Optional[FlaskForm] = None,
+        yaml_config: Optional[dict] = None,
     ):
         """
         Add a page to the flow.
         """
-        new_page = FormPage(self, name, slug, description, template, form)
-        self.pages.update({slug: new_page})
+        new_page = FormPage(
+            self, id, name, slug, description, template, form, yaml_config
+        )
+        self.pages.update({id: new_page})
         return new_page
 
-    def get_all_pages(self) -> dict[str:"FormPage"]:
+    def get_all_pages(self) -> list[tuple[str, "FormPage"]]:
         """
         Retrieve all pages in the flow.
         """
-        return self.pages
+        return self.pages.items()
+
+    def get_page_by_id(self, id: str) -> Optional["FormPage"]:
+        """
+        Retrieve a page by its id.
+        """
+        if id and id in self.pages:
+            return self.pages[id]
+        return None
 
     def get_page_by_slug(self, slug: str) -> Optional["FormPage"]:
         """
         Retrieve a page by its slug.
         """
-        if slug in self.pages:
-            return self.pages[slug]
-        return None
+        return next((page for page in self.pages.values() if page.slug == slug), None)
 
     def get_starting_page(self) -> "FormPage":
         """
@@ -113,13 +127,16 @@ class FormPage:
     def __init__(
         self,
         flow: "FormFlow",
+        id: str,
         name: str,
         slug: str = "/",
-        description: str = None,
-        template: str = None,
+        description: str = "",
+        template: str = "",
         form: Optional[FlaskForm] = None,
+        yaml_config: Optional[dict] = None,
     ):
         self.flow: "FormFlow" = flow
+        self.id: str = id
         self.name: str = name
         self.slug: str = slug
         self.description: str = description
@@ -136,6 +153,7 @@ class FormPage:
         self.clear_pages_on_completion: list["FormPage"] = []
         self.form: Optional[FlaskForm] = None
         self.form_class: Optional[FlaskForm] = form if form else None
+        self.yaml_config: Optional[dict] = yaml_config
 
     def get_page_path(self) -> str:
         """
@@ -173,9 +191,9 @@ class FormPage:
 
     def redirect_when_complete(
         self,
-        page: "FormPage" = None,
-        flask_method: str = None,
-        url: str = None,
+        page: Optional["FormPage"] = None,
+        flask_method: Optional[str] = "",
+        url: Optional[str] = "",
         when: Optional[tuple[str, str]] = None,
         condition: Optional[Callable] = None,
     ):
@@ -206,13 +224,13 @@ class FormPage:
         """
         Get the form data from the session or other storage.
         """
-        return session[self.slug] if self.slug in session else {}
+        return session[self.id] if self.id in session else {}
 
     def save_form_data(self, form_data: dict):
         """
         Save the form data to the session.
         """
-        session[self.slug] = form_data
+        session[self.id] = form_data
 
     def is_complete(self) -> bool:
         """
@@ -221,20 +239,30 @@ class FormPage:
         if self.form:
             return self.form.validate()
         elif self.form_class:
-            return self.form_class(obj=self.get_saved_form_data()).validate()
+            current_app.logger.debug(f"=====================================")  # TEMP
+            current_app.logger.debug(
+                f"Validating form class '{self.form_class}' for page: {self.id} with data: {self.get_saved_form_data()}"
+            )  # TEMP
+            temp_form = self.form_class(data=self.get_saved_form_data())
+            temp_form._fields.pop("csrf_token", None)
+            current_app.logger.debug(f"Form data: {temp_form.data}")  # TEMP
+            is_complete = temp_form.validate()
+            current_app.logger.debug(f"Form validate: {is_complete}")  # TEMP
+            current_app.logger.debug(f"Form errors: {temp_form.errors}")  # TEMP
+            return is_complete
         return True
 
     def serve(self, **kwargs):
         """
         Start the flow by loading the form data and checking completion status.
         """
-        if self.form_class:
-            self.form = self.form_class(obj=self.get_saved_form_data())
+        if self.form_class and not self.form:
+            self.form = self.form_class(data=self.get_saved_form_data())
 
         for page in self.requires_completion_of:
             if not page.is_complete():
                 current_app.logger.warning(
-                    f"Required page '{page.slug}' is not complete."
+                    f"Required page '{page.id}' is not complete."
                 )
                 return redirect(page.get_page_path())
 
@@ -242,24 +270,27 @@ class FormPage:
             any_complete = False
 
             for page in self.requires_completion_of_any:
+                current_app.logger.debug(
+                    f"Checking completion for any required page: {page.id}"
+                )
                 if page.is_complete():
                     any_complete = True
                     break
 
             if not any_complete:
                 current_app.logger.warning(
-                    "None of the any required pages are complete."
+                    f"None of the any required pages are complete for '{self.id}'."
                 )
                 if self.requires_completion_of_any_fallback:
                     current_app.logger.warning(
-                        f"Redirecting to fallback page: {self.requires_completion_of_any_fallback.slug}"
+                        f"Redirecting to fallback page: {self.requires_completion_of_any_fallback.id}"
                     )
                     return redirect(
                         self.requires_completion_of_any_fallback.get_page_path()
                     )
                 else:
                     current_app.logger.warning(
-                        f"Redirecting to first required page: {self.requires_completion_of_any[0].slug}"
+                        f"Redirecting to first required page: {self.requires_completion_of_any[0].id}"
                     )
                     return redirect(self.requires_completion_of_any[0].get_page_path())
 
@@ -268,7 +299,7 @@ class FormPage:
             data = page.get_saved_form_data()
             if data.get(key, None) != required_response:
                 current_app.logger.warning(
-                    f"Required response '{required_response}' not found for key '{key}' in page '{page.slug}'."
+                    f"Required response '{required_response}' not found for key '{key}' in page '{page.id}'."
                 )
                 return redirect(page.get_page_path())
 
@@ -281,13 +312,12 @@ class FormPage:
         if request.method == "POST" and self.is_complete():
             form_data = self.form.data
             form_data.pop("csrf_token", None)
-            form_data.pop("submit", None)
             self.save_form_data(form_data)
 
             for page in self.clear_pages_on_completion:
-                if page.slug in session:
-                    current_app.logger.debug(f"Clearing page data for: {page.slug}")
-                    session.pop(page.slug, None)
+                if page.id in session:
+                    current_app.logger.debug(f"Clearing page data for: {page.id}")
+                    session.pop(page.id, None)
 
             for rule in self.when_complete:
                 current_app.logger.debug(f"Checking completion rule: {rule}")
@@ -299,15 +329,18 @@ class FormPage:
                     )
                     or (rule["condition"] and rule["condition"](form_data))
                 ):
+                    current_app.logger.debug(
+                        f"Completion rule matched for page: '{self.id}'"
+                    )
                     if rule["page"]:
                         current_app.logger.debug(
-                            f"Redirecting to page: {rule['page'].slug}"
+                            f"Redirecting to page: '{rule['page'].id}'"
                         )
                         return redirect(rule["page"].get_page_path())
 
                     if rule["flask_method"]:
                         current_app.logger.debug(
-                            f"Redirecting to Flask method: {rule['flask_method']}"
+                            f"Redirecting to Flask method: '{rule['flask_method']}'"
                         )
                         return redirect(url_for(rule["flask_method"]))
 

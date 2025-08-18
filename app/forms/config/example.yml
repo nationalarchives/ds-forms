@@ -1,0 +1,84 @@
+startingPage:
+  id: pizza_or_chocolate
+  name: Pizza or chocolate
+  slug: pizza-or-chocolate
+  description: >
+    Do you prefer pizza or chocolate? This is a simple example form to demonstrate the structure.
+  form: PizzaOrChocolateForm
+  redirectWhenComplete:
+    - page: pizza_topping
+      when:
+        key: food
+        value: pizza
+    - page: type_of_chocolate
+      when:
+        key: food
+        value: chocolate
+    - page: neither_page
+      when:
+        key: food
+        value: neither
+    - url: https://www.reddit.com/r/catpictures/
+      when:
+        key: food
+        value: cats
+
+pages:
+  - id: neither_page
+    name: Neither
+    slug: neither
+    description: You selected neither pizza nor chocolate.
+    template: forms/example/neither.html
+
+  - id: pizza_topping
+    name: Pizza toppings
+    slug: pizza-topping
+    form: PizzaToppingsForm
+    requireResponse:
+      - page: pizza_or_chocolate
+        key: food
+        value: pizza
+    redirectWhenComplete:
+      - page: pizza_brand
+
+  - id: pizza_brand
+    name: Pizza brand
+    slug: pizza-brand
+    form: PizzaBrandForm
+    requireCompletionOf:
+      - pizza_topping
+    redirectWhenComplete:
+      - page: address
+
+  - id: type_of_chocolate
+    name: Type of Chocolate
+    slug: type-of-chocolate
+    form: TypeOfChocolateForm
+    requireResponse:
+      - page: pizza_or_chocolate
+        key: food
+        value: chocolate
+    redirectWhenComplete:
+      - page: address
+
+  - id: address
+    name: Enter your address
+    slug: address
+    description: We need this to deliver your pizza or chocolate.
+    form: AddressForm
+    requireCompletionOfAny:
+      - pizza_brand
+      - type_of_chocolate
+    redirectIfNotComplete: pizza_or_chocolate
+    redirectWhenComplete:
+      - page: final_page
+
+  - id: final_page
+    name: Final Page
+    slug: final-page
+    description: This is the final page of the flow.
+    template: forms/final.html
+    requireCompletionOfAny:
+      - pizza_brand
+      - type_of_chocolate
+    redirectIfNotComplete: pizza_or_chocolate

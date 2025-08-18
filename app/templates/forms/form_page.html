@@ -55,11 +55,11 @@
 
         <h2 class="tna-heading-l">All pages</h2>
         <ul class="tna-ul">
-          {% for page in pages %}
+          {% for page_id, page in pages %}
           <li>
-            <a href="{{ url_for('forms.page', form_slug=flow.slug, page_slug=pages[page].slug) }}">{{ pages[page].name }}</a>
-            {% if pages[page].form %}
-              {% if pages[page].is_complete() %}
+            <a href="{{ url_for('forms.page', form_slug=flow.slug, page_slug=page.slug) }}">{{ page.name }}</a>
+            {% if page.form %}
+              {% if page.is_complete() %}
                 (Complete)
               {% else %}
                 (Incomplete)
