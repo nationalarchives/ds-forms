@@ -1,6 +1,6 @@
 from app.forms import bp
 from app.forms.config import form_flow_from_config, load_config
-from flask import redirect, render_template, request, session
+from flask import current_app, redirect, render_template, request, session
 
 # from .config.example import forms
 
@@ -10,7 +10,9 @@ def get_form_flow(form_slug: str):
         config = load_config(form_slug)
         return form_flow_from_config(config, form_slug)
     except Exception as e:
-        print(f"Error loading configuration for form {form_slug}: {e}")
+        current_app.logger.error(
+            f"Error loading configuration for form flow '{form_slug}': {e}"
+        )
         return None
 
 
@@ -19,6 +21,7 @@ def start_page(form_slug):
     try:
         form_flow = get_form_flow(form_slug)
     except Exception as e:
+        current_app.logger.error(f"Error loading form flow for '{form_slug}': {e}")
         return render_template("errors/server.html"), 500
 
     if not form_flow:
@@ -35,6 +38,7 @@ def reset_form(form_slug):
     try:
         form_flow = get_form_flow(form_slug)
     except Exception as e:
+        current_app.logger.error(f"Error resetting form flow for '{form_slug}': {e}")
         return render_template("errors/server.html"), 500
 
     if not form_flow:
@@ -49,6 +53,9 @@ def page(form_slug, page_slug):
     try:
         form_flow = get_form_flow(form_slug)
     except Exception as e:
+        current_app.logger.error(
+            f"Error loading form flow page for '{form_slug}/{page_slug}': {e}"
+        )
         return render_template("errors/server.html"), 500
 
     if not form_flow:

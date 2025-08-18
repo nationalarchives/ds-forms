@@ -239,16 +239,13 @@ class FormPage:
         if self.form:
             return self.form.validate()
         elif self.form_class:
-            current_app.logger.debug(f"=====================================")  # TEMP
-            current_app.logger.debug(
-                f"Validating form class '{self.form_class}' for page: {self.id} with data: {self.get_saved_form_data()}"
-            )  # TEMP
             temp_form = self.form_class(data=self.get_saved_form_data())
             temp_form._fields.pop("csrf_token", None)
-            current_app.logger.debug(f"Form data: {temp_form.data}")  # TEMP
             is_complete = temp_form.validate()
-            current_app.logger.debug(f"Form validate: {is_complete}")  # TEMP
-            current_app.logger.debug(f"Form errors: {temp_form.errors}")  # TEMP
+            if temp_form.errors:
+                current_app.logger.warning(
+                    f"Form '{self.id}' has errors: {temp_form.errors}"
+                )
             return is_complete
         return True
 

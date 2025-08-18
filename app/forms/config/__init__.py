@@ -2,7 +2,6 @@ import importlib
 import os.path
 from pathlib import Path
 
-import app.forms.parts as form_parts
 import yaml
 from app.forms.models import FormFlow
 
@@ -26,13 +25,13 @@ def load_config(form_slug: str) -> FormFlow:
         raise ValueError(f"Error loading YAML configuration for form {form_slug}: {e}")
 
 
-def form_flow_from_config(config: dict, slug: str) -> FormFlow:
+def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
     if not config:
         raise ValueError("Configuration cannot be empty")
 
     form_flow = FormFlow(slug=slug)
 
-    if not "startingPage" in config:
+    if "startingPage" not in config:
         raise ValueError("Configuration must contain 'startingPage'")
 
     starting_page_config = config.get("startingPage", {})
@@ -44,9 +43,12 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:
         description=starting_page_config.get("description", ""),
         template=starting_page_config.get("template", ""),
         form=(
-            getattr(importlib.import_module(
-                f"app.forms.parts.{starting_page_config.get('form')}"
-            ), starting_page_config.get('form'))
+            getattr(
+                importlib.import_module(
+                    f"app.forms.parts.{starting_page_config.get('form')}"
+                ),
+                starting_page_config.get("form"),
+            )
             if starting_page_config.get("form")
             else None
         ),
@@ -67,9 +69,10 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:
             description=page.get("description", ""),
             template=page.get("template", ""),
             form=(
-                getattr(importlib.import_module(
-                    f"app.forms.parts.{page.get('form')}"
-                ), page.get('form'))
+                getattr(
+                    importlib.import_module(f"app.forms.parts.{page.get('form')}"),
+                    page.get("form"),
+                )
                 if page.get("form")
                 else None
             ),
