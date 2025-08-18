@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+
+{%- from 'components/error-summary/macro.html' import tnaErrorSummary -%}
+
+
+
+
+{% block content %}
+  <div class="tna-section">
+    <div class="tna-container">
+      <div class="tna-column tna-column--width-2-3 tna-column--width-5-6-medium tna-column--full-small tna-column--full-tiny">
+
+        {% if form.errors %}
+          {{ tnaErrorSummary(wtforms_errors(form)) }}
+        {% endif %}
+
+        {% set ns = namespace(field_count=0) %}
+        {% for field in form %}
+          {% if field.name != 'csrf_token' %}
+            {% set ns.field_count = ns.field_count + 1 %}
+          {% endif %}
+        {% endfor %}
+
+        {% if ns.field_count > 1 %}
+        <h1 class="tna-heading-xl">{{ pageTitle }}</h1>
+        {%- if description %}
+        <p>{{ description }}</p>
+        {%- endif %}
+        {% endif %}
+
+        <form action="{{ page_path }}" method="post" enctype="multipart/form-data" class="{{ 'tna-!--margin-top-m' if ns.field_count > 1 else '' }}" novalidate>
+          {% for field in form %}
+            {% set params = {} %}
+            {% if ns.field_count == 1 %}
+              {% set params = {'headingSize': 'xl', 'headingLevel': 1} %}
+            {% endif %}
+            {{ field(params=params) }}
+          {% endfor %}
+
+          <div class="tna-button-group">
+            <button class="tna-button" type="submit">Continue</button>
+          </div>
+        </form>
+
+        <h2 class="tna-heading-l">Session data</h2>
+        <dl class="tna-dl">
+          {% for page in session %}
+          <dt>{{ page }}</dt>
+          <dd>
+            {{ session[page] }}
+          </dd>
+          {% endfor %}
+        </dl>
+
+        <h2 class="tna-heading-l">All pages</h2>
+        <ul class="tna-ul">
+          {% for page in pages %}
+          <li>
+            <a href="{{ url_for('forms.page', form_slug=flow.slug, page_slug=pages[page].slug) }}">{{ pages[page].name }}</a>
+            {% if pages[page].form %}
+              {% if pages[page].is_complete() %}
+                (Complete)
+              {% else %}
+                (Incomplete)
+              {% endif %}
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+        <p>
+          <a href="{{ form_reset_path }}">Clear data and start again</a>
+        </p>
+      </div>
+    </div>
+  </div>
+{% endblock %}

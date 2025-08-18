@@ -6,6 +6,7 @@ from app.lib.talisman import talisman
 from app.lib.template_filters import slugify
 from flask import Flask
 from jinja2 import ChoiceLoader, PackageLoader
+from tna_frontend_jinja.wtforms.helpers import WTFormsHelpers
 
 
 def create_app(config_class):
@@ -75,6 +76,8 @@ def create_app(config_class):
         ]
     )
 
+    WTFormsHelpers(app)
+
     app.add_template_filter(slugify)
 
     @app.context_processor
@@ -93,10 +96,12 @@ def create_app(config_class):
             feature={},
         )
 
+    from .forms import bp as forms_bp
     from .healthcheck import bp as healthcheck_bp
     from .main import bp as site_bp
 
     app.register_blueprint(site_bp)
     app.register_blueprint(healthcheck_bp, url_prefix="/healthcheck")
+    app.register_blueprint(forms_bp)
 
     return app
