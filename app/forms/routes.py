@@ -1,8 +1,6 @@
 from app.forms import bp
 from app.forms.config import form_flow_from_config, load_config
-from flask import current_app, redirect, render_template, request, session
-
-# from .config.example import forms
+from flask import current_app, redirect, render_template, request
 
 
 def get_form_flow(form_slug: str):
@@ -27,6 +25,9 @@ def start_page(form_slug):
     if not form_flow:
         return render_template("errors/page_not_found.html"), 404
 
+    if form_flow.has_complete_path():
+        return redirect(form_flow.get_final_page().get_page_path())
+
     if form_flow.get_starting_path() != request.path:
         return redirect(form_flow.get_starting_path())
 
@@ -44,7 +45,8 @@ def reset_form(form_slug):
     if not form_flow:
         return render_template("errors/page_not_found.html"), 404
 
-    session.clear()
+    form_flow.reset()
+
     return redirect(form_flow.get_starting_path())
 
 
@@ -62,6 +64,6 @@ def page(form_slug, page_slug):
         return render_template("errors/page_not_found.html"), 404
 
     if form_page := form_flow.get_page_by_slug(page_slug):
-        return form_page.serve(pages=form_flow.get_all_pages())
+        return form_page.serve()
 
     return render_template("errors/page_not_found.html"), 404

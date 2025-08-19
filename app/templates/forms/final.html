@@ -21,7 +21,25 @@
             {{ session[page] }}
           </dd>
           {% endfor %}
+          <dt>has_complete_path</dt>
+          <dd>{{ has_complete_path }}</dd>
+          <dt>earliest_incomplete_page</dt>
+          <dd>{{ earliest_incomplete_page }}</dd>
         </dl>
+        
+        <h2 class="tna-heading-l">All pages</h2>
+        <ul class="tna-ul">
+          {% for page in pages %}
+          <li>
+            <a href="{{ url_for('forms.page', form_slug=flow.slug, page_slug=page.slug) }}">{{ page.name }}</a>
+            {% if page.is_complete(temporary_validation=True) %}
+              (Complete)
+            {% else %}
+              (Incomplete)
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ul>
 
         <p>
           <a href="{{ form_reset_path }}">Start again</a>

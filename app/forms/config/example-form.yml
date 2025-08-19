@@ -47,7 +47,7 @@ finalPage:
         responses: responses
         createdAt: created_at
 
-    # type: mongo
+    # type: mongodb
     # details:
     #   uri: FORM_EXAMPLE_MONGO_URI
     #   database: FORM_EXAMPLE_MONGO_DB
@@ -141,7 +141,7 @@ pages:
     description: We need this to deliver your pizza or chocolate.
     form: AddressForm
     requireCompletionOfAny:
-      - pizza_brand
+      - pizza_topping
       - type_of_chocolate
     redirectIfNotComplete: pizza_or_chocolate
     redirectWhenComplete:

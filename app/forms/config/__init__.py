@@ -33,7 +33,11 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
         if expected_key not in config:
             raise ValueError(f"Configuration must contain '{expected_key}'")
 
-    form_flow = FormFlow(slug=slug, handle_files="fileHandler" in config)
+    form_flow = FormFlow(
+        slug=slug,
+        result_handler_config=config.get("resultHandler", {}),
+        handle_files="fileHandler" in config,
+    )
 
     starting_page_config = config.get("startingPage", {})
     starting_page_id = starting_page_config.get("id", "")
@@ -82,6 +86,7 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
 
     final_page_config = config.get("finalPage", {})
     final_page_id = final_page_config.get("id", "")
+    pages_config.update({final_page_id: final_page_config})
     form_flow.create_final_page(
         id=final_page_id,
         name=final_page_config.get("name", ""),
@@ -91,7 +96,7 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
         yaml_config=final_page_config,
     )
 
-    for page_id, page in form_flow.get_all_pages():
+    for page in form_flow.get_all_pages():
         page_config = page.yaml_config
 
         for redirection in page_config.get("redirectWhenComplete", []):
