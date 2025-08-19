@@ -347,9 +347,6 @@ class FormFlow:
         Check if the completion logic has been handled.
         """
         return session.get("completion_handled", False)
-    
-
-
 
     def handle_completion(self) -> bool:
         if self.is_completion_handled():
