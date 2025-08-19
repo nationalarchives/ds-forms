@@ -8,7 +8,7 @@
       <div class="tna-column tna-column--width-2-3 tna-column--width-5-6-medium tna-column--full-small tna-column--full-tiny">
 
         {% if form.errors %}
-          {{ tnaErrorSummary(wtforms_errors(form)) }}
+          {{ tnaErrorSummary(wtforms_errors(form, params={'headingLevel': 2, 'classes': 'tna-!--margin-bottom-m'})) }}
         {% endif %}
 
         {% set ns = namespace(field_count=0, file_fields_present=False) %}
