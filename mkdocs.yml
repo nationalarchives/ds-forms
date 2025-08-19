@@ -1,2 +1,8 @@
-site_name: Flask Application Docs
-repo_url: https://github.com/nationalarchives/flask-application-template
+site_name: DS Forms Docs
+repo_url: https://github.com/nationalarchives/ds-forms
+markdown_extensions:
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format

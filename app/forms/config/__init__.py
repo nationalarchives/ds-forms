@@ -29,10 +29,11 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
     if not config:
         raise ValueError("Configuration cannot be empty")
 
-    form_flow = FormFlow(slug=slug)
+    for expected_key in ["startingPage", "finalPage"]:
+        if expected_key not in config:
+            raise ValueError(f"Configuration must contain '{expected_key}'")
 
-    if "startingPage" not in config:
-        raise ValueError("Configuration must contain 'startingPage'")
+    form_flow = FormFlow(slug=slug, handle_files="fileHandler" in config)
 
     starting_page_config = config.get("startingPage", {})
     starting_page_id = starting_page_config.get("id", "")
@@ -78,6 +79,17 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
             ),
             yaml_config=page,
         )
+
+    final_page_config = config.get("finalPage", {})
+    final_page_id = final_page_config.get("id", "")
+    form_flow.create_final_page(
+        id=final_page_id,
+        name=final_page_config.get("name", ""),
+        slug=final_page_config.get("slug", "/"),
+        description=final_page_config.get("description", ""),
+        template=final_page_config.get("template", ""),
+        yaml_config=final_page_config,
+    )
 
     for page_id, page in form_flow.get_all_pages():
         page_config = page.yaml_config

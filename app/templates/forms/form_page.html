@@ -1,10 +1,6 @@
 {% extends 'base.html' %}
 
-
 {%- from 'components/error-summary/macro.html' import tnaErrorSummary -%}
-
-
-
 
 {% block content %}
   <div class="tna-section">
@@ -15,10 +11,13 @@
           {{ tnaErrorSummary(wtforms_errors(form)) }}
         {% endif %}
 
-        {% set ns = namespace(field_count=0) %}
+        {% set ns = namespace(field_count=0, file_fields_present=False) %}
         {% for field in form %}
           {% if field.name != 'csrf_token' %}
             {% set ns.field_count = ns.field_count + 1 %}
+          {% endif %}
+          {% if field.type in ['FileField', 'MultipleFileField'] %}
+            {% set ns.file_fields_present = True %}
           {% endif %}
         {% endfor %}
 
@@ -29,7 +28,7 @@
         {%- endif %}
         {% endif %}
 
-        <form action="{{ page_path }}" method="post" enctype="multipart/form-data" class="{{ 'tna-!--margin-top-m' if ns.field_count > 1 else '' }}" novalidate>
+        <form action="{{ page_path }}" method="post" enctype="{{ 'multipart/form-data' if handle_files and ns.file_fields_present else 'application/x-www-form-urlencoded' }}" class="{{ 'tna-!--margin-top-m' if ns.field_count > 1 else '' }}" novalidate>
           {% for field in form %}
             {% set params = {} %}
             {% if ns.field_count == 1 %}

@@ -11,10 +11,12 @@ class FormFlow:
     Each page can have requirements for completion and can redirect to another page when complete.
     """
 
-    def __init__(self, slug: str):
+    def __init__(self, slug: str, handle_files: bool = False):
         self.slug = slug
+        self.handle_files = handle_files
         self.pages: dict[str:"FormPage"] = {}
         self.starting_page_slug: str = "/"
+        self.final_page_slug: str = "/"
 
     def create_starting_page(
         self,
@@ -30,10 +32,40 @@ class FormFlow:
         Set the starting page of the flow.
         """
         starting_page = self.create_page(
-            id, name, slug, description, template, form, yaml_config
+            id=id,
+            name=name,
+            slug=slug,
+            description=description,
+            template=template,
+            form=form,
+            yaml_config=yaml_config,
         )
         self.starting_page_slug = slug
         return starting_page
+
+    def create_final_page(
+        self,
+        id: str,
+        name: str,
+        slug: str = "/",
+        description: str = "",
+        template: str = "",
+        yaml_config: Optional[dict] = None,
+    ):
+        """
+        Set the final page of the flow.
+        """
+        final_page = self.create_page(
+            id=id,
+            name=name,
+            slug=slug,
+            description=description,
+            template=template,
+            form=None,
+            yaml_config=yaml_config,
+        )
+        self.final_page_slug = slug
+        return final_page
 
     def create_page(
         self,
@@ -49,7 +81,14 @@ class FormFlow:
         Add a page to the flow.
         """
         new_page = FormPage(
-            self, id, name, slug, description, template, form, yaml_config
+            flow=self,
+            id=id,
+            name=name,
+            slug=slug,
+            description=description,
+            template=template,
+            form=form,
+            yaml_config=yaml_config,
         )
         self.pages.update({id: new_page})
         return new_page
@@ -286,10 +325,18 @@ class FormPage:
                         self.requires_completion_of_any_fallback.get_page_path()
                     )
                 else:
-                    current_app.logger.warning(
-                        f"Redirecting to first required page: {self.requires_completion_of_any[0].id}"
+                    redirect_to_page = next(
+                        (
+                            p
+                            for p in self.requires_completion_of_any
+                            if not p.is_complete()
+                        ),
+                        self.requires_completion_of_any[0],
                     )
-                    return redirect(self.requires_completion_of_any[0].get_page_path())
+                    current_app.logger.warning(
+                        f"Redirecting to first required incomplete page: {redirect_to_page.id}"
+                    )
+                    return redirect(redirect_to_page.get_page_path())
 
         for requires_responses in self.requires_responses:
             (page, key, required_response) = requires_responses
@@ -306,6 +353,10 @@ class FormPage:
         """
         Validate the form data when the page is submitted and redirect based on completion status.
         """
+        # if self.flow.is_all_complete():
+        #     # TODO: Handle the case where the flow is complete
+        #     pass
+
         if request.method == "POST" and self.is_complete():
             form_data = self.form.data
             form_data.pop("csrf_token", None)
@@ -346,6 +397,7 @@ class FormPage:
                         return redirect(rule["url"])
 
             raise Exception("No matching completion rule found.")
+
         return render_template(
             self.template,
             flow=self.flow,
@@ -354,5 +406,6 @@ class FormPage:
             page_path=self.get_page_path(),
             form_reset_path=url_for("forms.reset_form", form_slug=self.flow.slug),
             form=self.form,
+            handle_files=self.flow.handle_files,
             **kwargs,
         )
