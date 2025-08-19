@@ -35,17 +35,17 @@ finalPage:
   redirectIfNotComplete: pizza_or_chocolate
 
   resultHandler:
-    type: postgres
-    details:
-      host: FORM_EXAMPLE_POSTGRES_HOST
-      port: FORM_EXAMPLE_POSTGRES_PORT
-      database: FORM_EXAMPLE_POSTGRES_DB
-      user: FORM_EXAMPLE_POSTGRES_USER
-      password: FORM_EXAMPLE_POSTGRES_PASSWORD
-      mapping:
-        formId: form_id
-        responses: responses
-        createdAt: created_at
+    # type: postgres
+    # details:
+    #   host: FORM_EXAMPLE_POSTGRES_HOST
+    #   port: FORM_EXAMPLE_POSTGRES_PORT
+    #   database: FORM_EXAMPLE_POSTGRES_DB
+    #   user: FORM_EXAMPLE_POSTGRES_USER
+    #   password: FORM_EXAMPLE_POSTGRES_PASSWORD
+    #   mapping:
+    #     formId: form_id
+    #     responses: responses
+    #     createdAt: created_at
 
     # type: mongodb
     # details:
@@ -71,18 +71,19 @@ finalPage:
     #     Form ID: {{ formId }}
     #     Responses: {{ responses }}
 
-    # type: api
-    # details:
-    #   url: FORM_EXAMPLE_API_URL
-    #   method: POST
-    #   headers:
-    #     Content-Type: application/json
-    #     Authorization: Bearer ${ FORM_EXAMPLE_API_BEARER_TOKEN }
-    #   body: |
-    #     {
-    #       "formId": "{{ formId }}",
-    #       "responses": "{{ responses }}"
-    #     }
+    type: api
+    details:
+      url: FORM_EXAMPLE_API_URL
+      method: POST
+      headers:
+        Content-Type: application/json
+        Authorization: Bearer { FORM_EXAMPLE_API_BEARER_TOKEN }
+      params:
+        language: en
+      body: |
+        {
+          "favourite_food": "{ pizza_or_chocolate['food'] }"
+        }
 
 # TODO
 fileHandler:

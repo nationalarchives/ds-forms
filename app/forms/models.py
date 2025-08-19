@@ -1,8 +1,113 @@
+import json
+import os
+from abc import ABC
 from collections.abc import Callable
 from typing import Optional, TypedDict
 
 from flask import current_app, redirect, render_template, request, session, url_for
 from flask_wtf import FlaskForm
+from requests import codes, get, post
+
+
+class ResultHandler(ABC):
+    """
+    Base class for result handlers.
+    This class should be extended to implement specific result handling logic.
+    """
+
+    def send(self) -> bool:
+        raise NotImplementedError("Subclasses must implement the send method")
+
+
+class APIResultHandler(ResultHandler):
+    """
+    Handles the result of a form submission by sending it to an external API.
+    """
+
+    def __init__(self, url: str, method: str, headers: dict, params: dict):
+        self.url = url
+        self.method = method.upper()
+        self.headers = headers
+        self.params = params
+
+    def send(self, json_data: dict) -> bool:
+        try:
+            if self.method == "GET":
+                response = get(self.url, headers=self.headers, params=self.params)
+                return response.status_code == codes.ok
+            elif self.method == "POST":
+                response = post(
+                    self.url, json=json_data, headers=self.headers, params=self.params
+                )
+                return response.status_code == codes.ok
+            else:
+                raise ValueError(f"Unsupported HTTP method: {self.method}")
+        except Exception as e:
+            current_app.logger.error(f"APIResultHandler error: {e}")
+            return False
+
+
+class PostgresResultHandler(ResultHandler):
+    """
+    Handles the result of a form submission by saving it to a PostgreSQL database.
+    """
+
+    def __init__(
+        self,
+        host: str = "",
+        port: int = "",
+        database: str = "",
+        user: str = "",
+        password: str = "",
+    ):
+        self.host: str = host
+        self.port: int = port
+        self.database: str = database
+        self.user: str = user
+        self.password: str = password
+
+    def format_data(self, raw_data: dict) -> dict:
+        pass
+
+    def send(self, data: dict) -> bool:
+        pass
+
+
+class MongoDBResultHandler(ResultHandler):
+    """
+    Handles the result of a form submission by saving it to MongoDB.
+    """
+
+    def __init__(self, uri: str, database: str, collection: str):
+        self.uri: str = uri
+        self.database: str = database
+        self.collection: str = collection
+
+    def format_data(self, raw_data: dict) -> dict:
+        pass
+
+    def send(self, data: dict) -> bool:
+        pass
+
+
+class EmailResultHandler(ResultHandler):
+    """
+    Handles the result of a form submission by sending an email.
+    """
+
+    def __init__(
+        self, smtpServer: str, smtpPort: str, smtpUser: str, smtpPassword: str
+    ):
+        self.smtpServer: str = smtpServer
+        self.smtpPort: str = smtpPort
+        self.smtpUser: str = smtpUser
+        self.smtpPassword: str = smtpPassword
+
+    def format_data(self, raw_data: dict) -> dict:
+        pass
+
+    def send(self, to: str, subject: str) -> bool:
+        pass
 
 
 class FormFlow:
@@ -23,7 +128,6 @@ class FormFlow:
         self.pages: dict[str:"FormPage"] = {}
         self.starting_page_id: str = ""
         self.final_page_id: str = ""
-        self.completion_handled: bool = False
 
     def create_page(
         self,
@@ -148,6 +252,15 @@ class FormFlow:
             raise ValueError("Final page is not set for this flow")
         return self.get_page_by_id(self.final_page_id)
 
+    def get_data(self) -> dict:
+        """
+        Get the saved data for the flow.
+        """
+        data = {}
+        for page in self.get_all_pages():
+            data[page.id] = page.get_saved_form_data()
+        return data
+
     def has_complete_path(self) -> bool:
         """
         Check if all pages in the flow are complete.
@@ -170,11 +283,6 @@ class FormFlow:
                 return page
 
             for required_page in page.requires_completion_of:
-                # if not required_page.is_complete(temporary_validation=True):
-                #     current_app.logger.debug(
-                #         f"Required requires_completion_of page '{required_page.id}' is not complete"
-                #     )
-                #     return required_page
                 failed_page = deep_completion_check(required_page)
                 if failed_page is not None:
                     return failed_page
@@ -232,10 +340,19 @@ class FormFlow:
             if page.id in session:
                 current_app.logger.debug(f"Clearing session data for page: {page.id}")
                 session.pop(page.id, None)
-        self.completion_handled = False
+        session["completion_handled"] = False
+
+    def is_completion_handled(self) -> bool:
+        """
+        Check if the completion logic has been handled.
+        """
+        return session.get("completion_handled", False)
+    
+
+
 
     def handle_completion(self) -> bool:
-        if self.completion_handled:
+        if self.is_completion_handled():
             return True
 
         current_app.logger.debug("!!! Flow is complete, handling completion logic")
@@ -246,29 +363,63 @@ class FormFlow:
             )
             raise Exception("Flow does not have a complete path")
 
+        success = False
+
         handler_type = self.result_handler_config.get("type", "")
-        if not handler_type:
-            current_app.logger.warning("Result handler type is not set for this flow")
+        if handler_type:
+            details = self.result_handler_config.get("details", {})
 
-        details = self.result_handler_config.get("details", {})
+            if not details:
+                raise ValueError("Result handler details are not set for this flow")
 
-        if not details:
-            raise ValueError("Result handler details are not set for this flow")
+            if handler_type == "postgres":
+                # TODO: Save to a PostgreSQL database
+                handler = PostgresResultHandler(
+                    host=os.environ.get(details.get("host", ""), ""),
+                    port=os.environ.get(details.get("port", ""), ""),
+                    database=os.environ.get(details.get("database", ""), ""),
+                    user=os.environ.get(details.get("user", ""), ""),
+                    password=os.environ.get(details.get("password", ""), ""),
+                )
+                success = handler.send(data=self.get_data())  # TODO: Format data
+                pass
+            elif handler_type == "mongodb":
+                # TODO: Save to a MongoDB instance
+                handler = MongoDBResultHandler(
+                    uri=os.environ.get(details.get("uri", ""), ""),
+                    database=os.environ.get(details.get("database", ""), ""),
+                    collection=os.environ.get(details.get("collection", ""), ""),
+                )
+                success = handler.send(data=self.get_data())  # TODO: Format data
+            elif handler_type == "email":
+                # TODO: Send an email via an SMTP server
+                handler = EmailResultHandler(
+                    smtpServer=os.environ.get(details.get("smtpServer", ""), ""),
+                    smtpPort=os.environ.get(details.get("smtpPort", ""), ""),
+                    smtpUser=os.environ.get(details.get("smtpUser", ""), ""),
+                    smtpPassword=os.environ.get(details.get("smtpPassword", ""), ""),
+                )
+                success = handler.send(data=self.get_data())  # TODO: Format data
+                pass
+            elif handler_type == "api":
+                # TODO
+                handler = APIResultHandler(
+                    url=os.environ.get(details.get("url", ""), ""),
+                    method=details.get("method", "POST"),
+                    headers=details.get("headers", {}),  # TODO: Interpolate headers
+                    params=details.get("params", {}),
+                )
+                success = handler.send(
+                    json_data=json.parse(
+                        details.get("body", "").format(
+                            **self.get_data()
+                        )  # TODO: Format data
+                    )
+                )
 
-        if handler_type == "postgres":
-            # TODO
-            pass
-        elif handler_type == "mongodb":
-            # TODO
-            pass
-        elif handler_type == "email":
-            # TODO
-            pass
-        elif handler_type == "api":
-            # TODO
-            pass
-
-        self.completion_handled = True
+        if success or True:  # TODO: REMOVE AFTER TESTING
+            current_app.logger.debug("Form flow completion handled successfully")
+            session["completion_handled"] = True
 
 
 class PageCompletionRule(TypedDict):
@@ -493,7 +644,7 @@ class FormPage:
             form_data.pop("csrf_token", None)
             self.save_form_data(form_data)
 
-        if self.flow.completion_handled and self != self.flow.get_final_page():
+        if self.flow.is_completion_handled() and self != self.flow.get_final_page():
             return redirect(self.flow.get_final_page().get_page_path())
 
         if request.method == "POST" and self.is_complete():
