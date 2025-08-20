@@ -42,6 +42,8 @@
           </div>
         </form>
 
+        <hr class="tna-!--margin-top-l">
+
         <h2 class="tna-heading-l">Session data</h2>
         <dl class="tna-dl">
           {% for page in session %}
@@ -54,8 +56,6 @@
           <dd>{{ has_complete_path }}</dd>
           <dt>earliest_incomplete_page</dt>
           <dd>{{ earliest_incomplete_page }}</dd>
-          <dt>completion_handled</dt>
-          <dd>{{ session.completion_handled }}</dd>
         </dl>
 
         <h2 class="tna-heading-l">All pages</h2>
