@@ -36,7 +36,6 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
     form_flow = FormFlow(
         slug=slug,
         result_handler_config=config.get("resultHandler", {}),
-        handle_files="fileHandler" in config,
     )
 
     starting_page_config = config.get("startingPage", {})
@@ -133,23 +132,23 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
                 response=requirement.get("value", None),
             )
 
-        if require_completion_of := page_config.get("requireCompletionOf", []):
+        if require_completion_of := page_config.get("requires", []):
             required_pages = [
                 form_flow.get_page_by_id(id) for id in require_completion_of
             ]
             if any([page is None for page in required_pages]):
                 raise ValueError(
-                    f"One or more required pages for 'requireCompletionOf' of '{page.slug}' not found in form flow."
+                    f"One or more required pages for 'requires' of '{page.slug}' not found in form flow."
                 )
             page.require_completion_of(*required_pages)
 
-        if require_completion_of_any := page_config.get("requireCompletionOfAny", []):
+        if require_completion_of_any := page_config.get("requiresAny", []):
             required_pages = [
                 form_flow.get_page_by_id(id) for id in require_completion_of_any
             ]
             if any([page is None for page in required_pages]):
                 raise ValueError(
-                    f"One or more required pages for 'requireCompletionOfAny' of '{page.slug}' not found in form flow."
+                    f"One or more required pages for 'requiresAny' of '{page.slug}' not found in form flow."
                 )
             fallback_page = form_flow.get_page_by_id(
                 page_config.get("redirectIfNotComplete", None)

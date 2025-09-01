@@ -7,6 +7,7 @@ from typing import Optional, TypedDict
 from flask import current_app, redirect, render_template, request, session, url_for
 from flask_wtf import FlaskForm
 from requests import codes, get, post
+from wtforms import FileField
 
 
 class ResultHandler(ABC):
@@ -120,11 +121,9 @@ class FormFlow:
         self,
         slug: str,
         result_handler_config: Optional[dict] = None,
-        handle_files: bool = False,
     ):
         self.slug = slug
         self.result_handler_config: Optional[dict] = result_handler_config
-        self.handle_files = handle_files
         self.pages: dict[str:"FormPage"] = {}
         self.starting_page_id: str = ""
         self.final_page_id: str = ""
@@ -632,13 +631,18 @@ class FormPage:
 
         return self.validate_and_redirect()
 
-    def validate_and_redirect(self):
+    def validate_and_redirect(self):  # noqa: C901  # TODO: Refactor this method
         """
         Validate the form data when the page is submitted and redirect based on completion status.
         """
         if request.method == "POST" and self.is_complete():
             form_data = self.form.data
             form_data.pop("csrf_token", None)
+            for field in self.form.data:
+                if isinstance(self.form[field], FileField):
+                    # TODO: Handle file saving
+                    print(f"Removing file field '{field}' from saved data")
+                    form_data.pop(field, None)
             self.save_form_data(form_data)
 
         if self.flow.is_completion_handled() and self != self.flow.get_final_page():
@@ -697,6 +701,6 @@ class FormPage:
             form=self.form,
             has_complete_path=self.flow.has_complete_path(),
             earliest_incomplete_page=self.flow.get_earliest_incomplete_page(),
-            handle_files=self.flow.handle_files,
+            handle_files="fileHandler" in self.yaml_config,
             pages=self.flow.get_all_pages(),
         )

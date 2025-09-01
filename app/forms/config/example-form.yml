@@ -30,7 +30,7 @@ finalPage:
   slug: final-page
   description: This is the final page of the flow.
   template: forms/final.html
-  requireCompletionOf:
+  requires:
     - address
   redirectIfNotComplete: pizza_or_chocolate
 
@@ -85,19 +85,6 @@ finalPage:
           "favourite_food": "{ pizza_or_chocolate['food'] }"
         }
 
-# TODO
-fileHandler:
-  type: localDirectory
-#   details:
-#     directory: /var/lib/ds-forms/uploads
-
-#   type: s3
-#   details:
-#     bucket: FORM_EXAMPLE_S3_BUCKET
-#     region: FORM_EXAMPLE_S3_REGION
-#     accessKeyId: FORM_EXAMPLE_S3_ACCESS_KEY_ID
-#     secretAccessKey: FORM_EXAMPLE_S3_SECRET_ACCESS_KEY
-
 pages:
   - id: neither_page
     name: Neither
@@ -114,16 +101,27 @@ pages:
         key: food
         value: pizza
     redirectWhenComplete:
-      - page: pizza_brand
+      - page: pizza_photo
 
-  - id: pizza_brand
-    name: Pizza brand
-    slug: pizza-brand
-    form: PizzaBrandForm
-    requireCompletionOf:
+  - id: pizza_photo
+    name: Pizza photo
+    slug: pizza-photo
+    form: PizzaPhotoForm
+    requires:
       - pizza_topping
     redirectWhenComplete:
       - page: address
+    fileHandler: # TODO
+      type: localDirectory
+    #   details:
+    #     directory: /var/lib/ds-forms/uploads
+
+    #   type: s3
+    #   details:
+    #     bucket: FORM_EXAMPLE_S3_BUCKET
+    #     region: FORM_EXAMPLE_S3_REGION
+    #     accessKeyId: FORM_EXAMPLE_S3_ACCESS_KEY_ID
+    #     secretAccessKey: FORM_EXAMPLE_S3_SECRET_ACCESS_KEY
 
   - id: type_of_chocolate
     name: Type of Chocolate
@@ -141,7 +139,7 @@ pages:
     slug: address
     description: We need this to deliver your pizza or chocolate.
     form: AddressForm
-    requireCompletionOfAny:
+    requiresAny:
       - pizza_topping
       - type_of_chocolate
     redirectIfNotComplete: pizza_or_chocolate
