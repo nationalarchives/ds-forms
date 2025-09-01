@@ -26,9 +26,11 @@ startingPage:
 # TODO
 finalPage:
   id: final_page
-  name: Final Page
+  name: Thank you
   slug: final-page
   description: This is the final page of the flow.
+  body: |
+    <p>Thank you for completing the form. We will be in touch shortly.</p>
   template: forms/final.html
   requires:
     - address

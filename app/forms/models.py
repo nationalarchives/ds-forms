@@ -134,6 +134,7 @@ class FormFlow:
         name: str,
         slug: str,
         description: str = "",
+        body: str = "",
         template: str = "",
         form: Optional[FlaskForm] = None,
         yaml_config: Optional[dict] = None,
@@ -147,6 +148,7 @@ class FormFlow:
             name=name,
             slug=slug,
             description=description,
+            body=body,
             template=template,
             form=form,
             yaml_config=yaml_config,
@@ -160,6 +162,7 @@ class FormFlow:
         name: str,
         slug: str = "/",
         description: str = "",
+        body: str = "",
         template: str = "",
         form: Optional[FlaskForm] = None,
         yaml_config: Optional[dict] = None,
@@ -172,6 +175,7 @@ class FormFlow:
             name=name,
             slug=slug,
             description=description,
+            body=body,
             template=template,
             form=form,
             yaml_config=yaml_config,
@@ -185,6 +189,7 @@ class FormFlow:
         name: str,
         slug: str = "/",
         description: str = "",
+        body: str = "",
         template: str = "",
         yaml_config: Optional[dict] = None,
     ):
@@ -196,6 +201,7 @@ class FormFlow:
             name=name,
             slug=slug,
             description=description,
+            body=body,
             template=template,
             form=None,
             yaml_config=yaml_config,
@@ -448,6 +454,7 @@ class FormPage:
         name: str,
         slug: str = "/",
         description: str = "",
+        body: str = "",
         template: str = "",
         form: Optional[FlaskForm] = None,
         yaml_config: Optional[dict] = None,
@@ -457,6 +464,7 @@ class FormPage:
         self.name: str = name
         self.slug: str = slug
         self.description: str = description
+        self.body: str = body
         self.template: str = template if template else "forms/form_page.html"
         self.requires_completion_of: list["FormPage"] = []
         self.requires_completion_of_any: list["FormPage"] = []
@@ -696,6 +704,7 @@ class FormPage:
             flow=self.flow,
             pageTitle=self.name,
             description=self.description,
+            body=self.body,
             page_path=self.get_page_path(),
             form_reset_path=url_for("forms.reset_form", form_slug=self.flow.slug),
             form=self.form,

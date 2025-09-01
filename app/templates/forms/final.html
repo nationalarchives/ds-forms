@@ -1,19 +1,22 @@
 {% extends 'base.html' %}
 
+{%- from 'components/panel/macro.html' import tnaPanel -%}
+
 {% block content %}
   <div class="tna-section">
     <div class="tna-container">
-      <div
-        class="tna-column tna-column--width-2-3 tna-column--width-5-6-medium tna-column--full-small tna-column--full-tiny">
+      <div class="tna-column tna-column--width-2-3 tna-column--width-5-6-medium tna-column--full-small tna-column--full-tiny">
+        {{ tnaPanel({
+          'title': pageTitle,
+          'text': body | safe
+        }) }}
+        <p>
+          <a href="{{ form_reset_path }}">Start again</a>
+        </p>
 
-        {% if form.errors %}
-          {{ tnaErrorSummary(wtforms_errors(form)) }}
-        {% endif %}
+        <hr class="tna-!--margin-top-l">
 
-        <h1 class="tna-heading-xl">{{ pageTitle }}</h1>
-
-        <p>Thank you</p>
-
+        <h2 class="tna-heading-l">Session data</h2>
         <dl class="tna-dl">
           {% for page in session %}
           <dt>{{ page }}</dt>
