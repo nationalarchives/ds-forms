@@ -1,5 +1,8 @@
 site_name: DS Forms Docs
 repo_url: https://github.com/nationalarchives/ds-forms
+theme:
+  name: material
+  font: false
 markdown_extensions:
   - pymdownx.superfences:
       custom_fences:
