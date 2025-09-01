@@ -145,6 +145,7 @@ class FormFlow:
         body: str = "",
         template: str = "",
         form: Optional[FlaskForm] = None,
+        form_data: Optional[dict] = None,
         yaml_config: Optional[dict] = None,
     ):
         """
@@ -159,6 +160,7 @@ class FormFlow:
             body=body,
             template=template,
             form=form,
+            form_data=form_data,
             yaml_config=yaml_config,
         )
         self.pages.update({id: new_page})
@@ -173,6 +175,7 @@ class FormFlow:
         body: str = "",
         template: str = "",
         form: Optional[FlaskForm] = None,
+        form_data: Optional[dict] = None,
         yaml_config: Optional[dict] = None,
     ):
         """
@@ -186,6 +189,7 @@ class FormFlow:
             body=body,
             template=template,
             form=form,
+            form_data=form_data,
             yaml_config=yaml_config,
         )
         self.starting_page_id = id
@@ -465,6 +469,7 @@ class FormPage:
         body: str = "",
         template: str = "",
         form: Optional[FlaskForm] = None,
+        form_data: Optional[dict] = None,
         yaml_config: Optional[dict] = None,
     ):
         self.flow: "FormFlow" = flow
@@ -486,6 +491,7 @@ class FormPage:
         self.clear_pages_on_completion: list["FormPage"] = []
         self.form: Optional[FlaskForm] = None
         self.form_class: Optional[FlaskForm] = form if form else None
+        self.form_data: Optional[dict] = form_data if form_data else {}
         self.yaml_config: Optional[dict] = yaml_config
 
     def __str__(self):
@@ -575,7 +581,11 @@ class FormPage:
         if self.form and not temporary_validation:
             return self.form.validate()
         elif self.form_class:
-            temp_form = self.form_class(data=self.get_saved_form_data())
+            temp_form = self.form_class(
+                data=self.get_saved_form_data(),
+                all_data=dict(session),  # TODO: Remove if possible to speed up
+                **self.form_data,  # TODO: Remove if possible to speed up
+            )
             temp_form._fields.pop("csrf_token", None)
             is_complete = temp_form.validate()
             # if temp_form.errors:
@@ -590,7 +600,11 @@ class FormPage:
         Start the flow by loading the form data and checking completion status.
         """
         if self.form_class and not self.form:
-            self.form = self.form_class(data=self.get_saved_form_data())
+            self.form = self.form_class(
+                data=self.get_saved_form_data(),
+                all_data=dict(session),
+                **self.form_data,
+            )
 
         for page in self.requires_completion_of:
             if not page.is_complete():
@@ -653,12 +667,13 @@ class FormPage:
         """
         return "foobar.jpg"  # Placeholder value
 
-    def validate_and_redirect(
+    def validate_and_redirect(  # noqa: C901
         self,
-    ) -> Response:  # noqa: C901  # TODO: Refactor this method
+    ) -> Response:
         """
         Validate the form data when the page is submitted and redirect based on completion status.
         """
+        # TODO: Refactor this method
         if request.method == "POST" and self.is_complete():
             form_data = self.form.data
             form_data.pop("csrf_token", None)
@@ -726,6 +741,7 @@ class FormPage:
             description=self.description,
             body=self.body,
             page_path=self.get_page_path(),
+            page_paths={p.id: p.get_page_path() for p in self.flow.get_all_pages()},
             form_reset_path=url_for("forms.reset_form", form_slug=self.flow.slug),
             form=self.form,
             has_complete_path=self.flow.has_complete_path(),

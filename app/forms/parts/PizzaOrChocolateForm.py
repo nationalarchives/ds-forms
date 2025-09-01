@@ -12,6 +12,7 @@ class PizzaOrChocolateForm(FlaskForm):
             ("chocolate", "Chocolate"),
             ("neither", "I don't like either"),
             ("no_food_just_cats", "Take me to see cats!"),
+            ("record", "Let me pick a record"),
         ],
         validators=[
             DataRequired(message="Select your favourite food"),

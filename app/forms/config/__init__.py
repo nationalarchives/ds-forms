@@ -57,6 +57,7 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
             if starting_page_config.get("form")
             else None
         ),
+        form_data=starting_page_config.get("formData", {}),
         yaml_config=starting_page_config,
     )
 
@@ -82,6 +83,7 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
                 if page.get("form")
                 else None
             ),
+            form_data=page.get("formData", {}),
             yaml_config=page,
         )
 

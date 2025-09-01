@@ -22,6 +22,10 @@ startingPage:
       when:
         key: food
         value: no_food_just_cats
+    - page: record_search
+      when:
+        key: food
+        value: record
 
 pages:
   - id: neither_page
@@ -76,6 +80,32 @@ pages:
     redirectWhenComplete:
       - page: final_page
 
+  - id: record_search
+    name: Search for a record
+    slug: record-search
+    description: Search for a record in our collection.
+    form: RecordSearchForm
+    requireResponse:
+      - page: pizza_or_chocolate
+        key: food
+        value: record
+    redirectWhenComplete:
+      - page: record_select
+
+  - id: record_select
+    name: Pick a record
+    slug: record-select
+    description: Select a record.
+    form: RecordPickerForm
+    template: forms/record_picker_form_page.html
+    formData:
+      search_form: record_search
+      search_key: search
+    requires:
+      - record_search
+    redirectWhenComplete:
+      - page: final_page
+
 # TODO
 finalPage:
   id: final_page
@@ -85,8 +115,9 @@ finalPage:
   body: |
     <p>Thank you for completing the form. We will be in touch shortly.</p>
   template: forms/final.html
-  requires:
+  requiresAny:
     - address
+    - record_select
   redirectIfNotComplete: pizza_or_chocolate
   resultHandler:
     # type: postgres
