@@ -4,10 +4,18 @@ from abc import ABC
 from collections.abc import Callable
 from typing import Optional, TypedDict
 
-from flask import current_app, redirect, render_template, request, session, url_for
+from flask import (
+    Response,
+    current_app,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
 from flask_wtf import FlaskForm
 from requests import codes, get, post
-from wtforms import FileField
+from wtforms import FileField, MultipleFileField
 
 
 class ResultHandler(ABC):
@@ -577,7 +585,7 @@ class FormPage:
             return is_complete
         return True
 
-    def serve(self):
+    def serve(self) -> Response:
         """
         Start the flow by loading the form data and checking completion status.
         """
@@ -639,7 +647,15 @@ class FormPage:
 
         return self.validate_and_redirect()
 
-    def validate_and_redirect(self):  # noqa: C901  # TODO: Refactor this method
+    def process_file(self, file_field: FileField | MultipleFileField) -> str:
+        """
+        Process file uploads if the form contains file fields.
+        """
+        return "foobar.jpg"  # Placeholder value
+
+    def validate_and_redirect(
+        self,
+    ) -> Response:  # noqa: C901  # TODO: Refactor this method
         """
         Validate the form data when the page is submitted and redirect based on completion status.
         """
@@ -647,10 +663,14 @@ class FormPage:
             form_data = self.form.data
             form_data.pop("csrf_token", None)
             for field in self.form.data:
-                if isinstance(self.form[field], FileField):
+                if isinstance(self.form[field], FileField) or isinstance(
+                    self.form[field], MultipleFileField
+                ):
                     # TODO: Handle file saving
                     print(f"Removing file field '{field}' from saved data")
                     form_data.pop(field, None)
+                    file = self.process_file(self.form[field])
+                    form_data[field] = file
             self.save_form_data(form_data)
 
         if self.flow.is_completion_handled() and self != self.flow.get_final_page():

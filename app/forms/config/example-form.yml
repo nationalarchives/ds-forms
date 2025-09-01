@@ -50,16 +50,8 @@ pages:
     redirectWhenComplete:
       - page: address
     fileHandler: # TODO
-      type: localDirectory
-    #   details:
-    #     directory: /var/lib/ds-forms/uploads
-
-    #   type: s3
-    #   details:
-    #     bucket: FORM_EXAMPLE_S3_BUCKET
-    #     region: FORM_EXAMPLE_S3_REGION
-    #     accessKeyId: FORM_EXAMPLE_S3_ACCESS_KEY_ID
-    #     secretAccessKey: FORM_EXAMPLE_S3_SECRET_ACCESS_KEY
+      sanitiseFilename: true
+      subdirectory: my-pizza-photo
 
   - id: type_of_chocolate
     name: Type of Chocolate
@@ -96,7 +88,6 @@ finalPage:
   requires:
     - address
   redirectIfNotComplete: pizza_or_chocolate
-
   resultHandler:
     # type: postgres
     # details:
@@ -147,3 +138,10 @@ finalPage:
         {
           "favourite_food": "{ pizza_or_chocolate['food'] }"
         }
+  fileHandler:
+    type: s3
+    details:
+      bucket: FORM_EXAMPLE_S3_BUCKET
+      region: FORM_EXAMPLE_S3_REGION
+      accessKeyId: FORM_EXAMPLE_S3_ACCESS_KEY_ID
+      secretAccessKey: FORM_EXAMPLE_S3_SECRET_ACCESS_KEY
