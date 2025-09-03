@@ -1,6 +1,3 @@
-import json
-import os
-from abc import ABC
 from collections.abc import Callable
 from typing import Optional, TypedDict
 
@@ -14,109 +11,14 @@ from flask import (
     url_for,
 )
 from flask_wtf import FlaskForm
-from requests import codes, get, post
 from wtforms import FileField, MultipleFileField
 
-
-class ResultHandler(ABC):
-    """
-    Base class for result handlers.
-    This class should be extended to implement specific result handling logic.
-    """
-
-    def send(self) -> bool:
-        raise NotImplementedError("Subclasses must implement the send method")
-
-
-class APIResultHandler(ResultHandler):
-    """
-    Handles the result of a form submission by sending it to an external API.
-    """
-
-    def __init__(self, url: str, method: str, headers: dict, params: dict):
-        self.url = url
-        self.method = method.upper()
-        self.headers = headers
-        self.params = params
-
-    def send(self, json_data: dict) -> bool:
-        try:
-            if self.method == "GET":
-                response = get(self.url, headers=self.headers, params=self.params)
-                return response.status_code == codes.ok
-            elif self.method == "POST":
-                response = post(
-                    self.url, json=json_data, headers=self.headers, params=self.params
-                )
-                return response.status_code == codes.ok
-            else:
-                raise ValueError(f"Unsupported HTTP method: {self.method}")
-        except Exception as e:
-            current_app.logger.error(f"APIResultHandler error: {e}")
-            return False
-
-
-class PostgresResultHandler(ResultHandler):
-    """
-    Handles the result of a form submission by saving it to a PostgreSQL database.
-    """
-
-    def __init__(
-        self,
-        host: str = "",
-        port: int = "",
-        database: str = "",
-        user: str = "",
-        password: str = "",
-    ):
-        self.host: str = host
-        self.port: int = port
-        self.database: str = database
-        self.user: str = user
-        self.password: str = password
-
-    def format_data(self, raw_data: dict) -> dict:
-        pass
-
-    def send(self, data: dict) -> bool:
-        pass
-
-
-class MongoDBResultHandler(ResultHandler):
-    """
-    Handles the result of a form submission by saving it to MongoDB.
-    """
-
-    def __init__(self, uri: str, database: str, collection: str):
-        self.uri: str = uri
-        self.database: str = database
-        self.collection: str = collection
-
-    def format_data(self, raw_data: dict) -> dict:
-        pass
-
-    def send(self, data: dict) -> bool:
-        pass
-
-
-class EmailResultHandler(ResultHandler):
-    """
-    Handles the result of a form submission by sending an email.
-    """
-
-    def __init__(
-        self, smtpServer: str, smtpPort: str, smtpUser: str, smtpPassword: str
-    ):
-        self.smtpServer: str = smtpServer
-        self.smtpPort: str = smtpPort
-        self.smtpUser: str = smtpUser
-        self.smtpPassword: str = smtpPassword
-
-    def format_data(self, raw_data: dict) -> dict:
-        pass
-
-    def send(self, to: str, subject: str) -> bool:
-        pass
+from .result_handlers import (
+    APIResultHandler,
+    EmailResultHandler,
+    MongoDBResultHandler,
+    PostgresResultHandler,
+)
 
 
 class FormFlow:
@@ -128,13 +30,12 @@ class FormFlow:
     def __init__(
         self,
         slug: str,
-        result_handler_config: Optional[dict] = None,
     ):
         self.slug = slug
-        self.result_handler_config: Optional[dict] = result_handler_config
         self.pages: dict[str:"FormPage"] = {}
         self.starting_page_id: str = ""
         self.final_page_id: str = ""
+        self.result_handler_config: Optional[dict] = None
 
     def create_page(
         self,
@@ -215,6 +116,7 @@ class FormFlow:
             yaml_config=yaml_config,
         )
         self.final_page_id = id
+        self.result_handler_config = yaml_config.get("resultHandler", {})
         return final_page
 
     def get_all_pages(self) -> list["FormPage"]:
@@ -363,6 +265,7 @@ class FormFlow:
 
     def handle_completion(self) -> bool:
         if self.is_completion_handled():
+            current_app.logger.debug("Completion logic has already been handled")
             return True
 
         current_app.logger.debug("!!! Flow is complete, handling completion logic")
@@ -375,61 +278,32 @@ class FormFlow:
 
         success = False
 
+        handler_classes = {
+            "email": EmailResultHandler,
+            "postgres": PostgresResultHandler,
+            "mongodb": MongoDBResultHandler,
+            "api": APIResultHandler,
+        }
         handler_type = self.result_handler_config.get("type", "")
-        if handler_type:
-            details = self.result_handler_config.get("details", {})
+        if handler_type not in handler_classes:
+            raise ValueError(f"Unsupported result handler type: {handler_type}")
 
-            if not details:
-                raise ValueError("Result handler details are not set for this flow")
+        details = self.result_handler_config.get("details", {})
+        if not details:
+            raise ValueError("Result handler details are not set for this flow")
 
-            if handler_type == "postgres":
-                # TODO: Save to a PostgreSQL database
-                handler = PostgresResultHandler(
-                    host=os.environ.get(details.get("host", ""), ""),
-                    port=os.environ.get(details.get("port", ""), ""),
-                    database=os.environ.get(details.get("database", ""), ""),
-                    user=os.environ.get(details.get("user", ""), ""),
-                    password=os.environ.get(details.get("password", ""), ""),
-                )
-                success = handler.send(data=self.get_data())  # TODO: Format data
-                pass
-            elif handler_type == "mongodb":
-                # TODO: Save to a MongoDB instance
-                handler = MongoDBResultHandler(
-                    uri=os.environ.get(details.get("uri", ""), ""),
-                    database=os.environ.get(details.get("database", ""), ""),
-                    collection=os.environ.get(details.get("collection", ""), ""),
-                )
-                success = handler.send(data=self.get_data())  # TODO: Format data
-            elif handler_type == "email":
-                # TODO: Send an email via an SMTP server
-                handler = EmailResultHandler(
-                    smtpServer=os.environ.get(details.get("smtpServer", ""), ""),
-                    smtpPort=os.environ.get(details.get("smtpPort", ""), ""),
-                    smtpUser=os.environ.get(details.get("smtpUser", ""), ""),
-                    smtpPassword=os.environ.get(details.get("smtpPassword", ""), ""),
-                )
-                success = handler.send(data=self.get_data())  # TODO: Format data
-                pass
-            elif handler_type == "api":
-                # TODO
-                handler = APIResultHandler(
-                    url=os.environ.get(details.get("url", ""), ""),
-                    method=details.get("method", "POST"),
-                    headers=details.get("headers", {}),  # TODO: Interpolate headers
-                    params=details.get("params", {}),
-                )
-                success = handler.send(
-                    json_data=json.parse(
-                        details.get("body", "").format(
-                            **self.get_data()
-                        )  # TODO: Format data
-                    )
-                )
+        try:
+            handler = handler_classes[handler_type](**details.get("init", {}))
+            handler.process(data=self.get_data(), **details.get("process", {}))
+            success = handler.send(**details.get("send", {}))
+        except Exception as e:
+            current_app.logger.error(f"Error handling form flow completion: {e}")
 
-        if success or True:  # TODO: REMOVE AFTER TESTING
+        if success:
             current_app.logger.debug("Form flow completion handled successfully")
-            session["completion_handled"] = True
+        else:
+            current_app.logger.error("Form flow completion handling failed")
+        # session["completion_handled"] = success
 
 
 class PageCompletionRule(TypedDict):
@@ -653,9 +527,9 @@ class FormPage:
         """
         return "foobar.jpg"  # Placeholder value
 
-    def validate_and_redirect(
+    def validate_and_redirect(  # noqa: C901
         self,
-    ) -> Response:  # noqa: C901  # TODO: Refactor this method
+    ) -> Response:  # TODO: Refactor this method
         """
         Validate the form data when the page is submitted and redirect based on completion status.
         """

@@ -15,6 +15,9 @@ services:
       - COOKIE_DOMAIN=localhost
       - CSP_STYLE_SRC='self',fonts.googleapis.com,p.typekit.net,use.typekit.net
       - CSP_FONT_SRC='self',fonts.gstatic.com,use.typekit.net
+      - EXAMPLE_FORM_EMAIL_SMTP_SERVER=foobar
+      - EXAMPLE_FORM_EMAIL_SMTP_USER=foobar
+      - EXAMPLE_FORM_EMAIL_SMTP_PASSWORD=foobar
     ports:
       - 65514:8080
     volumes:

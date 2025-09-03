@@ -1,0 +1,36 @@
+<h1>A new form has been submitted</h1>
+
+<p>The users favourite food is: {{ responses.pizza_or_chocolate.food }}</p>
+
+{% if responses.pizza_or_chocolate.food == 'pizza' %}
+  <p>The user likes {{ responses.pizza_topping.topping | lower }} pizza.</p>
+{% elif responses.pizza_or_chocolate.food == 'chocolate' %}
+  <p>The user prefers {{ responses.type_of_chocolate.chocolate_preference | lower }}.</p>
+{% endif %}
+
+<p>Their address is:</p>
+<address>
+  {{ responses.address.field.address_line_1 }}<br>
+
+  {% if responses.address.field.address_line_2 %}
+  {{ responses.address.field.address_line_2 }}<br>
+  {% endif %}
+
+  {{ responses.address.field.town_city }}<br>
+
+  {% if responses.address.field.county %}
+  {{ responses.address.field.county }}<br>
+  {% endif %}
+  
+  {{ responses.address.field.postcode }}
+</address>
+
+<h2>Responses</h2>
+<dl>
+  {% for response_page in responses %}
+  <dt>{{ response_page }}</dt>
+  <dd>
+  {{ responses[response_page] }}
+  </dd>
+  {% endfor %}
+</dl>

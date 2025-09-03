@@ -35,7 +35,6 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
 
     form_flow = FormFlow(
         slug=slug,
-        result_handler_config=config.get("resultHandler", {}),
     )
 
     starting_page_config = config.get("startingPage", {})

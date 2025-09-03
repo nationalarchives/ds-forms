@@ -76,7 +76,6 @@ pages:
     redirectWhenComplete:
       - page: final_page
 
-# TODO
 finalPage:
   id: final_page
   name: Thank you
@@ -88,14 +87,15 @@ finalPage:
   requires:
     - address
   redirectIfNotComplete: pizza_or_chocolate
+  # TODO: Allow multiple handlers
   resultHandler:
     # type: postgres
     # details:
-    #   host: FORM_EXAMPLE_POSTGRES_HOST
-    #   port: FORM_EXAMPLE_POSTGRES_PORT
-    #   database: FORM_EXAMPLE_POSTGRES_DB
-    #   user: FORM_EXAMPLE_POSTGRES_USER
-    #   password: FORM_EXAMPLE_POSTGRES_PASSWORD
+    #   host: EXAMPLE_FORM_POSTGRES_HOST
+    #   port: EXAMPLE_FORM_POSTGRES_PORT
+    #   database: EXAMPLE_FORM_POSTGRES_DB
+    #   user: EXAMPLE_FORM_POSTGRES_USER
+    #   password: EXAMPLE_FORM_POSTGRES_PASSWORD
     #   mapping:
     #     formId: form_id
     #     responses: responses
@@ -103,45 +103,45 @@ finalPage:
 
     # type: mongodb
     # details:
-    #   uri: FORM_EXAMPLE_MONGO_URI
-    #   database: FORM_EXAMPLE_MONGO_DB
-    #   collection: FORM_EXAMPLE_MONGO_COLLECTION
+    #   uri: EXAMPLE_FORM_MONGO_URI
+    #   database: EXAMPLE_FORM_MONGO_DB
+    #   collection: EXAMPLE_FORM_MONGO_COLLECTION
     #   mapping:
     #     formId: form_id
     #     responses: responses
     #     createdAt: created_at
 
-    # type: email
-    # details:
-    #   smtpServer: FORM_EXAMPLE_EMAIL_SMTP_SERVER
-    #   smtpPort: FORM_EXAMPLE_EMAIL_SMTP_PORT
-    #   smtpUser: FORM_EXAMPLE_EMAIL_SMTP_USER
-    #   smtpPassword: FORM_EXAMPLE_EMAIL_SMTP_PASSWORD
-    #   to: team@nationalarchives.gov.uk
-    #   subject: New Form Submission
-    #   from: noreply@nationalarchives.gov.uk
-    #   format: |
-    #     A new form has been submitted:
-    #     Form ID: {{ formId }}
-    #     Responses: {{ responses }}
-
-    type: api
+    type: email
     details:
-      url: FORM_EXAMPLE_API_URL
-      method: POST
-      headers:
-        Content-Type: application/json
-        Authorization: Bearer { FORM_EXAMPLE_API_BEARER_TOKEN }
-      params:
-        language: en
-      body: |
-        {
-          "favourite_food": "{ pizza_or_chocolate['food'] }"
-        }
+      init:
+        smtpServer: EXAMPLE_FORM_EMAIL_SMTP_SERVER
+        smtpPort: EXAMPLE_FORM_EMAIL_SMTP_PORT
+        smtpUser: EXAMPLE_FORM_EMAIL_SMTP_USER
+        smtpPassword: EXAMPLE_FORM_EMAIL_SMTP_PASSWORD
+      process:
+        template: outputs/email.jinja2
+      send:
+        to: team@nationalarchives.gov.uk
+        subject: New Form Submission
+        from: noreply@nationalarchives.gov.uk
+
+    # type: api
+    # details:
+    #   url: EXAMPLE_FORM_API_URL
+    #   method: POST
+    #   headers:
+    #     Content-Type: application/json
+    #     Authorization: Bearer { EXAMPLE_FORM_API_BEARER_TOKEN }
+    #   params:
+    #     language: en
+    #   body: |
+    #     {
+    #       "favourite_food": "{ pizza_or_chocolate['food'] }"
+    #     }
   fileHandler:
     type: s3
     details:
-      bucket: FORM_EXAMPLE_S3_BUCKET
-      region: FORM_EXAMPLE_S3_REGION
-      accessKeyId: FORM_EXAMPLE_S3_ACCESS_KEY_ID
-      secretAccessKey: FORM_EXAMPLE_S3_SECRET_ACCESS_KEY
+      bucket: EXAMPLE_FORM_S3_BUCKET
+      region: EXAMPLE_FORM_S3_REGION
+      accessKeyId: EXAMPLE_FORM_S3_ACCESS_KEY_ID
+      secretAccessKey: EXAMPLE_FORM_S3_SECRET_ACCESS_KEY
