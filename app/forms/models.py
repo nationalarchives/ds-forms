@@ -303,7 +303,7 @@ class FormFlow:
             current_app.logger.debug("Form flow completion handled successfully")
         else:
             current_app.logger.error("Form flow completion handling failed")
-        # session["completion_handled"] = success
+        session["completion_handled"] = success
 
 
 class PageCompletionRule(TypedDict):

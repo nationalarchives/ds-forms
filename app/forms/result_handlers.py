@@ -56,8 +56,6 @@ class EmailResultHandler(ResultHandler):
         if not to_email:
             raise ValueError("Recipient email address must be provided")
         # TODO: Implement actual email sending logic
-        print(f"Sending email to {to_email} from {from_email} with subject '{subject}'")
-        print(f"Email content:\n{self.content}")
         return True
 
 

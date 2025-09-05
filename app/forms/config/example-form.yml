@@ -119,7 +119,7 @@ finalPage:
         smtpUser: EXAMPLE_FORM_EMAIL_SMTP_USER
         smtpPassword: EXAMPLE_FORM_EMAIL_SMTP_PASSWORD
       process:
-        template: outputs/email.jinja2
+        template: outputs/example-email.jinja2
       send:
         to: team@nationalarchives.gov.uk
         subject: New Form Submission
