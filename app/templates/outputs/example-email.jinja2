@@ -10,19 +10,19 @@
 
 <p>Their address is:</p>
 <address>
-  {{ responses.address.field.address_line_1 }}<br>
+  {{ responses.address.address.address_line_1 }}<br>
 
-  {% if responses.address.field.address_line_2 %}
-  {{ responses.address.field.address_line_2 }}<br>
+  {% if responses.address.address.address_line_2 %}
+  {{ responses.address.address.address_line_2 }}<br>
   {% endif %}
 
-  {{ responses.address.field.town_city }}<br>
+  {{ responses.address.address.town_city }}<br>
 
-  {% if responses.address.field.county %}
-  {{ responses.address.field.county }}<br>
+  {% if responses.address.address.county %}
+  {{ responses.address.address.county }}<br>
   {% endif %}
   
-  {{ responses.address.field.postcode }}
+  {{ responses.address.address.postcode }}
 </address>
 
 <h2>Responses</h2>

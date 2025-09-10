@@ -12,4 +12,5 @@ class EmailForm(FlaskForm):
             Email(message="Enter a valid email address"),
         ],
         widget=TnaEmailInputWidget(),
+        render_kw={"size": "l", "autocomplete": "email"},
     )

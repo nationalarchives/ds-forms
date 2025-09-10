@@ -51,7 +51,7 @@ class AddressFormFields(FlaskForm):
 
 
 class AddressForm(FlaskForm):
-    field = FormField(
+    address = FormField(
         AddressFormFields,
         label="Enter your address",
         description="We need this to deliver your pizza or chocolate.",
