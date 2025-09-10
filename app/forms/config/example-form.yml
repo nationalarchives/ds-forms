@@ -74,6 +74,15 @@ pages:
       - type_of_chocolate
     redirectIfNotComplete: pizza_or_chocolate
     redirectWhenComplete:
+      - page: email
+
+  - id: email
+    name: Enter your email address
+    slug: email
+    form: EmailForm
+    requires:
+      - address
+    redirectWhenComplete:
       - page: final_page
 
 finalPage:
@@ -85,7 +94,7 @@ finalPage:
     <p>Thank you for completing the form. We will be in touch shortly.</p>
   template: forms/final.html
   requires:
-    - address
+    - email
   redirectIfNotComplete: pizza_or_chocolate
   # TODO: Allow multiple handlers
   resultHandler:
@@ -113,17 +122,18 @@ finalPage:
 
     type: email
     details:
-      init:
-        smtpServer: EXAMPLE_FORM_EMAIL_SMTP_SERVER
-        smtpPort: EXAMPLE_FORM_EMAIL_SMTP_PORT
-        smtpUser: EXAMPLE_FORM_EMAIL_SMTP_USER
-        smtpPassword: EXAMPLE_FORM_EMAIL_SMTP_PASSWORD
+      # init:
+      #   smtpServer: EXAMPLE_FORM_EMAIL_SMTP_SERVER
+      #   smtpPort: EXAMPLE_FORM_EMAIL_SMTP_PORT
+      #   smtpUser: EXAMPLE_FORM_EMAIL_SMTP_USER
+      #   smtpPassword: EXAMPLE_FORM_EMAIL_SMTP_PASSWORD
       process:
         template: outputs/example-email.jinja2
       send:
-        to: team@nationalarchives.gov.uk
+        from: Andrew.Hosgood@nationalarchives.gov.uk
+        # to: test@test.com
+        toVar: email.email_address
         subject: New Form Submission
-        from: noreply@nationalarchives.gov.uk
 
     # type: api
     # details:

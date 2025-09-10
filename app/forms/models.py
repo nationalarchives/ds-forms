@@ -12,6 +12,7 @@ from flask import (
 )
 from flask_wtf import FlaskForm
 from wtforms import FileField, MultipleFileField
+from wtforms.validators import InputRequired
 
 from .result_handlers import (
     APIResultHandler,
@@ -360,6 +361,18 @@ class FormPage:
         self.clear_pages_on_completion: list["FormPage"] = []
         self.form: Optional[FlaskForm] = None
         self.form_class: Optional[FlaskForm] = form if form else None
+        if self.form_class:
+            temp_form = self.form_class()
+            for field in temp_form:
+                if any(
+                    [
+                        isinstance(validator, InputRequired)
+                        for validator in field.validators
+                    ]
+                ):
+                    raise ValueError(
+                        f"Form field '{field.name}' in page '{self.id}' uses 'InputRequired' validator which is not allowed. Use 'DataRequired' instead."
+                    )
         self.yaml_config: Optional[dict] = yaml_config
 
     def __str__(self):

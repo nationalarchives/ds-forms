@@ -17,6 +17,7 @@ flask-wtf = "^1.2.2"
 email-validator = "^2.2.0"
 pyyaml = "^6.0.2"
 deepmerge = "^2.0"
+boto3 = "^1.40.27"
 
 [tool.poetry.group.dev]
 optional = true

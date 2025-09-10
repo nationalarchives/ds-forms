@@ -60,6 +60,11 @@ class Production(Features):
     CACHE_DIR: str = os.environ.get("CACHE_DIR", "/tmp")
     CACHE_REDIS_URL: str = os.environ.get("CACHE_REDIS_URL", "")
 
+    AWS_ACCESS_KEY_ID: str = os.environ.get("AWS_ACCESS_KEY_ID", "")
+    AWS_SECRET_ACCESS_KEY: str = os.environ.get("AWS_SECRET_ACCESS_KEY", "")
+    AWS_DEFAULT_REGION: str = os.environ.get("AWS_DEFAULT_REGION", "")
+    AWS_SESSION_TOKEN: str = os.environ.get("AWS_SESSION_TOKEN", "")
+
     GA4_ID: str = os.environ.get("GA4_ID", "")
 
 
