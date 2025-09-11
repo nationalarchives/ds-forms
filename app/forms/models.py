@@ -269,8 +269,6 @@ class FormFlow:
             current_app.logger.debug("Completion logic has already been handled")
             return True
 
-        current_app.logger.debug("!!! Flow is complete, handling completion logic")
-
         if not self.has_complete_path():
             current_app.logger.error(
                 "Flow does not have a complete path. Cannot handle completion"
@@ -618,5 +616,6 @@ class FormPage:
             has_complete_path=self.flow.has_complete_path(),
             earliest_incomplete_page=self.flow.get_earliest_incomplete_page(),
             handle_files="fileHandler" in self.yaml_config,
+            completion_handled=self.flow.is_completion_handled(),
             pages=self.flow.get_all_pages(),
         )
