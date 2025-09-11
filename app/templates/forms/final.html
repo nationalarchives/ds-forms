@@ -17,6 +17,15 @@
         {%- else %}
         <h1 class="tna-heading-xl">An error occured</h1>
         <p>Something went wrong.</p>
+        {%- if 'retry' in request.args %}
+        <p>
+          <a href="#">Contact us</a>
+        </p>
+        {%- else %}
+        <p>
+          <a href="{{ final_page.get_page_path() }}?retry">Try submitting again</a>
+        </p>
+        {%- endif %}
         {%- endif %}
 
         <hr class="tna-!--margin-top-l">
