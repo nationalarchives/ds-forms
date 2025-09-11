@@ -2,8 +2,9 @@ startingPage:
   id: pizza_or_chocolate
   name: Pizza or chocolate
   slug: pizza-or-chocolate
-  description: >
-    Do you prefer pizza or chocolate? This is a simple example form to demonstrate the structure.
+  content:
+    description: >
+      Do you prefer pizza or chocolate? This is a simple example form to demonstrate the structure.
   form: PizzaOrChocolateForm
   redirectWhenComplete:
     - page: pizza_topping
@@ -27,7 +28,8 @@ pages:
   - id: neither_page
     name: Neither
     slug: neither
-    description: You selected neither pizza nor chocolate.
+    content:
+      description: You selected neither pizza nor chocolate.
     template: forms/example/neither.html
 
   - id: pizza_topping
@@ -67,7 +69,8 @@ pages:
   - id: address
     name: Enter your address
     slug: address
-    description: We need this to deliver your pizza or chocolate.
+    content:
+      description: We need this to deliver your pizza or chocolate.
     form: AddressForm
     requiresAny:
       - pizza_topping
@@ -89,7 +92,8 @@ finalPage:
   id: final_page
   name: Thank you
   slug: final-page
-  description: This is the final page of the flow.
+  content:
+    description: This is the final page of the flow.
   body: |
     <p>Thank you for completing the form. We will be in touch shortly.</p>
   template: forms/final.html

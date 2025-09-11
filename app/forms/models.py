@@ -11,7 +11,7 @@ from flask import (
     url_for,
 )
 from flask_wtf import FlaskForm
-from wtforms import FileField, MultipleFileField
+from wtforms import FileField, FormField, MultipleFileField
 from wtforms.validators import InputRequired
 
 from .result_handlers import (
@@ -48,7 +48,7 @@ class FormFlow:
         id: str,
         name: str,
         slug: str,
-        description: str = "",
+        content: Optional[dict] = {},
         body: str = "",
         template: str = "",
         form: Optional[FlaskForm] = None,
@@ -62,7 +62,7 @@ class FormFlow:
             id=id,
             name=name,
             slug=slug,
-            description=description,
+            content=content,
             body=body,
             template=template,
             form=form,
@@ -76,7 +76,7 @@ class FormFlow:
         id: str,
         name: str,
         slug: str = "/",
-        description: str = "",
+        content: Optional[dict] = {},
         body: str = "",
         template: str = "",
         form: Optional[FlaskForm] = None,
@@ -89,7 +89,7 @@ class FormFlow:
             id=id,
             name=name,
             slug=slug,
-            description=description,
+            content=content,
             body=body,
             template=template,
             form=form,
@@ -103,7 +103,7 @@ class FormFlow:
         id: str,
         name: str,
         slug: str = "/",
-        description: str = "",
+        content: Optional[dict] = {},
         body: str = "",
         template: str = "",
         yaml_config: Optional[dict] = None,
@@ -115,7 +115,7 @@ class FormFlow:
             id=id,
             name=name,
             slug=slug,
-            description=description,
+            content=content,
             body=body,
             template=template,
             form=None,
@@ -335,7 +335,7 @@ class FormPage:
         id: str,
         name: str,
         slug: str = "/",
-        description: str = "",
+        content: Optional[dict] = {},
         body: str = "",
         template: str = "",
         form: Optional[FlaskForm] = None,
@@ -345,7 +345,7 @@ class FormPage:
         self.id: str = id
         self.name: str = name
         self.slug: str = slug
-        self.description: str = description
+        self.content: Optional[dict] = content
         self.body: str = body
         self.template: str = template if template else "forms/form_page.html"
         self.requires_completion_of: list["FormPage"] = []
@@ -370,8 +370,19 @@ class FormPage:
                     ]
                 ):
                     raise ValueError(
-                        f"Form field '{field.name}' in page '{self.id}' uses 'InputRequired' validator which is not allowed. Use 'DataRequired' instead."
+                        f"Field '{field.name}' in page '{self.id}' uses 'InputRequired' validator which is not allowed. Use 'DataRequired' instead."
                     )
+                if isinstance(field, FormField):
+                    for sub_field in field:
+                        if any(
+                            [
+                                isinstance(validator, InputRequired)
+                                for validator in sub_field.validators
+                            ]
+                        ):
+                            raise ValueError(
+                                f"Form sub-field '{sub_field.name}' in page '{self.id}' uses 'InputRequired' validator which is not allowed. Use 'DataRequired' instead."
+                            )
         self.yaml_config: Optional[dict] = yaml_config
 
     def __str__(self):
@@ -609,7 +620,7 @@ class FormPage:
             self.template,
             flow=self.flow,
             pageTitle=self.name,
-            description=self.description,
+            content=self.content,
             body=self.body,
             page_path=self.get_page_path(),
             form_reset_path=url_for("forms.reset_form", form_slug=self.flow.slug),

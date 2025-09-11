@@ -21,12 +21,19 @@
           {% endif %}
         {% endfor %}
 
-        {% if ns.field_count > 1 %}
+        {%- if ns.field_count > 1 %}
+        {%- if content.supertitle %}
+        <hgroup class="tna-hgroup-xl">
+          <p class="tna-hgroup__supertitle">{{ content.supertitle }}</p>
+          <h1 class="tna-hgroup__title">{{ pageTitle }}</h1>
+        </hgroup>
+        {%- else %}
         <h1 class="tna-heading-xl">{{ pageTitle }}</h1>
-        {%- if description %}
-        <p>{{ description }}</p>
         {%- endif %}
-        {% endif %}
+        {%- if content.description %}
+        <p>{{ content.description }}</p>
+        {%- endif %}
+        {%- endif %}
 
         <form action="{{ page_path }}" method="post" enctype="{{ 'multipart/form-data' if handle_files and ns.file_fields_present else 'application/x-www-form-urlencoded' }}" class="{{ 'tna-!--margin-top-m' if ns.field_count > 1 else '' }}" novalidate>
           {% for field in form %}
@@ -62,7 +69,7 @@
         <ul class="tna-ul">
           {% for page in pages %}
           <li>
-            <a href="{{ url_for('forms.page', form_slug=flow.slug, page_slug=page.slug) }}">{{ page.name }}</a>
+            <a href="{{ page.get_page_path() }}">{{ page.name }}</a>
             {% if page.is_complete(temporary_validation=True) %}
               (Complete)
             {% else %}

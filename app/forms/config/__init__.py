@@ -50,7 +50,7 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
         id=starting_page_id,
         name=starting_page_config.get("name", ""),
         slug=starting_page_config.get("slug", "/"),
-        description=starting_page_config.get("description", ""),
+        content=starting_page_config.get("content", ""),
         body=starting_page_config.get("body", ""),
         template=starting_page_config.get("template", ""),
         form=(
@@ -77,7 +77,7 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
             id=id,
             name=page.get("name", ""),
             slug=page.get("slug", ""),
-            description=page.get("description", ""),
+            content=page.get("content", ""),
             body=page.get("body", ""),
             template=page.get("template", ""),
             form=(
@@ -98,7 +98,7 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
         id=final_page_id,
         name=final_page_config.get("name", ""),
         slug=final_page_config.get("slug", "/"),
-        description=final_page_config.get("description", ""),
+        content=final_page_config.get("content", ""),
         body=final_page_config.get("body", ""),
         template=final_page_config.get("template", ""),
         yaml_config=final_page_config,

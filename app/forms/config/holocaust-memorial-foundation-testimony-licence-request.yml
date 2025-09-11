@@ -1,8 +1,9 @@
 startingPage:
   id: start
   name: Licensing requests for UK Holocaust Memorial Foundation testimonies
-  description: >
-    This is a work in progress form for licensing requests
+  content:
+    description: >
+      This is a work in progress form for licensing requests
   body: |
     <p>Please select one of the options below to proceed.</p>
   template: forms/holocaust/landing.html
@@ -11,7 +12,9 @@ pages:
   - id: your_details
     name: Your details
     slug: your-details
-    description: Tell us about you.
+    content:
+      supertitle: Page 1 of 3
+      description: Tell us about you.
     form: holocaust.YourDetailsForm
     redirectWhenComplete:
       - page: documents
@@ -19,6 +22,8 @@ pages:
   - id: documents
     name: Document
     slug: documents
+    content:
+      supertitle: Page 2 of 3
     form: holocaust.DocumentsForm
     requires:
       - your_details
@@ -28,6 +33,8 @@ pages:
   - id: usage
     name: Usage
     slug: usage
+    content:
+      supertitle: Page 3 of 3
     form: holocaust.UsageForm
     requires:
       - documents
@@ -38,7 +45,8 @@ finalPage:
   id: final_page
   name: Thank you
   slug: final-page
-  description: This is the final page of the flow.
+  content:
+    description: This is the final page of the flow.
   body: |
     <p>Thank you for completing the form. We will be in touch shortly.</p>
   template: forms/final.html
