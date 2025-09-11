@@ -1,4 +1,6 @@
+import hashlib
 import importlib
+import json
 import os.path
 from pathlib import Path
 
@@ -33,8 +35,13 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
         if expected_key not in config:
             raise ValueError(f"Configuration must contain '{expected_key}'")
 
+    config_hash = hashlib.sha256(
+        json.dumps(config, sort_keys=True).encode("utf-8")
+    ).hexdigest()
+
     form_flow = FormFlow(
         slug=slug,
+        config_hash=config_hash,
     )
 
     starting_page_config = config.get("startingPage", {})

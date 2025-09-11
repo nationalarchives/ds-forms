@@ -1,3 +1,5 @@
+import hashlib
+import json
 from collections.abc import Callable
 from typing import Optional, TypedDict
 
@@ -31,12 +33,19 @@ class FormFlow:
     def __init__(
         self,
         slug: str,
+        config_hash: Optional[str] = "",
     ):
         self.slug = slug
         self.pages: dict[str:"FormPage"] = {}
         self.starting_page_id: str = ""
         self.final_page_id: str = ""
         self.result_handler_config: Optional[dict] = None
+        print(f"Config hash: {config_hash}")
+        print(f"Session config hash: {session.get('config_hash', '')}")
+        if session.get("config_hash", "") != config_hash:
+            current_app.logger.warn("Form configuration has changed, resetting flow")
+            self.reset()
+            session["config_hash"] = config_hash
 
     def create_page(
         self,
@@ -251,12 +260,8 @@ class FormFlow:
         """
         Reset the flow by clearing all session data related to this flow.
         """
-        current_app.logger.debug(f"Resetting form flow '{self.slug}'")
-        for page in self.get_all_pages():
-            if page.id in session:
-                current_app.logger.debug(f"Clearing session data for page: {page.id}")
-                session.pop(page.id, None)
-        session["completion_handled"] = False
+        current_app.logger.debug(f"Resetting form flow for '{self.slug}'")
+        session.clear()
 
     def is_completion_handled(self) -> bool:
         """
