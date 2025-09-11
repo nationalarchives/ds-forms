@@ -1,0 +1,56 @@
+startingPage:
+  id: start
+  name: Licensing requests for UK Holocaust Memorial Foundation testimonies
+  description: >
+    This is a work in progress form for licensing requests
+  body: |
+    <p>Please select one of the options below to proceed.</p>
+  template: forms/holocaust/landing.html
+
+pages:
+  - id: your_details
+    name: Your details
+    slug: your-details
+    description: Tell us about you.
+    form: holocaust.YourDetailsForm
+    redirectWhenComplete:
+      - page: documents
+
+  - id: documents
+    name: Document
+    slug: documents
+    form: holocaust.DocumentsForm
+    requires:
+      - your_details
+    redirectWhenComplete:
+      - page: usage
+
+  - id: usage
+    name: Usage
+    slug: usage
+    form: holocaust.UsageForm
+    requires:
+      - documents
+    redirectWhenComplete:
+      - page: final_page
+
+finalPage:
+  id: final_page
+  name: Thank you
+  slug: final-page
+  description: This is the final page of the flow.
+  body: |
+    <p>Thank you for completing the form. We will be in touch shortly.</p>
+  template: forms/final.html
+  requires:
+    - usage
+  redirectIfNotComplete: landing
+  resultHandler:
+    type: email
+    details:
+      process:
+        template: outputs/example-email.jinja2
+      send:
+        from: Andrew.Hosgood@nationalarchives.gov.uk
+        toVar: your_details.email_address
+        subject: New Form Submission

@@ -83,7 +83,7 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
             form=(
                 getattr(
                     importlib.import_module(f"app.forms.parts.{page.get('form')}"),
-                    page.get("form"),
+                    page.get("form").split(".")[-1],
                 )
                 if page.get("form")
                 else None

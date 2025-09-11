@@ -619,5 +619,6 @@ class FormPage:
             handle_files="fileHandler" in self.yaml_config,
             completion_handled=self.flow.is_completion_handled(),
             pages=self.flow.get_all_pages(),
+            get_page_by_id=self.flow.get_page_by_id,
             final_page=self.flow.get_final_page(),
         )
