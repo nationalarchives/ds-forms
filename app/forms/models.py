@@ -40,8 +40,6 @@ class FormFlow:
         self.starting_page_id: str = ""
         self.final_page_id: str = ""
         self.result_handler_config: Optional[dict] = None
-        print(f"Config hash: {config_hash}")
-        print(f"Session config hash: {session.get('config_hash', '')}")
         if session.get("config_hash", "") != config_hash:
             current_app.logger.warn("Form configuration has changed, resetting flow")
             self.reset()
@@ -623,4 +621,5 @@ class FormPage:
             handle_files="fileHandler" in self.yaml_config,
             completion_handled=self.flow.is_completion_handled(),
             pages=self.flow.get_all_pages(),
+            final_page=self.flow.get_final_page(),
         )
