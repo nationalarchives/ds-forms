@@ -19,6 +19,16 @@ class YourDetailsForm(FlaskForm):
         render_kw={"autocomplete": "name"},
     )
 
+    email_address = EmailField(
+        "Enter your email address",
+        validators=[
+            DataRequired(message="Enter an email address"),
+            Email(message="Enter a valid email address"),
+        ],
+        widget=TnaEmailInputWidget(),
+        render_kw={"autocomplete": "email"},
+    )
+
     address = FormField(
         AddressFormFields,
         label="Enter your address",
@@ -32,14 +42,4 @@ class YourDetailsForm(FlaskForm):
         ],
         widget=TnaTextInputWidget(),
         render_kw={"autocomplete": "organization"},
-    )
-
-    email_address = EmailField(
-        "Enter your email address",
-        validators=[
-            DataRequired(message="Enter an email address"),
-            Email(message="Enter a valid email address"),
-        ],
-        widget=TnaEmailInputWidget(),
-        render_kw={"autocomplete": "email"},
     )

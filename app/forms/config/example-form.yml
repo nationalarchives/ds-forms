@@ -101,57 +101,57 @@ finalPage:
     - email
   redirectIfNotComplete: pizza_or_chocolate
   # TODO: Allow multiple handlers
-  resultHandler:
-    # type: postgres
-    # details:
-    #   host: EXAMPLE_FORM_POSTGRES_HOST
-    #   port: EXAMPLE_FORM_POSTGRES_PORT
-    #   database: EXAMPLE_FORM_POSTGRES_DB
-    #   user: EXAMPLE_FORM_POSTGRES_USER
-    #   password: EXAMPLE_FORM_POSTGRES_PASSWORD
-    #   mapping:
-    #     formId: form_id
-    #     responses: responses
-    #     createdAt: created_at
+  resultHandlers:
+    # - type: postgres
+    #   details:
+    #     host: EXAMPLE_FORM_POSTGRES_HOST
+    #     port: EXAMPLE_FORM_POSTGRES_PORT
+    #     database: EXAMPLE_FORM_POSTGRES_DB
+    #     user: EXAMPLE_FORM_POSTGRES_USER
+    #     password: EXAMPLE_FORM_POSTGRES_PASSWORD
+    #     mapping:
+    #       formId: form_id
+    #       responses: responses
+    #       createdAt: created_at
 
-    # type: mongodb
-    # details:
-    #   uri: EXAMPLE_FORM_MONGO_URI
-    #   database: EXAMPLE_FORM_MONGO_DB
-    #   collection: EXAMPLE_FORM_MONGO_COLLECTION
-    #   mapping:
-    #     formId: form_id
-    #     responses: responses
-    #     createdAt: created_at
+    # - type: mongodb
+    #   details:
+    #     uri: EXAMPLE_FORM_MONGO_URI
+    #     database: EXAMPLE_FORM_MONGO_DB
+    #     collection: EXAMPLE_FORM_MONGO_COLLECTION
+    #     mapping:
+    #       formId: form_id
+    #       responses: responses
+    #       createdAt: created_at
 
-    type: email
-    details:
-      # init:
-      #   smtpServer: EXAMPLE_FORM_EMAIL_SMTP_SERVER
-      #   smtpPort: EXAMPLE_FORM_EMAIL_SMTP_PORT
-      #   smtpUser: EXAMPLE_FORM_EMAIL_SMTP_USER
-      #   smtpPassword: EXAMPLE_FORM_EMAIL_SMTP_PASSWORD
-      process:
-        template: outputs/example-email.jinja2
-      send:
-        from: Andrew.Hosgood@nationalarchives.gov.uk
-        # to: test@test.com
-        toVar: email.email_address
-        subject: New Form Submission
+    - type: email
+      details:
+        # init:
+        #   smtpServer: EXAMPLE_FORM_EMAIL_SMTP_SERVER
+        #   smtpPort: EXAMPLE_FORM_EMAIL_SMTP_PORT
+        #   smtpUser: EXAMPLE_FORM_EMAIL_SMTP_USER
+        #   smtpPassword: EXAMPLE_FORM_EMAIL_SMTP_PASSWORD
+        process:
+          template: outputs/example-email.jinja2
+        send:
+          from: Andrew.Hosgood@nationalarchives.gov.uk
+          # to: test@test.com
+          toVar: email.email_address
+          subject: New Form Submission
 
-    # type: api
-    # details:
-    #   url: EXAMPLE_FORM_API_URL
-    #   method: POST
-    #   headers:
-    #     Content-Type: application/json
-    #     Authorization: Bearer { EXAMPLE_FORM_API_BEARER_TOKEN }
-    #   params:
-    #     language: en
-    #   body: |
-    #     {
-    #       "favourite_food": "{ pizza_or_chocolate['food'] }"
-    #     }
+    # - type: api
+    #   details:
+    #     url: EXAMPLE_FORM_API_URL
+    #     method: POST
+    #     headers:
+    #       Content-Type: application/json
+    #       Authorization: Bearer { EXAMPLE_FORM_API_BEARER_TOKEN }
+    #     params:
+    #       language: en
+    #     body: |
+    #       {
+    #         "favourite_food": "{ pizza_or_chocolate['food'] }"
+    #       }
   fileHandler:
     type: s3
     details:

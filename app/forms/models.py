@@ -37,7 +37,7 @@ class FormFlow:
         self.pages: dict[str:"FormPage"] = {}
         self.starting_page_id: str = ""
         self.final_page_id: str = ""
-        self.result_handler_config: Optional[dict] = None
+        self.result_handlers_config: Optional[list[dict]] = None
         if session.get("config_hash", "") != config_hash:
             current_app.logger.warn("Form configuration has changed, resetting flow")
             self.reset()
@@ -122,7 +122,7 @@ class FormFlow:
             yaml_config=yaml_config,
         )
         self.final_page_id = id
-        self.result_handler_config = yaml_config.get("resultHandler", {})
+        self.result_handlers_config = yaml_config.get("resultHandlers", {})
         return final_page
 
     def get_all_pages(self) -> list["FormPage"]:
@@ -186,19 +186,20 @@ class FormFlow:
         """
         Check if all pages in the flow are complete.
         """
-        earliest_incomplete_page = self.get_earliest_incomplete_page()
-        current_app.logger.debug(
-            f"earliest_incomplete_page: {earliest_incomplete_page}"
-        )
-        return earliest_incomplete_page is None
+        return self.get_earliest_incomplete_page() is None
 
     def get_earliest_incomplete_page(self) -> Optional["FormPage"]:  # noqa: C901
         """
         Working backwards through the flow, find a required page that is not complete.
         """
+        if hasattr(self, "earliest_incomplete_page"):
+            current_app.logger.debug(
+                f"Using cached earliest_incomplete_page '{self.earliest_incomplete_page}'"
+            )
+            return self.earliest_incomplete_page
 
         def deep_completion_check(page: "FormPage") -> Optional["FormPage"]:
-            current_app.logger.debug(f"=== Deep completion check for '{page.id}' ===")
+            current_app.logger.debug(f"Deep completion check for '{page.id}'")
             if not page.is_complete(temporary_validation=True):
                 current_app.logger.debug(f"Page '{page.id}' is not complete")
                 return page
@@ -244,6 +245,7 @@ class FormFlow:
         final_page = self.get_final_page()
         failed_page = deep_completion_check(final_page)
         if failed_page is not None:
+            self.earliest_incomplete_page = failed_page
             return failed_page
 
         return None
@@ -276,7 +278,7 @@ class FormFlow:
             )
             raise Exception("Flow does not have a complete path")
 
-        success = False
+        success = True
 
         handler_classes = {
             "email": EmailResultHandler,
@@ -284,20 +286,28 @@ class FormFlow:
             "mongodb": MongoDBResultHandler,
             "api": APIResultHandler,
         }
-        handler_type = self.result_handler_config.get("type", "")
-        if handler_type not in handler_classes:
-            raise ValueError(f"Unsupported result handler type: {handler_type}")
+        for result_handler in self.result_handlers_config:
+            current_app.logger.debug(f"Processing result handler: {result_handler}")
+            handler_type = result_handler.get("type", "")
+            if handler_type not in handler_classes:
+                raise ValueError(f"Unsupported result handler type: {handler_type}")
 
-        details = self.result_handler_config.get("details", {})
-        if not details:
-            raise ValueError("Result handler details are not set for this flow")
+            details = result_handler.get("details", {})
+            if not details:
+                raise ValueError("Result handler details are not set for this flow")
 
-        try:
-            handler = handler_classes[handler_type](**details.get("init", {}))
-            handler.process(data=self.get_data(), **details.get("process", {}))
-            success = handler.send(**details.get("send", {}))
-        except Exception as e:
-            current_app.logger.error(f"Error handling form flow completion: {e}")
+            try:
+                handler = handler_classes[handler_type](**details.get("init", {}))
+                handler.process(data=self.get_data(), **details.get("process", {}))
+                handler_success = handler.send(**details.get("send", {}))
+                if not handler_success:
+                    current_app.logger.error(
+                        f"Result handler '{handler_type}' failed to send"
+                    )
+                    success = False
+            except Exception as e:
+                current_app.logger.error(f"Error handling form flow completion: {e}")
+                success = False
 
         if success:
             current_app.logger.debug("Form flow completion handled successfully")
@@ -475,10 +485,6 @@ class FormPage:
             temp_form = self.form_class(data=self.get_saved_form_data())
             temp_form._fields.pop("csrf_token", None)
             is_complete = temp_form.validate()
-            # if temp_form.errors:
-            #     current_app.logger.warning(
-            #         f"Form '{self.id}' has errors: {temp_form.errors}"
-            #     )
             return is_complete
         return True
 

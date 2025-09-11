@@ -41,6 +41,16 @@ pages:
     redirectWhenComplete:
       - page: final_page
 
+  - id: confirmation
+    name: Confirmation
+    slug: confirmation
+    template: forms/holocaust/confirmation.html
+    form: holocaust.ConfirmationForm
+    requires:
+      - usage
+    redirectWhenComplete:
+      - page: final_page
+
 finalPage:
   id: final_page
   name: Thank you
@@ -51,14 +61,22 @@ finalPage:
     <p>Thank you for completing the form. We will be in touch shortly.</p>
   template: forms/final.html
   requires:
-    - usage
+    - confirmation
   redirectIfNotComplete: landing
-  resultHandler:
-    type: email
-    details:
-      process:
-        template: outputs/example-email.jinja2
-      send:
-        from: Andrew.Hosgood@nationalarchives.gov.uk
-        toVar: your_details.email_address
-        subject: New Form Submission
+  resultHandlers:
+    - type: email
+      details:
+        # process:
+        #   template: outputs/example-email.jinja2
+        send:
+          from: systems.development@nationalarchives.gov.uk
+          to: Andrew.Hosgood@nationalarchives.gov.uk
+          subject: New Form Submission (original)
+    - type: email
+      details:
+        # process:
+        #   template: outputs/example-email.jinja2
+        send:
+          from: systems.development@nationalarchives.gov.uk
+          toVar: your_details.email_address
+          subject: New Form Submission (acknowledgement)

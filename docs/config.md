@@ -26,7 +26,7 @@ A `startingPage`, `finalPage` and a page in `pages` share these fields:
 
 ### Final page
 
-The final page has a `resultHandler` property.
+The final page has a `resultHandlers` property.
 
 === TODO ===
 
