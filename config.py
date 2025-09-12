@@ -2,6 +2,7 @@ import json
 import os
 
 from app.lib.util import strtobool
+from redis import Redis
 
 
 class Features:
@@ -54,11 +55,10 @@ class Production(Features):
     FORCE_HTTPS: bool = strtobool(os.getenv("FORCE_HTTPS", "True"))
     PREFERRED_URL_SCHEME: str = os.getenv("PREFERRED_URL_SCHEME", "https")
 
-    CACHE_TYPE: str = "FileSystemCache"
-    CACHE_DEFAULT_TIMEOUT: int = int(os.environ.get("CACHE_DEFAULT_TIMEOUT", "900"))
-    CACHE_IGNORE_ERRORS: bool = True
-    CACHE_DIR: str = os.environ.get("CACHE_DIR", "/tmp")
-    CACHE_REDIS_URL: str = os.environ.get("CACHE_REDIS_URL", "")
+    REDIS_URL: str = os.environ.get("REDIS_URL", "")
+    if REDIS_URL:
+        SESSION_TYPE: str = "redis"
+        SESSION_REDIS = Redis.from_url(REDIS_URL)
 
     AWS_ACCESS_KEY_ID: str = os.environ.get("AWS_ACCESS_KEY_ID", "")
     AWS_SECRET_ACCESS_KEY: str = os.environ.get("AWS_SECRET_ACCESS_KEY", "")
@@ -69,11 +69,11 @@ class Production(Features):
 
 
 class Staging(Production):
-    CACHE_DEFAULT_TIMEOUT: int = int(os.environ.get("CACHE_DEFAULT_TIMEOUT", "60"))
+    pass
 
 
 class Develop(Production):
-    CACHE_DEFAULT_TIMEOUT: int = int(os.environ.get("CACHE_DEFAULT_TIMEOUT", "1"))
+    pass
 
 
 class Test(Production):
@@ -83,9 +83,6 @@ class Test(Production):
     DEBUG: bool = True
     TESTING: bool = True
     EXPLAIN_TEMPLATE_LOADING: bool = True
-
-    CACHE_TYPE: str = "SimpleCache"
-    CACHE_DEFAULT_TIMEOUT: int = 1
 
     FORCE_HTTPS: bool = False
     PREFERRED_URL_SCHEME: str = "http"

@@ -1,10 +1,11 @@
 import logging
 
-from app.lib.cache import cache
-from app.lib.context_processor import cookie_preference, now_iso_8601
+from app.lib.context_processor import cookie_preference, now_iso_8601, now_timestamp
+from app.lib.limiter import limiter
 from app.lib.talisman import talisman
 from app.lib.template_filters import slugify
-from flask import Flask
+from flask import Flask, render_template
+from flask_session import Session
 from jinja2 import ChoiceLoader, PackageLoader
 from tna_frontend_jinja.wtforms.helpers import WTFormsHelpers
 
@@ -16,17 +17,6 @@ def create_app(config_class):
     gunicorn_error_logger = logging.getLogger("gunicorn.error")
     app.logger.handlers.extend(gunicorn_error_logger.handlers)
     app.logger.setLevel(gunicorn_error_logger.level or "DEBUG")
-
-    cache.init_app(
-        app,
-        config={
-            "CACHE_TYPE": app.config.get("CACHE_TYPE"),
-            "CACHE_DEFAULT_TIMEOUT": app.config.get("CACHE_DEFAULT_TIMEOUT"),
-            "CACHE_IGNORE_ERRORS": app.config.get("CACHE_IGNORE_ERRORS"),
-            "CACHE_DIR": app.config.get("CACHE_DIR"),
-            "CACHE_REDIS_URL": app.config.get("CACHE_REDIS_URL"),
-        },
-    )
 
     csp_self = "'self'"
     csp_none = "'none'"
@@ -55,6 +45,12 @@ def create_app(config_class):
         force_https=app.config["FORCE_HTTPS"],
     )
 
+    limiter.init_app(app)
+
+    @app.errorhandler(429)
+    def ratelimit_handler(e):
+        return render_template("errors/rate.html"), 429
+
     @app.after_request
     def apply_extra_headers(response):
         if "X-Permitted-Cross-Domain-Policies" not in response.headers:
@@ -78,6 +74,9 @@ def create_app(config_class):
 
     WTFormsHelpers(app)
 
+    if app.config.get("SESSION_TYPE") and app.config.get("SESSION_REDIS"):
+        Session(app)
+
     app.add_template_filter(slugify)
 
     @app.context_processor
@@ -85,6 +84,7 @@ def create_app(config_class):
         return dict(
             cookie_preference=cookie_preference,
             now_iso_8601=now_iso_8601,
+            now_timestamp=now_timestamp,
             app_config={
                 "ENVIRONMENT_NAME": app.config.get("ENVIRONMENT_NAME"),
                 "CONTAINER_IMAGE": app.config.get("CONTAINER_IMAGE"),

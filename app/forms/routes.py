@@ -1,5 +1,6 @@
 from app.forms import bp
 from app.forms.config import form_flow_from_config, load_config
+from app.lib.limiter import limiter
 from flask import current_app, redirect, render_template, request
 
 
@@ -31,6 +32,7 @@ def start_page(form_slug):
 
 
 @bp.route("/<string:form_slug>/reset/")
+@limiter.exempt
 def reset_form(form_slug):
     try:
         form_flow = get_form_flow(form_slug)
