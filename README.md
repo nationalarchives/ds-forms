@@ -54,10 +54,11 @@ In addition to the [base Docker image variables](https://github.com/nationalarch
 | `FORCE_HTTPS`                    | Redirect requests to HTTPS as part of the CSP                                | _none_              |
 | `GA4_ID`                         | The Google Analytics 4 ID                                                    | _none_              |
 | `REDIS_URL`                      | A URL to a Redis instance, used by rate limiting and session storage         | _none_              |
-| `RATELIMIT_DEFAULT`              | The default rate limiting amount                                             | _none_              |
+| `RATELIMIT_DEFAULT`              | The default rate limiting amount[^2]                                         | _none_              |
 | `AWS_ACCESS_KEY_ID`              | The access key ID (used to send emails with SES and store files with S3)     | _none_              |
 | `AWS_SECRET_ACCESS_KEY`          | The secret access key (used to send emails with SES and store files with S3) | _none_              |
 | `AWS_SESSION_TOKEN`              | The AWS session token (used to send emails with SES and store files with S3) | _none_              |
 | `AWS_DEFAULT_REGION`             | The default AWS region                                                       | _none_              |
 
 [^1] [Debugging in Flask](https://flask.palletsprojects.com/en/2.3.x/debugging/)
+[^2] [Rate limit notation](https://limits.readthedocs.io/en/stable/quickstart.html#rate-limit-string-notation)
