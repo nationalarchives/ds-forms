@@ -41,7 +41,9 @@ class Production(Features):
     CSP_FONT_SRC: list[str] = os.environ.get("CSP_FONT_SRC", "'self'").split(",")
     CSP_CONNECT_SRC: list[str] = os.environ.get("CSP_CONNECT_SRC", "'self'").split(",")
     CSP_MEDIA_SRC: list[str] = os.environ.get("CSP_MEDIA_SRC", "'self'").split(",")
-    CSP_WORKER_SRC: list[str] = os.environ.get("CSP_WORKER_SRC", "'self'").split(",")
+    CSP_WORKER_SRC: list[str] = os.environ.get("CSP_WORKER_SRC", "'self',blob:,").split(
+        ","
+    )
     CSP_FRAME_SRC: list[str] = os.environ.get("CSP_FRAME_SRC", "'self'").split(",")
     CSP_FRAME_ANCESTORS: list[str] = os.environ.get(
         "CSP_FRAME_ANCESTORS", "'self'"
@@ -59,6 +61,8 @@ class Production(Features):
     if REDIS_URL:
         SESSION_TYPE: str = "redis"
         SESSION_REDIS = Redis.from_url(REDIS_URL)
+
+    ALTCHA_HMAC_KEY: str = os.getenv("ALTCHA_HMAC_KEY", "")
 
     AWS_ACCESS_KEY_ID: str = os.environ.get("AWS_ACCESS_KEY_ID", "")
     AWS_SECRET_ACCESS_KEY: str = os.environ.get("AWS_SECRET_ACCESS_KEY", "")

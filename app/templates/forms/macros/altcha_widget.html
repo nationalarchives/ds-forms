@@ -1,0 +1,25 @@
+{%- from 'utilities/forms/form-item.html' import tnaFormItem -%}
+
+{% macro altcha_widget(altcha_verified) %}
+  <!-- TODO: Honeypot -->
+  <!-- <input type="text" name="password" value="" class="tna-visually-hidden" autocomplete="off" tabindex="-1" aria-hidden="true"> -->
+  {%- call tnaFormItem({
+    'headingLevel': 2,
+    'headingSize': 's',
+    'id': 'altcha-wrapper',
+    'label': 'Confirm you are human',
+    'error': None if altcha_verified else {
+      'text': 'Check the box to confirm that you are human'
+    },
+    'attributes': {
+      'id': 'altcha'
+    }
+  }) %}
+    <altcha-widget
+      challengeurl="{{ url_for('altcha.get_altcha') }}"
+      style="--altcha-color-border:{{ 'var(--input-border,rgb(1,1,1))' if altcha_verified else 'var(--form-error-border,#c20000)' }};--altcha-border-width:2px;--altcha-border-radius:4px;--altcha-color-error-text:var(--form-error-text,#c20000)"
+      strings="{&quot;label&quot;:&quot;I am not a robot&quot;}"
+      hidelogo
+    ></altcha-widget>
+  {%- endcall %}
+{% endmacro %}

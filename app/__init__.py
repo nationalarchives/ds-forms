@@ -5,6 +5,7 @@ from app.lib.limiter import limiter
 from app.lib.talisman import talisman
 from app.lib.template_filters import slugify
 from flask import Flask, render_template
+from flask_cors import CORS
 from flask_session import Session
 from jinja2 import ChoiceLoader, PackageLoader
 from tna_frontend_jinja.wtforms.helpers import WTFormsHelpers
@@ -63,6 +64,8 @@ def create_app(config_class):
             response.headers["Cross-Origin-Resource-Policy"] = "same-origin"
         return response
 
+    CORS(app)
+
     app.jinja_env.trim_blocks = True
     app.jinja_env.lstrip_blocks = True
     app.jinja_loader = ChoiceLoader(
@@ -96,12 +99,14 @@ def create_app(config_class):
             feature={},
         )
 
+    from .altcha import bp as altcha_bp
     from .forms import bp as forms_bp
     from .healthcheck import bp as healthcheck_bp
     from .main import bp as site_bp
 
     app.register_blueprint(site_bp)
     app.register_blueprint(healthcheck_bp, url_prefix="/healthcheck")
+    app.register_blueprint(altcha_bp, url_prefix="/altcha")
     app.register_blueprint(forms_bp)
 
     return app

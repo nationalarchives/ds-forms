@@ -1,0 +1,16 @@
+{%- from 'components/error-summary/macro.html' import tnaErrorSummary -%}
+
+{% macro form_error_summary(form, altcha, altcha_verified) %}
+  {%- if form.errors or (altcha and not altcha_verified) %}
+    {% set error_summary_content = wtforms_errors(form, params={'headingLevel': 2, 'classes': 'tna-!--margin-bottom-m'}) %}
+    {% if not altcha_verified %}
+      {% set error_summary_content = dict(error_summary_content, **{
+        'items': error_summary_content['items'] + [{
+          'text': 'Check the box to confirm that you are human',
+          'href': '#altcha'
+        }]
+      }) %}
+    {% endif %}
+    {{ tnaErrorSummary(error_summary_content) }}
+  {%- endif %}
+{% endmacro %}

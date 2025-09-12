@@ -4,8 +4,8 @@ startingPage:
   content:
     description: >
       This is a work in progress form for licensing requests
-  body: |
-    <p>Please select one of the options below to proceed.</p>
+    body: |
+      <p>Please select one of the options below to proceed.</p>
   template: forms/holocaust/landing.html
 
 pages:
@@ -37,6 +37,7 @@ pages:
       supertitle: Page 3 of 3
     form: holocaust.UsageForm
     requires:
+      - your_details
       - documents
     redirectWhenComplete:
       - page: final_page
@@ -46,7 +47,10 @@ pages:
     slug: confirmation
     template: forms/holocaust/confirmation.html
     form: holocaust.ConfirmationForm
+    altcha: true
     requires:
+      - your_details
+      - documents
       - usage
     redirectWhenComplete:
       - page: final_page
@@ -57,10 +61,13 @@ finalPage:
   slug: final-page
   content:
     description: This is the final page of the flow.
-  body: |
-    <p>Thank you for completing the form. We will be in touch shortly.</p>
+    body: |
+      <p>Thank you for completing the form. We will be in touch shortly.</p>
   template: forms/final.html
   requires:
+    - your_details
+    - documents
+    - usage
     - confirmation
   redirectIfNotComplete: landing
   resultHandlers:

@@ -51,7 +51,6 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
         name=starting_page_config.get("name", ""),
         slug=starting_page_config.get("slug", "/"),
         content=starting_page_config.get("content", ""),
-        body=starting_page_config.get("body", ""),
         template=starting_page_config.get("template", ""),
         form=(
             getattr(
@@ -63,6 +62,7 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
             if starting_page_config.get("form")
             else None
         ),
+        altcha=starting_page_config.get("altcha", False),
         yaml_config=starting_page_config,
     )
 
@@ -78,7 +78,6 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
             name=page.get("name", ""),
             slug=page.get("slug", ""),
             content=page.get("content", ""),
-            body=page.get("body", ""),
             template=page.get("template", ""),
             form=(
                 getattr(
@@ -88,6 +87,7 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
                 if page.get("form")
                 else None
             ),
+            altcha=page.get("altcha", False),
             yaml_config=page,
         )
 
@@ -99,7 +99,6 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
         name=final_page_config.get("name", ""),
         slug=final_page_config.get("slug", "/"),
         content=final_page_config.get("content", ""),
-        body=final_page_config.get("body", ""),
         template=final_page_config.get("template", ""),
         yaml_config=final_page_config,
     )

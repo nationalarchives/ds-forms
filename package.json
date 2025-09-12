@@ -13,7 +13,8 @@
     "test:playwright:ui": "npx playwright install && npx playwright test --ui"
   },
   "dependencies": {
-    "@nationalarchives/frontend": "0.24.0"
+    "@nationalarchives/frontend": "0.24.0",
+    "altcha": "^2.2.3"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.2",

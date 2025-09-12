@@ -1,25 +1,30 @@
 {% extends 'base.html' %}
 
-{%- from 'components/error-summary/macro.html' import tnaErrorSummary -%}
+{%- from 'forms/macros/altcha_widget.html' import altcha_widget -%}
+{%- from 'forms/macros/form_error_summary.html' import form_error_summary -%}
+
+{% block header %}
+    {{ super() }}
+    {%- if altcha %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='altcha.css', v=app_config.BUILD_VERSION) }}" media="screen">
+    {%- endif %}
+{% endblock %}
 
 {% block content %}
   <div class="tna-section">
     <div class="tna-container">
       <div class="tna-column tna-column--width-2-3 tna-column--width-5-6-medium tna-column--full-small tna-column--full-tiny">
+        {{ form_error_summary(form, altcha, altcha_verified) }}
 
-        {% if form.errors %}
-          {{ tnaErrorSummary(wtforms_errors(form, params={'headingLevel': 2, 'classes': 'tna-!--margin-bottom-m'})) }}
-        {% endif %}
-
-        {% set ns = namespace(field_count=0, file_fields_present=False) %}
-        {% for field in form %}
+        {%- set ns = namespace(field_count=0, file_fields_present=False) %}
+        {%- for field in form %}
           {% if field.name != 'csrf_token' %}
             {% set ns.field_count = ns.field_count + 1 %}
           {% endif %}
           {% if field.type in ['FileField', 'MultipleFileField'] %}
             {% set ns.file_fields_present = True %}
           {% endif %}
-        {% endfor %}
+        {%- endfor %}
 
         {%- if ns.field_count > 1 %}
         {%- if content.supertitle %}
@@ -36,13 +41,17 @@
         {%- endif %}
 
         <form action="{{ page_path }}" method="post" enctype="{{ 'multipart/form-data' if handle_files and ns.file_fields_present else 'application/x-www-form-urlencoded' }}" class="{{ 'tna-!--margin-top-m' if ns.field_count > 1 else '' }}" novalidate>
-          {% for field in form %}
-            {% set params = {} %}
-            {% if ns.field_count == 1 %}
+          {%- for field in form %}
+            {%- set params = {} %}
+            {%- if ns.field_count == 1 %}
               {% set params = {'headingSize': 'xl', 'headingLevel': 1} %}
-            {% endif %}
+            {%- endif %}
             {{ field(params=params) }}
-          {% endfor %}
+          {%- endfor %}
+
+          {%- if altcha %}
+            {{ altcha_widget(altcha_verified) }}
+          {%- endif %}
 
           <div class="tna-button-group">
             <button class="tna-button" type="submit">Continue</button>
@@ -84,4 +93,11 @@
       </div>
     </div>
   </div>
+{% endblock %}
+
+{% block bodyEnd %}
+    {{ super() }}
+    {%- if altcha %}
+    <script src="{{ url_for('static', filename='altcha.min.js', v=app_config.BUILD_VERSION) }}" type="module" defer></script>
+    {%- endif %}
 {% endblock %}
