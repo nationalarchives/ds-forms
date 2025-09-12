@@ -25,6 +25,8 @@ services:
       - 65514:8080
     volumes:
       - ./:/app
+    depends_on:
+      - redis
 
   redis:
     image: redis:latest
