@@ -48,7 +48,7 @@ test("page redirects - pizza path", async ({ page }) => {
     ["/example-form/address/", "/example-form/pizza-or-chocolate/"],
     ["/example-form/type-of-chocolate/", "/example-form/pizza-or-chocolate/"],
     ["/example-form/email/", "/example-form/pizza-or-chocolate/"],
-    ["/example-form/final-page/", "/example-form/pizza-or-chocolate/"],
+    ["/example-form/complete/", "/example-form/pizza-or-chocolate/"],
   ]);
 
   await page.goto("/example-form/pizza-or-chocolate/");
@@ -68,7 +68,7 @@ test("page redirects - pizza path", async ({ page }) => {
     ["/example-form/address/", "/example-form/pizza-or-chocolate/"],
     ["/example-form/type-of-chocolate/", "/example-form/pizza-or-chocolate/"],
     ["/example-form/email/", "/example-form/pizza-or-chocolate/"],
-    ["/example-form/final-page/", "/example-form/pizza-or-chocolate/"],
+    ["/example-form/complete/", "/example-form/pizza-or-chocolate/"],
   ]);
 
   await page.goto("/example-form/pizza-topping/");
@@ -88,7 +88,7 @@ test("page redirects - pizza path", async ({ page }) => {
     ["/example-form/address/"],
     ["/example-form/type-of-chocolate/", "/example-form/pizza-or-chocolate/"],
     ["/example-form/email/", "/example-form/address/"],
-    ["/example-form/final-page/", "/example-form/address/"],
+    ["/example-form/complete/", "/example-form/address/"],
   ]);
 
   await page.goto("/example-form/address/");
@@ -110,7 +110,7 @@ test("page redirects - pizza path", async ({ page }) => {
     ["/example-form/address/"],
     ["/example-form/type-of-chocolate/", "/example-form/pizza-or-chocolate/"],
     ["/example-form/email/"],
-    ["/example-form/final-page/", "/example-form/email/"],
+    ["/example-form/complete/", "/example-form/email/"],
   ]);
 
   await page.goto("/example-form/email/");
@@ -120,18 +120,18 @@ test("page redirects - pizza path", async ({ page }) => {
   await expect(page.locator("main")).toHaveText(/There is a problem/);
   await page.getByLabel("Enter your email address").fill("test@test.com");
   await page.getByRole("button", { name: "Continue" }).click();
-  await expect(page).toHaveURL("/example-form/final-page/");
+  await expect(page).toHaveURL("/example-form/complete/");
   // await expect(page.locator("main")).toHaveText(/Thank you for completing the form. We will be in touch shortly./);
   // await checkPageRedirections(page, [
-  //   ["/example-form/", "/example-form/final-page/"],
-  //   ["/example-form/pizza-or-chocolate/", "/example-form/final-page/"],
-  //   ["/example-form/neither/", "/example-form/final-page/"],
-  //   ["/example-form/pizza-topping/", "/example-form/final-page/"],
-  //   ["/example-form/pizza-photo/", "/example-form/final-page/"],
-  //   ["/example-form/address/", "/example-form/final-page/"],
-  //   ["/example-form/type-of-chocolate/", "/example-form/final-page/"],
-  //   ["/example-form/email/", "/example-form/final-page/"],
-  //   ["/example-form/final-page/"],
+  //   ["/example-form/", "/example-form/complete/"],
+  //   ["/example-form/pizza-or-chocolate/", "/example-form/complete/"],
+  //   ["/example-form/neither/", "/example-form/complete/"],
+  //   ["/example-form/pizza-topping/", "/example-form/complete/"],
+  //   ["/example-form/pizza-photo/", "/example-form/complete/"],
+  //   ["/example-form/address/", "/example-form/complete/"],
+  //   ["/example-form/type-of-chocolate/", "/example-form/complete/"],
+  //   ["/example-form/email/", "/example-form/complete/"],
+  //   ["/example-form/complete/"],
   // ]);
 });
 
@@ -153,7 +153,7 @@ test("page redirects - chocolate path", async ({ page }) => {
     ["/example-form/address/", "/example-form/pizza-or-chocolate/"],
     ["/example-form/type-of-chocolate/"],
     ["/example-form/email/", "/example-form/pizza-or-chocolate/"],
-    ["/example-form/final-page/", "/example-form/pizza-or-chocolate/"],
+    ["/example-form/complete/", "/example-form/pizza-or-chocolate/"],
   ]);
 
   await page.goto("/example-form/type-of-chocolate/");
@@ -173,7 +173,7 @@ test("page redirects - chocolate path", async ({ page }) => {
     ["/example-form/address/"],
     ["/example-form/type-of-chocolate/"],
     ["/example-form/email/", "/example-form/address/"],
-    ["/example-form/final-page/", "/example-form/address/"],
+    ["/example-form/complete/", "/example-form/address/"],
   ]);
 
   await page.goto("/example-form/address/");
@@ -195,7 +195,7 @@ test("page redirects - chocolate path", async ({ page }) => {
     ["/example-form/address/"],
     ["/example-form/type-of-chocolate/"],
     ["/example-form/email/"],
-    ["/example-form/final-page/", "/example-form/email/"],
+    ["/example-form/complete/", "/example-form/email/"],
   ]);
 
   await page.goto("/example-form/email/");
@@ -205,17 +205,17 @@ test("page redirects - chocolate path", async ({ page }) => {
   await expect(page.locator("main")).toHaveText(/There is a problem/);
   await page.getByLabel("Enter your email address").fill("test@test.com");
   await page.getByRole("button", { name: "Continue" }).click();
-  await expect(page).toHaveURL("/example-form/final-page/");
+  await expect(page).toHaveURL("/example-form/complete/");
   // await expect(page.locator("main")).toHaveText(/Thank you for completing the form. We will be in touch shortly./);
   // await checkPageRedirections(page, [
-  //   ["/example-form/", "/example-form/final-page/"],
-  //   ["/example-form/pizza-or-chocolate/", "/example-form/final-page/"],
-  //   ["/example-form/neither/", "/example-form/final-page/"],
-  //   ["/example-form/pizza-topping/", "/example-form/final-page/"],
-  //   ["/example-form/pizza-photo/", "/example-form/final-page/"],
-  //   ["/example-form/address/", "/example-form/final-page/"],
-  //   ["/example-form/type-of-chocolate/", "/example-form/final-page/"],
-  //   ["/example-form/email/", "/example-form/final-page/"],
-  //   ["/example-form/final-page/"],
+  //   ["/example-form/", "/example-form/complete/"],
+  //   ["/example-form/pizza-or-chocolate/", "/example-form/complete/"],
+  //   ["/example-form/neither/", "/example-form/complete/"],
+  //   ["/example-form/pizza-topping/", "/example-form/complete/"],
+  //   ["/example-form/pizza-photo/", "/example-form/complete/"],
+  //   ["/example-form/address/", "/example-form/complete/"],
+  //   ["/example-form/type-of-chocolate/", "/example-form/complete/"],
+  //   ["/example-form/email/", "/example-form/complete/"],
+  //   ["/example-form/complete/"],
   // ]);
 });
