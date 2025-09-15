@@ -91,7 +91,7 @@ pages:
 finalPage:
   id: final_page
   name: Thank you
-  slug: final-page
+  slug: complete
   content:
     description: This is the final page of the flow.
     body: |

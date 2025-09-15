@@ -36,8 +36,9 @@
         <h1 class="tna-heading-xl">{{ pageTitle }}</h1>
         {%- endif %}
         {%- if content.description %}
-        <p>{{ content.description }}</p>
+        <p class="tna-scene-setter">{{ content.description | safe }}</p>
         {%- endif %}
+        {{ content.body | safe }}
         {%- endif %}
 
         <form action="{{ page_path }}" method="post" enctype="{{ 'multipart/form-data' if handle_files and ns.file_fields_present else 'application/x-www-form-urlencoded' }}" class="{{ 'tna-!--margin-top-m' if ns.field_count > 1 else '' }}" novalidate>
@@ -52,6 +53,8 @@
           {%- if altcha %}
             {{ altcha_widget(altcha_verified) }}
           {%- endif %}
+
+          {{ content.beforeSubmit | safe }}
 
           <div class="tna-button-group">
             <button class="tna-button" type="submit">Continue</button>

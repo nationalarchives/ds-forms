@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{%- from 'components/warning/macro.html' import tnaWarning -%}
+
+{% block content %}
+  <div class="tna-section">
+    <div class="tna-container">
+      <div class="tna-column tna-column--width-2-3 tna-column--width-5-6-medium tna-column--full-small tna-column--full-tiny">
+        <h1 class="tna-heading-xl">{{ pageTitle }}</h1>
+        {{ tnaWarning({
+          'headingLevel': '2',
+          'body': 'Please read thoroughly before you contact us to arrange filming.'
+        }) }}
+        <p>The National Archives welcomes the opportunity to display records on film and television, however we reserve the right to refuse permission to film without stating a reason.</p>
+        <p>As a working archive our priority must be our service in delivering documents to the public and responsibility to the care and conservation of our unique and irreplaceable documents. This means we are not always able to facilitate all of the requests we receive for filming. We strongly advise you secure permission before confirming talent, travel or accommodation arrangements.</p>
+        <p>The film company/producer must agree to:</p>
+        <ul class="tna-ul">
+          <li>credit The National Archives as the source of the records on screen and in the script (not just in the closing credits) during the film/programme itself</li>
+          <li>respect and adhere to The National Archives’ conservation and care requirements for document handling</li>
+        </ul>
+        <h2 class="tna-heading-l">Who can film</h2>
+        <p>Only commissioned programmes/films can film at The National Archives unless otherwise arranged with us. For security reasons you must let us know in advance the names of the crew who will visit; including any presenters, interviewees and researchers.</p>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,110 @@
+{% extends 'forms/form_page.html' %}
+
+{%- from 'components/button/macro.html' import tnaButton -%}
+{%- from 'forms/macros/altcha_widget.html' import altcha_widget -%}
+{%- from 'forms/macros/form_error_summary.html' import form_error_summary -%}
+
+{% block content %}
+  <div class="tna-section">
+    <div class="tna-container">
+      <div class="tna-column tna-column--width-2-3 tna-column--width-5-6-medium tna-column--full-small tna-column--full-tiny">
+        {{ form_error_summary(form, altcha, altcha_verified) }}
+        
+        <h1 class="tna-heading-xl">{{ pageTitle }}</h1>
+        
+        <h2 class="tna-heading-l">Your details</h2>
+        <dl class="tna-dl tna-dl--stacked-">
+          <dt>Name</dt>
+          <dd>
+            {{ session.your_details.full_name }}
+            <br>
+            <a href="{{ get_page_by_id('your_details').get_page_path() }}#full_name">Change<span class="tna-visually-hidden"> your name</span></a>
+          </dd>
+          <dt>Email address</dt>
+          <dd>
+            {{ session.your_details.email_address }}
+            <br>
+            <a href="{{ get_page_by_id('your_details').get_page_path() }}#email_address">Change<span class="tna-visually-hidden"> your email address</span></a>
+          </dd>
+          <dt>Address</dt>
+          <dd>
+            {{ session.your_details.address.address_line_1 }}<br>
+
+            {% if session.your_details.address.address_line_2 %}
+            {{ session.your_details.address.address_line_2 }}<br>
+            {% endif %}
+
+            {{ session.your_details.address.town_city }}<br>
+
+            {% if session.your_details.address.county %}
+            {{ session.your_details.address.county }}<br>
+            {% endif %}
+            
+            {{ session.your_details.address.postcode }}
+
+            <br>
+            <a href="{{ get_page_by_id('your_details').get_page_path() }}#address-address_line_1">Change<span class="tna-visually-hidden"> your address</span></a>
+          </dd>
+          <dt>Organisation</dt>
+          <dd>
+            {{ session.your_details.organisation }}
+            <br>
+            <a href="{{ get_page_by_id('your_details').get_page_path() }}#organisation">Change<span class="tna-visually-hidden"> your organisation</span></a>
+          </dd>
+        </dl>
+
+        <h2 class="tna-heading-l">Documents</h2>
+        <dl class="tna-dl tna-dl--stacked-">
+          <dt>Documents</dt>
+          <dd>
+            {{ session.documents.documents }}
+            <br>
+            <a href="{{ get_page_by_id('documents').get_page_path() }}#documents">Change<span class="tna-visually-hidden"> your list of requested documents</span></a>
+          </dd>
+          <dt>Reason</dt>
+          <dd>
+            {{ session.documents.reason }}
+            <br>
+            <a href="{{ get_page_by_id('documents').get_page_path() }}#reason">Change<span class="tna-visually-hidden"> your reason for requesting documents</span></a>
+          </dd>
+        </dl>
+
+        <h2 class="tna-heading-l">Usage</h2>
+        <dl class="tna-dl tna-dl--stacked-">
+          <dt>How long you wish to use the information for</dt>
+          <dd>
+            {{ session.usage.duration }}
+            <br>
+            <a href="{{ get_page_by_id('usage').get_page_path() }}#duration">Change<span class="tna-visually-hidden"> how long you intend to use the information</span></a>
+          </dd>
+          <dt>What steps you will take to maintain the dignity of participants</dt>
+          <dd>
+            {{ session.usage.dignity }}
+            <br>
+            <a href="{{ get_page_by_id('usage').get_page_path() }}#dignity">Change<span class="tna-visually-hidden"> how you will maintain dignity</span></a>
+          </dd>
+          <dt>What mitigations you will put in place for third party use</dt>
+          <dd>
+            {{ session.usage.mitigations }}
+            <br>
+            <a href="{{ get_page_by_id('usage').get_page_path() }}#mitigations">Change<span class="tna-visually-hidden"> what mitigations you will put in place for third parties</span></a>
+          </dd>
+        </dl>
+
+        <form action="{{ page_path }}" method="post" enctype="application/x-www-form-urlencoded" class="tna-!--margin-top-l" novalidate>
+          {{ form.confirm(params={'headingSize': 's', 'label': 'Are these details correct?'}) }}
+
+          {%- if altcha %}
+            {{ altcha_widget(altcha_verified) }}
+          {%- endif %}
+
+          {{ form.csrf_token }}
+
+          <div class="tna-button-group">
+            <button class="tna-button" type="submit">Continue</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}
