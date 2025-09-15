@@ -53,7 +53,7 @@ In addition to the [base Docker image variables](https://github.com/nationalarch
 | `CSP_FEATURE_PICTURE_IN_PICTURE` | A comma separated list of rules for the `picture-in-picture` feature policy  | `'self'`            |
 | `FORCE_HTTPS`                    | Redirect requests to HTTPS as part of the CSP                                | _none_              |
 | `SESSION_REDIS_URL`              | A URL to a Redis instance used by session storage                            | _none_              |
-| `RATELIMIT_REDIS_URL`           | A URL to a Redis instance used by rate limiting                               | _none_              |
+| `RATELIMIT_REDIS_URL`            | A URL to a Redis instance used by rate limiting                              | _none_              |
 | `RATELIMIT_DEFAULT`              | The default rate limiting amount[^2]                                         | _none_              |
 | `ALTCHA_HMAC_KEY`                | A secret key to use when generating ALTCHA challenges                        | _none_              |
 | `CACHE_TYPE`                     | https://flask-caching.readthedocs.io/en/latest/#configuring-flask-caching    | `FileSystemCache`   |
