@@ -2,6 +2,7 @@ from collections.abc import Callable
 from typing import Optional, TypedDict
 
 from altcha import verify_solution
+from app.lib.cache import cache
 from flask import (
     Response,
     current_app,
@@ -478,27 +479,39 @@ class FormPage:
         """
         Check if the altcha solution is verified or has been verified in the past.
         """
-        if self.altcha:
-            if request.method == "POST":
-                altcha_payload = request.form.to_dict().get("altcha", "")
-                if not altcha_payload:
-                    session[f"altcha_{self.id}"] = False
-                    return False
+        if not self.altcha:
+            return True
 
-                try:
-                    alcha_verified, err = verify_solution(
-                        altcha_payload,
-                        current_app.config.get("ALTCHA_HMAC_KEY", "secret-hmac-key"),
-                        True,
-                    )
-                    session[f"altcha_{self.id}"] = alcha_verified
-                    return alcha_verified
-                except Exception as e:
-                    current_app.logger.error(f"Error verifying altcha: {e}")
-                    session[f"altcha_{self.id}"] = False
-                    return False
+        if request.method != "POST":
             return session.get(f"altcha_{self.id}", True)
-        return True
+
+        altcha_payload = request.form.to_dict().get("altcha", "")
+        if not altcha_payload:
+            session[f"altcha_{self.id}"] = False
+            return False
+
+        solved_altchas = cache.get("solved_altchas", [])
+        if altcha_payload in solved_altchas:
+            current_app.logger.warn("Previously solved altcha used")
+            session[f"altcha_{self.id}"] = False
+            return False
+
+        try:
+            alcha_verified, err = verify_solution(
+                altcha_payload,
+                current_app.config.get("ALTCHA_HMAC_KEY", "secret-hmac-key"),
+                True,
+            )
+        except Exception as e:
+            current_app.logger.error(f"Error verifying altcha: {e}")
+            session[f"altcha_{self.id}"] = False
+            return False
+
+        session[f"altcha_{self.id}"] = alcha_verified
+        if alcha_verified:
+            solved_altchas.append(altcha_payload)
+            cache.set("solved_altchas", solved_altchas)
+        return alcha_verified
 
     def is_complete(self, temporary_validation=False) -> bool:
         """
@@ -508,7 +521,6 @@ class FormPage:
             vaild_form = self.form.validate()
             return vaild_form and self.altcha_verified()
         elif self.form_class:
-            # current_app.logger.debug(f"Temporarily validating form for page '{self.id}'")
             temp_form = self.form_class(data=self.get_saved_form_data())
             temp_form._fields.pop("csrf_token", None)
             for field in temp_form._fields:
@@ -516,9 +528,6 @@ class FormPage:
                     for sub_field in field:
                         sub_field.pop("csrf_token", None)
             is_complete = temp_form.validate()
-            # current_app.logger.debug(f"Temporary form validation result: {is_complete}")
-            # current_app.logger.debug(f"Errors: {temp_form.errors}")
-            # current_app.logger.debug(f"altcha_verified: {self.altcha_verified()}")
             return is_complete and self.altcha_verified()
         return True
 

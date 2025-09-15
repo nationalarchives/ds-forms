@@ -47,7 +47,7 @@ pages:
     slug: confirmation
     template: forms/holocaust/confirmation.html
     form: holocaust.ConfirmationForm
-    altcha: true
+    # altcha: true
     requires:
       - your_details
       - documents
