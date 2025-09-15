@@ -52,13 +52,19 @@ In addition to the [base Docker image variables](https://github.com/nationalarch
 | `CSP_FEATURE_FULLSCREEN`         | A comma separated list of rules for the `fullscreen` feature policy          | `'self'`            |
 | `CSP_FEATURE_PICTURE_IN_PICTURE` | A comma separated list of rules for the `picture-in-picture` feature policy  | `'self'`            |
 | `FORCE_HTTPS`                    | Redirect requests to HTTPS as part of the CSP                                | _none_              |
-| `GA4_ID`                         | The Google Analytics 4 ID                                                    | _none_              |
-| `REDIS_URL`                      | A URL to a Redis instance, used by rate limiting and session storage         | _none_              |
+| `SESSION_REDIS_URL`              | A URL to a Redis instance used by session storage                            | _none_              |
+| `RATELIMIT_REDIS_URL`            | A URL to a Redis instance used by rate limiting                              | _none_              |
 | `RATELIMIT_DEFAULT`              | The default rate limiting amount[^2]                                         | _none_              |
+| `ALTCHA_HMAC_KEY`                | A secret key to use when generating ALTCHA challenges                        | _none_              |
+| `CACHE_TYPE`                     | https://flask-caching.readthedocs.io/en/latest/#configuring-flask-caching    | `FileSystemCache`   |
+| `CACHE_DEFAULT_TIMEOUT`          | The number of seconds to cache pages for                                     | `3600`              |
+| `CACHE_DIR`                      | Directory for cache when using `CACHE_TYPE=FileSystemCache`                  | `/tmp`              |
+| `CACHE_REDIS_URL`                | The connection string for Redis when using `CACHE_TYPE=RedisCache`           | _none_              |
 | `AWS_ACCESS_KEY_ID`              | The access key ID (used to send emails with SES and store files with S3)     | _none_              |
 | `AWS_SECRET_ACCESS_KEY`          | The secret access key (used to send emails with SES and store files with S3) | _none_              |
 | `AWS_SESSION_TOKEN`              | The AWS session token (used to send emails with SES and store files with S3) | _none_              |
 | `AWS_DEFAULT_REGION`             | The default AWS region                                                       | _none_              |
+| `GA4_ID`                         | The Google Analytics 4 ID                                                    | _none_              |
 
 [^1] [Debugging in Flask](https://flask.palletsprojects.com/en/2.3.x/debugging/)
 [^2] [Rate limit notation](https://limits.readthedocs.io/en/stable/quickstart.html#rate-limit-string-notation)

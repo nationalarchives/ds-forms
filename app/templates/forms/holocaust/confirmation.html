@@ -1,15 +1,14 @@
-{% extends 'base.html' %}
+{% extends 'forms/form_page.html' %}
 
 {%- from 'components/button/macro.html' import tnaButton -%}
-{%- from 'components/error-summary/macro.html' import tnaErrorSummary -%}
+{%- from 'forms/macros/altcha_widget.html' import altcha_widget -%}
+{%- from 'forms/macros/form_error_summary.html' import form_error_summary -%}
 
 {% block content %}
   <div class="tna-section">
     <div class="tna-container">
       <div class="tna-column tna-column--width-2-3 tna-column--width-5-6-medium tna-column--full-small tna-column--full-tiny">
-        {% if form.errors %}
-          {{ tnaErrorSummary(wtforms_errors(form, params={'headingLevel': 2, 'classes': 'tna-!--margin-bottom-m'})) }}
-        {% endif %}
+        {{ form_error_summary(form, altcha, altcha_verified) }}
         
         <h1 class="tna-heading-xl">{{ pageTitle }}</h1>
         
@@ -94,6 +93,10 @@
 
         <form action="{{ page_path }}" method="post" enctype="application/x-www-form-urlencoded" class="tna-!--margin-top-l" novalidate>
           {{ form.confirm(params={'headingSize': 's', 'label': 'Are these details correct?'}) }}
+
+          {%- if altcha %}
+            {{ altcha_widget(altcha_verified) }}
+          {%- endif %}
 
           {{ form.csrf_token }}
 

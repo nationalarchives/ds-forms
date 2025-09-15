@@ -94,8 +94,8 @@ finalPage:
   slug: final-page
   content:
     description: This is the final page of the flow.
-  body: |
-    <p>Thank you for completing the form. We will be in touch shortly.</p>
+    body: |
+      <p>Thank you for completing the form. We will be in touch shortly.</p>
   template: forms/final.html
   requires:
     - email

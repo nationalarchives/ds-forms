@@ -1,10 +1,12 @@
 import logging
 
+from app.lib.cache import cache
 from app.lib.context_processor import cookie_preference, now_iso_8601, now_timestamp
 from app.lib.limiter import limiter
 from app.lib.talisman import talisman
 from app.lib.template_filters import slugify
 from flask import Flask, render_template
+from flask_cors import CORS
 from flask_session import Session
 from jinja2 import ChoiceLoader, PackageLoader
 from tna_frontend_jinja.wtforms.helpers import WTFormsHelpers
@@ -17,6 +19,17 @@ def create_app(config_class):
     gunicorn_error_logger = logging.getLogger("gunicorn.error")
     app.logger.handlers.extend(gunicorn_error_logger.handlers)
     app.logger.setLevel(gunicorn_error_logger.level or "DEBUG")
+
+    cache.init_app(
+        app,
+        config={
+            "CACHE_TYPE": app.config.get("CACHE_TYPE"),
+            "CACHE_DEFAULT_TIMEOUT": app.config.get("CACHE_DEFAULT_TIMEOUT"),
+            "CACHE_IGNORE_ERRORS": app.config.get("CACHE_IGNORE_ERRORS"),
+            "CACHE_DIR": app.config.get("CACHE_DIR"),
+            "CACHE_REDIS_URL": app.config.get("CACHE_REDIS_URL"),
+        },
+    )
 
     csp_self = "'self'"
     csp_none = "'none'"
@@ -63,6 +76,8 @@ def create_app(config_class):
             response.headers["Cross-Origin-Resource-Policy"] = "same-origin"
         return response
 
+    CORS(app)
+
     app.jinja_env.trim_blocks = True
     app.jinja_env.lstrip_blocks = True
     app.jinja_loader = ChoiceLoader(
@@ -96,12 +111,14 @@ def create_app(config_class):
             feature={},
         )
 
+    from .altcha import bp as altcha_bp
     from .forms import bp as forms_bp
     from .healthcheck import bp as healthcheck_bp
     from .main import bp as site_bp
 
     app.register_blueprint(site_bp)
     app.register_blueprint(healthcheck_bp, url_prefix="/healthcheck")
+    app.register_blueprint(altcha_bp, url_prefix="/altcha")
     app.register_blueprint(forms_bp)
 
     return app

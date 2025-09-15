@@ -48,7 +48,7 @@
         <ul class="tna-ul">
           {% for page in pages %}
           <li>
-            <a href="{{ url_for('forms.page', form_slug=flow.slug, page_slug=page.slug) }}">{{ page.name }}</a>
+            <a href="{{ page.get_page_path() }}">{{ page.name }}</a>
             {% if page.is_complete(temporary_validation=True) %}
               (Complete)
             {% else %}

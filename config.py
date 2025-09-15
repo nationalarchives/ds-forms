@@ -41,7 +41,9 @@ class Production(Features):
     CSP_FONT_SRC: list[str] = os.environ.get("CSP_FONT_SRC", "'self'").split(",")
     CSP_CONNECT_SRC: list[str] = os.environ.get("CSP_CONNECT_SRC", "'self'").split(",")
     CSP_MEDIA_SRC: list[str] = os.environ.get("CSP_MEDIA_SRC", "'self'").split(",")
-    CSP_WORKER_SRC: list[str] = os.environ.get("CSP_WORKER_SRC", "'self'").split(",")
+    CSP_WORKER_SRC: list[str] = os.environ.get("CSP_WORKER_SRC", "'self',blob:,").split(
+        ","
+    )
     CSP_FRAME_SRC: list[str] = os.environ.get("CSP_FRAME_SRC", "'self'").split(",")
     CSP_FRAME_ANCESTORS: list[str] = os.environ.get(
         "CSP_FRAME_ANCESTORS", "'self'"
@@ -55,10 +57,18 @@ class Production(Features):
     FORCE_HTTPS: bool = strtobool(os.getenv("FORCE_HTTPS", "True"))
     PREFERRED_URL_SCHEME: str = os.getenv("PREFERRED_URL_SCHEME", "https")
 
-    REDIS_URL: str = os.environ.get("REDIS_URL", "")
-    if REDIS_URL:
+    SESSION_REDIS_URL: str = os.environ.get("SESSION_REDIS_URL", "")
+    if SESSION_REDIS_URL:
         SESSION_TYPE: str = "redis"
-        SESSION_REDIS = Redis.from_url(REDIS_URL)
+        SESSION_REDIS = Redis.from_url(SESSION_REDIS_URL)
+
+    ALTCHA_HMAC_KEY: str = os.getenv("ALTCHA_HMAC_KEY", "")
+
+    CACHE_TYPE: str = os.environ.get("CACHE_TYPE", "FileSystemCache")
+    CACHE_DEFAULT_TIMEOUT: int = int(os.environ.get("CACHE_DEFAULT_TIMEOUT", "3600"))
+    CACHE_IGNORE_ERRORS: bool = True
+    CACHE_DIR: str = os.environ.get("CACHE_DIR", "/tmp")
+    CACHE_REDIS_URL: str = os.environ.get("CACHE_REDIS_URL", "")
 
     AWS_ACCESS_KEY_ID: str = os.environ.get("AWS_ACCESS_KEY_ID", "")
     AWS_SECRET_ACCESS_KEY: str = os.environ.get("AWS_SECRET_ACCESS_KEY", "")

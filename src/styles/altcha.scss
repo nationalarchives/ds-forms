@@ -1,0 +1,8 @@
+@use "@nationalarchives/frontend/nationalarchives/tools/spacing";
+@use "altcha/dist_external/altcha";
+
+altcha-widget {
+  @include spacing.space-above;
+
+  display: block;
+}

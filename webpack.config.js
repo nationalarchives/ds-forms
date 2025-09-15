@@ -5,6 +5,7 @@ module.exports = {
   entry: {
     main: "./src/scripts/main.js",
     analytics: "./src/scripts/analytics.js",
+    altcha: "./src/scripts/altcha.js",
   },
   mode: "production",
   module: {

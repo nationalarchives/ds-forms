@@ -1,6 +1,8 @@
 from collections.abc import Callable
 from typing import Optional, TypedDict
 
+from altcha import verify_solution
+from app.lib.cache import cache
 from flask import (
     Response,
     current_app,
@@ -49,9 +51,9 @@ class FormFlow:
         name: str,
         slug: str,
         content: Optional[dict] = {},
-        body: str = "",
         template: str = "",
         form: Optional[FlaskForm] = None,
+        altcha: bool = False,
         yaml_config: Optional[dict] = None,
     ):
         """
@@ -63,9 +65,9 @@ class FormFlow:
             name=name,
             slug=slug,
             content=content,
-            body=body,
             template=template,
             form=form,
+            altcha=altcha,
             yaml_config=yaml_config,
         )
         self.pages.update({id: new_page})
@@ -77,9 +79,9 @@ class FormFlow:
         name: str,
         slug: str = "/",
         content: Optional[dict] = {},
-        body: str = "",
         template: str = "",
         form: Optional[FlaskForm] = None,
+        altcha: bool = False,
         yaml_config: Optional[dict] = None,
     ):
         """
@@ -90,9 +92,9 @@ class FormFlow:
             name=name,
             slug=slug,
             content=content,
-            body=body,
             template=template,
             form=form,
+            altcha=altcha,
             yaml_config=yaml_config,
         )
         self.starting_page_id = id
@@ -104,7 +106,6 @@ class FormFlow:
         name: str,
         slug: str = "/",
         content: Optional[dict] = {},
-        body: str = "",
         template: str = "",
         yaml_config: Optional[dict] = None,
     ):
@@ -116,7 +117,6 @@ class FormFlow:
             name=name,
             slug=slug,
             content=content,
-            body=body,
             template=template,
             form=None,
             yaml_config=yaml_config,
@@ -346,9 +346,9 @@ class FormPage:
         name: str,
         slug: str = "/",
         content: Optional[dict] = {},
-        body: str = "",
         template: str = "",
         form: Optional[FlaskForm] = None,
+        altcha: bool = False,
         yaml_config: Optional[dict] = None,
     ):
         self.flow: "FormFlow" = flow
@@ -356,7 +356,6 @@ class FormPage:
         self.name: str = name
         self.slug: str = slug
         self.content: Optional[dict] = content
-        self.body: str = body
         self.template: str = template if template else "forms/form_page.html"
         self.requires_completion_of: list["FormPage"] = []
         self.requires_completion_of_any: list["FormPage"] = []
@@ -393,6 +392,7 @@ class FormPage:
                             raise ValueError(
                                 f"Form sub-field '{sub_field.name}' in page '{self.id}' uses 'InputRequired' validator which is not allowed. Use 'DataRequired' instead."
                             )
+        self.altcha: bool = altcha
         self.yaml_config: Optional[dict] = yaml_config
 
     def __str__(self):
@@ -475,18 +475,67 @@ class FormPage:
         """
         session[self.id] = form_data
 
+    def altcha_verified(self) -> bool:
+        """
+        Check if the altcha solution is verified or has been verified in the past.
+        """
+        if not self.altcha:
+            return True
+
+        if request.method != "POST":
+            return session.get(f"altcha_{self.id}", True)
+
+        altcha_payload = request.form.to_dict().get("altcha", "")
+        if not altcha_payload:
+            session[f"altcha_{self.id}"] = False
+            return False
+
+        solved_altchas = cache.get("solved_altchas", [])
+        if altcha_payload in solved_altchas:
+            current_app.logger.warn("Previously solved altcha used")
+            session[f"altcha_{self.id}"] = False
+            return False
+
+        try:
+            alcha_verified, err = verify_solution(
+                altcha_payload,
+                current_app.config.get("ALTCHA_HMAC_KEY", "secret-hmac-key"),
+                True,
+            )
+        except Exception as e:
+            current_app.logger.error(f"Error verifying altcha: {e}")
+            session[f"altcha_{self.id}"] = False
+            return False
+
+        session[f"altcha_{self.id}"] = alcha_verified
+        if alcha_verified:
+            solved_altchas.append(altcha_payload)
+            cache.set("solved_altchas", solved_altchas)
+        return alcha_verified
+
     def is_complete(self, temporary_validation=False) -> bool:
         """
         Check if the form is complete based on the data provided.
         """
         if self.form and not temporary_validation:
-            return self.form.validate()
+            vaild_form = self.form.validate()
+            return vaild_form and self.altcha_verified()
         elif self.form_class:
             temp_form = self.form_class(data=self.get_saved_form_data())
             temp_form._fields.pop("csrf_token", None)
+            for field in temp_form._fields:
+                if isinstance(field, FormField):
+                    for sub_field in field:
+                        sub_field.pop("csrf_token", None)
             is_complete = temp_form.validate()
-            return is_complete
+            return is_complete and self.altcha_verified()
         return True
+
+    def process_file(self, file_field: FileField | MultipleFileField) -> str:
+        """
+        Process file uploads if the form contains file fields.
+        """
+        return "foobar.jpg"  # Placeholder value
 
     def serve(self) -> Response:
         """
@@ -550,19 +599,16 @@ class FormPage:
 
         return self.validate_and_redirect()
 
-    def process_file(self, file_field: FileField | MultipleFileField) -> str:
-        """
-        Process file uploads if the form contains file fields.
-        """
-        return "foobar.jpg"  # Placeholder value
-
     def validate_and_redirect(  # noqa: C901
         self,
     ) -> Response:  # TODO: Refactor this method
         """
         Validate the form data when the page is submitted and redirect based on completion status.
         """
-        if request.method == "POST" and self.is_complete():
+        if self.flow.is_completion_handled() and self != self.flow.get_final_page():
+            return redirect(self.flow.get_final_page().get_page_path())
+
+        if request.method == "POST":
             form_data = self.form.data
             form_data.pop("csrf_token", None)
             for field in self.form.data:
@@ -574,47 +620,51 @@ class FormPage:
                     form_data.pop(field, None)
                     file = self.process_file(self.form[field])
                     form_data[field] = file
+                # elif isinstance(self.form[field], FormField):
+                #     form_data[field].pop("csrf_token", None)
             self.save_form_data(form_data)
 
-        if self.flow.is_completion_handled() and self != self.flow.get_final_page():
-            return redirect(self.flow.get_final_page().get_page_path())
+            if self.is_complete():
+                for page in self.clear_pages_on_completion:
+                    if page.id in session:
+                        current_app.logger.debug(f"Clearing page data for: {page.id}")
+                        session.pop(page.id, None)
 
-        if request.method == "POST" and self.is_complete():
-            for page in self.clear_pages_on_completion:
-                if page.id in session:
-                    current_app.logger.debug(f"Clearing page data for: {page.id}")
-                    session.pop(page.id, None)
-
-            for rule in self.when_complete:
-                current_app.logger.debug(f"Checking completion rule: {rule}")
-                if (
-                    (rule["when"] is None and rule["condition"] is None)
-                    or (
-                        rule["when"]
-                        and form_data.get(rule["when"][0], None) == rule["when"][1]
-                    )
-                    or (rule["condition"] and rule["condition"](form_data))
-                ):
-                    current_app.logger.debug(
-                        f"Completion rule matched for page: '{self.id}'"
-                    )
-                    if rule["page"]:
-                        current_app.logger.debug(
-                            f"Redirecting to page: '{rule['page'].id}'"
+                for rule in self.when_complete:
+                    current_app.logger.debug(f"Checking completion rule: {rule}")
+                    if (
+                        (rule["when"] is None and rule["condition"] is None)
+                        or (
+                            rule["when"]
+                            and form_data.get(rule["when"][0], None) == rule["when"][1]
                         )
-                        return redirect(rule["page"].get_page_path())
-
-                    if rule["flask_method"]:
+                        or (rule["condition"] and rule["condition"](form_data))
+                    ):
                         current_app.logger.debug(
-                            f"Redirecting to Flask method: '{rule['flask_method']}'"
+                            f"Completion rule matched for page: '{self.id}'"
                         )
-                        return redirect(url_for(rule["flask_method"]))
+                        if rule["page"]:
+                            current_app.logger.debug(
+                                f"Redirecting to page: '{rule['page'].id}'"
+                            )
+                            return redirect(rule["page"].get_page_path())
 
-                    if rule["url"]:
-                        current_app.logger.debug(f"Redirecting to URL: {rule['url']}")
-                        return redirect(rule["url"])
+                        if rule["flask_method"]:
+                            current_app.logger.debug(
+                                f"Redirecting to Flask method: '{rule['flask_method']}'"
+                            )
+                            return redirect(url_for(rule["flask_method"]))
 
-            raise Exception("No matching completion rule found")
+                        if rule["url"]:
+                            current_app.logger.debug(
+                                f"Redirecting to URL: {rule['url']}"
+                            )
+                            return redirect(rule["url"])
+
+                raise Exception("No matching completion rule found")
+        else:
+            if self.altcha and f"altcha_{self.id}" in session:
+                session.pop(f"altcha_{self.id}")
 
         # if not self.flow.has_complete_path() and self.flow.get_earliest_incomplete_page() != self:
         #     current_app.logger.warning(
@@ -627,7 +677,8 @@ class FormPage:
             flow=self.flow,
             pageTitle=self.name,
             content=self.content,
-            body=self.body,
+            altcha=self.altcha,
+            altcha_verified=self.altcha_verified(),
             page_path=self.get_page_path(),
             form_reset_path=url_for("forms.reset_form", form_slug=self.flow.slug),
             form=self.form,
