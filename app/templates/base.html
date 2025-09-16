@@ -2,7 +2,7 @@
 
 {%- from 'components/cookie-banner/macro.html' import tnaCookieBanner -%}
 {%- from 'components/footer/macro.html' import tnaFooter -%}
-{%- from 'components/header/macro.html' import tnaHeader -%}
+{%- from 'components/global-header/macro.html' import tnaGlobalHeader -%}
 
 {%- set theme = request.cookies.get('theme') or 'system' -%}
 {%- set themeAccent = themeAccent if themeAccent else 'blue' -%}
@@ -58,10 +58,12 @@
 {% endblock %}
 
 {% block header %}
-{{ tnaHeader({
-  'logo': {
-    'href': url_for('main.index'),
-    'title': 'Service home page'
+{{ tnaGlobalHeader({
+  'defaultContent': True,
+  'defaultContentBaseURL': 'https://www.nationalarchives.gov.uk',
+  'phaseBanner': {
+    'phase': 'Alpha',
+    'message': 'This service is still in development.'
   }
 }) | indent(6) }}
 {% endblock %}
@@ -70,6 +72,8 @@
 {{ tnaFooter({
   'themeSelector': True,
   'currentTheme': theme,
+  'defaultContent': True,
+  'defaultContentBaseURL': 'https://www.nationalarchives.gov.uk',
   'classes': 'tna-!--margin-top-l'
 }) | indent(4) }}
 {% endblock %}

@@ -13,7 +13,8 @@ from wtforms.validators import DataRequired, Optional
 
 class InterviewStaffForm(FlaskForm):
     interview = BooleanField(
-        "I want to interview a member of staff",
+        "Do you want to interview a member of staff?",
+        description="Yes, I want to interview a member of staff",
         validators=[
             Optional(),
         ],
@@ -74,10 +75,10 @@ class ProjectForm(FlaskForm):
     )
 
     terms_and_conditions = BooleanField(
-        "I have read and agreed to the filming terms and conditions, including the charges and cancellation policy",
+        "Terms and conditions",
+        description="I have read and agreed to the filming terms and conditions, including the charges and cancellation policy",
         validators=[
             DataRequired("You must agree to the terms and conditions"),
         ],
         widget=TnaCheckboxWidget(),
-        render_kw={"label": "Terms and conditions"},
     )
