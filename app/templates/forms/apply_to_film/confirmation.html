@@ -18,77 +18,78 @@
           <dd>
             {{ session.your_details.full_name }}
             <br>
-            <a href="{{ get_page_by_id('your_details').get_page_path() }}#full_name">Change<span class="tna-visually-hidden"> your name</span></a>
+            <small><a href="{{ get_page_by_id('your_details').get_page_path() }}#full_name">Change<span class="tna-visually-hidden"> your name</span></a></small>
           </dd>
           <dt>Email address</dt>
           <dd>
             {{ session.your_details.email_address }}
             <br>
-            <a href="{{ get_page_by_id('your_details').get_page_path() }}#email_address">Change<span class="tna-visually-hidden"> your email address</span></a>
+            <small><a href="{{ get_page_by_id('your_details').get_page_path() }}#email_address">Change<span class="tna-visually-hidden"> your email address</span></a></small>
           </dd>
-          <dt>Address</dt>
-          <dd>
-            {{ session.your_details.address.address_line_1 }}<br>
-
-            {% if session.your_details.address.address_line_2 %}
-            {{ session.your_details.address.address_line_2 }}<br>
-            {% endif %}
-
-            {{ session.your_details.address.town_city }}<br>
-
-            {% if session.your_details.address.county %}
-            {{ session.your_details.address.county }}<br>
-            {% endif %}
-            
-            {{ session.your_details.address.postcode }}
-
-            <br>
-            <a href="{{ get_page_by_id('your_details').get_page_path() }}#address-address_line_1">Change<span class="tna-visually-hidden"> your address</span></a>
-          </dd>
+          {%- if session.your_details.organisation %}
           <dt>Organisation</dt>
           <dd>
             {{ session.your_details.organisation }}
             <br>
-            <a href="{{ get_page_by_id('your_details').get_page_path() }}#organisation">Change<span class="tna-visually-hidden"> your organisation</span></a>
+            <small><a href="{{ get_page_by_id('your_details').get_page_path() }}#organisation">Change<span class="tna-visually-hidden"> your organisation</span></a></small>
           </dd>
+          {%- endif %}
+          {%- if session.your_details.job_title %}
+          <dt>Job title</dt>
+          <dd>
+            {{ session.your_details.job_title }}
+            <br>
+            <small><a href="{{ get_page_by_id('your_details').get_page_path() }}#job_title">Change<span class="tna-visually-hidden"> your job title</span></a></small>
+          </dd>
+          {%- endif %}
+          {%- if session.your_details.phone_number %}
+          <dt>Phone number</dt>
+          <dd>
+            {{ session.your_details.phone_number }}
+            <br>
+            <small><a href="{{ get_page_by_id('your_details').get_page_path() }}#phone_number">Change<span class="tna-visually-hidden"> your phone number</span></a></small>
+          </dd>
+          {%- endif %}
         </dl>
 
-        <h2 class="tna-heading-l">Documents</h2>
+        <h2 class="tna-heading-l">About your project</h2>
         <dl class="tna-dl tna-dl--stacked-">
-          <dt>Documents</dt>
+          <dt>Preferred date of filming</dt>
           <dd>
-            {{ session.documents.documents }}
+            {{ session.about.date }}
             <br>
-            <a href="{{ get_page_by_id('documents').get_page_path() }}#documents">Change<span class="tna-visually-hidden"> your list of requested documents</span></a>
+            <small><a href="{{ get_page_by_id('about').get_page_path() }}#date">Change<span class="tna-visually-hidden"> your preferred date of filming</span></a></small>
           </dd>
-          <dt>Reason</dt>
+          <dt>Preferred time of filming</dt>
           <dd>
-            {{ session.documents.reason }}
+            {{ session.about.time }}
             <br>
-            <a href="{{ get_page_by_id('documents').get_page_path() }}#reason">Change<span class="tna-visually-hidden"> your reason for requesting documents</span></a>
+            <small><a href="{{ get_page_by_id('about').get_page_path() }}#time">Change<span class="tna-visually-hidden"> your preferred time of filming</span></a></small>
           </dd>
-        </dl>
-
-        <h2 class="tna-heading-l">Usage</h2>
-        <dl class="tna-dl tna-dl--stacked-">
-          <dt>How long you wish to use the information for</dt>
+          {%- if session.about.broadcast %}
+          <dt>How will it be broadcast and when will it be transmitted? Is it part of a series?</dt>
           <dd>
-            {{ session.usage.duration }}
+            {{ session.about.broadcast }}
             <br>
-            <a href="{{ get_page_by_id('usage').get_page_path() }}#duration">Change<span class="tna-visually-hidden"> how long you intend to use the information</span></a>
+            <small><a href="{{ get_page_by_id('about').get_page_path() }}#broadcast">Change<span class="tna-visually-hidden"> how it will be broadcast</span></a></small>
           </dd>
-          <dt>What steps you will take to maintain the dignity of participants</dt>
+          {%- endif %}
+          {%- if session.about.documents %}
+          <dt>List the documents you would like to film, providing full references</dt>
           <dd>
-            {{ session.usage.dignity }}
+            {{ session.about.documents }}
             <br>
-            <a href="{{ get_page_by_id('usage').get_page_path() }}#dignity">Change<span class="tna-visually-hidden"> how you will maintain dignity</span></a>
+            <small><a href="{{ get_page_by_id('about').get_page_path() }}#documents">Change<span class="tna-visually-hidden"> the list of documents you would like to film</span></a></small>
           </dd>
-          <dt>What mitigations you will put in place for third party use</dt>
+          {%- endif %}
+          {%- if session.about.interview %}
+          <dt>Enter the names of the staff member you want to interview</dt>
           <dd>
-            {{ session.usage.mitigations }}
+            {{ session.about.interview }}
             <br>
-            <a href="{{ get_page_by_id('usage').get_page_path() }}#mitigations">Change<span class="tna-visually-hidden"> what mitigations you will put in place for third parties</span></a>
+            <small><a href="{{ get_page_by_id('about').get_page_path() }}#interview">Change<span class="tna-visually-hidden"> the names of the staff member you want to interview</span></a></small>
           </dd>
+          {%- endif %}
         </dl>
 
         <form action="{{ page_path }}" method="post" enctype="application/x-www-form-urlencoded" class="tna-!--margin-top-l" novalidate>
