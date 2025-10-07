@@ -16,6 +16,8 @@ from flask_wtf import FlaskForm
 from wtforms import FileField, FormField, MultipleFileField
 from wtforms.validators import InputRequired
 
+from tna_frontend_jinja.wtforms import TnaDateField
+
 from .result_handlers import (
     APIResultHandler,
     EmailResultHandler,
@@ -523,10 +525,10 @@ class FormPage:
         elif self.form_class:
             temp_form = self.form_class(data=self.get_saved_form_data())
             temp_form._fields.pop("csrf_token", None)
-            for field in temp_form._fields:
-                if isinstance(field, FormField):
-                    for sub_field in field:
-                        sub_field.pop("csrf_token", None)
+            # for field in temp_form._fields:
+            #     if isinstance(field, FormField):
+            #         for sub_field in field:
+            #             sub_field.pop("csrf_token", None)
             is_complete = temp_form.validate()
             return is_complete and self.altcha_verified()
         return True
@@ -622,6 +624,9 @@ class FormPage:
                     form_data[field] = file
                 # elif isinstance(self.form[field], FormField):
                 #     form_data[field].pop("csrf_token", None)
+                # TODO: Remove on next release of TNA Frontend Jinja which can handle datetime objects
+                elif isinstance(self.form[field], TnaDateField):
+                    form_data[field] = form_data[field].strftime("%d %m %Y")
             self.save_form_data(form_data)
 
             if self.is_complete():

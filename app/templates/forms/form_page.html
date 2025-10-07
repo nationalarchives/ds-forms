@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 
+{%- from 'components/details/macro.html' import tnaDetails -%}
 {%- from 'forms/macros/altcha_widget.html' import altcha_widget -%}
 {%- from 'forms/macros/form_error_summary.html' import form_error_summary -%}
 
@@ -61,35 +62,39 @@
           </div>
         </form>
 
-        <hr class="tna-!--margin-top-l">
+        <hr class="tna-!--margin-top-xl">
+        
+        {%- call tnaDetails({
+          'title': 'Debug information'
+        }) %}
+          <h2 class="tna-heading-l">Session data</h2>
+          <dl class="tna-dl">
+            {% for page in session %}
+            <dt>{{ page }}</dt>
+            <dd>
+              {{ session[page] }}
+            </dd>
+            {% endfor %}
+            <dt>has_complete_path</dt>
+            <dd>{{ has_complete_path }}</dd>
+            <dt>earliest_incomplete_page</dt>
+            <dd>{{ earliest_incomplete_page }}</dd>
+          </dl>
+          <h2 class="tna-heading-l">All pages</h2>
+          <ul class="tna-ul">
+            {% for page in pages %}
+            <li>
+              <a href="{{ page.get_page_path() }}">{{ page.name }}</a>
+              {% if page.is_complete(temporary_validation=True) %}
+                (Complete)
+              {% else %}
+                (Incomplete)
+              {% endif %}
+            </li>
+            {% endfor %}
+          </ul>
+        {%- endcall %}
 
-        <h2 class="tna-heading-l">Session data</h2>
-        <dl class="tna-dl">
-          {% for page in session %}
-          <dt>{{ page }}</dt>
-          <dd>
-            {{ session[page] }}
-          </dd>
-          {% endfor %}
-          <dt>has_complete_path</dt>
-          <dd>{{ has_complete_path }}</dd>
-          <dt>earliest_incomplete_page</dt>
-          <dd>{{ earliest_incomplete_page }}</dd>
-        </dl>
-
-        <h2 class="tna-heading-l">All pages</h2>
-        <ul class="tna-ul">
-          {% for page in pages %}
-          <li>
-            <a href="{{ page.get_page_path() }}">{{ page.name }}</a>
-            {% if page.is_complete(temporary_validation=True) %}
-              (Complete)
-            {% else %}
-              (Incomplete)
-            {% endif %}
-          </li>
-          {% endfor %}
-        </ul>
         <p>
           <a href="{{ form_reset_path }}">Clear data and start again</a>
         </p>

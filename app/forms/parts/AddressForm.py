@@ -6,6 +6,9 @@ from wtforms.validators import DataRequired
 
 
 class AddressFormFields(FlaskForm):
+    class Meta:
+        csrf = False
+
     address_line_1 = StringField(
         "Address line 1",
         description="Typically the building and street",
