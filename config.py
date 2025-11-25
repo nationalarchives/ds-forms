@@ -31,7 +31,7 @@ class Production(Features):
 
     SECRET_KEY: str = os.environ.get("SECRET_KEY", "")
 
-    DEBUG: bool = strtobool(os.getenv("DEBUG", "False"))
+    DEBUG: bool = False
 
     COOKIE_DOMAIN: str = os.environ.get("COOKIE_DOMAIN", "")
 
@@ -79,11 +79,11 @@ class Production(Features):
 
 
 class Staging(Production):
-    pass
+    DEBUG: bool = strtobool(os.getenv("DEBUG", "False"))
 
 
 class Develop(Production):
-    pass
+    DEBUG: bool = strtobool(os.getenv("DEBUG", "False"))
 
 
 class Test(Production):
