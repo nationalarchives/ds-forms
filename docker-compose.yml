@@ -7,7 +7,6 @@ services:
         # IMAGE_TAG: latest
         IMAGE_TAG: image-refactor # TEMP: Until new images are merged
     environment:
-      - RUNTIME=develop
       - ENVIRONMENT_NAME=develop
       - CONFIG=config.Develop
       - DEBUG=true
