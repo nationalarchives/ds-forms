@@ -3,10 +3,9 @@ services:
     build:
       context: .
       args:
-        IMAGE: ghcr.io/nationalarchives/tna-python-root
-        IMAGE_TAG: 0
+        IMAGE: ghcr.io/nationalarchives/tna-python-dev
+        IMAGE_TAG: latest
     environment:
-      - RUNTIME=develop
       - ENVIRONMENT_NAME=develop
       - CONFIG=config.Develop
       - DEBUG=true
@@ -30,16 +29,12 @@ services:
       - ./:/app
     depends_on:
       - redis
+    healthcheck:
+      start_period: 10s
+      start_interval: 2s
 
   redis:
     image: redis:latest
-
-  dev:
-    environment:
-      - CONFIG=config.Test
-    image: ghcr.io/nationalarchives/tna-python-dev:preview
-    volumes:
-      - ./:/app
 
   docs:
     image: squidfunk/mkdocs-material

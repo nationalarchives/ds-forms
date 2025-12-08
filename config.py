@@ -54,7 +54,7 @@ class Production(Features):
     CSP_FEATURE_PICTURE_IN_PICTURE: list[str] = os.environ.get(
         "CSP_FEATURE_PICTURE_IN_PICTURE", "'self'"
     ).split(",")
-    FORCE_HTTPS: bool = strtobool(os.getenv("FORCE_HTTPS", "True"))
+    FORCE_HTTPS: bool = strtobool(os.getenv("FORCE_HTTPS", "False"))
     PREFERRED_URL_SCHEME: str = os.getenv("PREFERRED_URL_SCHEME", "https")
 
     SESSION_REDIS_URL: str = os.environ.get("SESSION_REDIS_URL", "")
