@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {%- set status_code = 500 -%}
 
@@ -8,7 +8,7 @@
       'href': '/'
     }
   }) }}
-{% endblock %}
+{% endblock header %}
 
 {% block content %}
   <div class="tna-container">
@@ -22,4 +22,4 @@
       </p>
     </div>
   </div>
-{% endblock %}
+{% endblock content %}

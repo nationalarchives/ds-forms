@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {%- from 'components/details/macro.html' import tnaDetails -%}
 {%- from 'forms/macros/altcha_widget.html' import altcha_widget -%}
@@ -9,7 +9,7 @@
     {%- if altcha %}
     <link rel="stylesheet" href="{{ url_for('static', filename='altcha.css', v=app_config.BUILD_VERSION) }}" media="screen">
     {%- endif %}
-{% endblock %}
+{% endblock header %}
 
 {% block content %}
   <div class="tna-section">
@@ -101,11 +101,11 @@
       </div>
     </div>
   </div>
-{% endblock %}
+{% endblock content %}
 
 {% block bodyEnd %}
     {{ super() }}
     {%- if altcha %}
     <script src="{{ url_for('static', filename='altcha.min.js', v=app_config.BUILD_VERSION) }}" type="module" defer></script>
     {%- endif %}
-{% endblock %}
+{% endblock bodyEnd %}

@@ -1,3 +1,4 @@
+import datetime
 from collections.abc import Callable
 from typing import Optional, TypedDict
 
@@ -15,8 +16,6 @@ from flask import (
 from flask_wtf import FlaskForm
 from wtforms import FileField, FormField, MultipleFileField
 from wtforms.validators import InputRequired
-
-from tna_frontend_jinja.wtforms import TnaDateField
 
 from .result_handlers import (
     APIResultHandler,
@@ -530,6 +529,8 @@ class FormPage:
             #         for sub_field in field:
             #             sub_field.pop("csrf_token", None)
             is_complete = temp_form.validate()
+            if not is_complete:
+                current_app.logger.debug(temp_form.errors)
             return is_complete and self.altcha_verified()
         return True
 
@@ -613,19 +614,22 @@ class FormPage:
         if request.method == "POST":
             form_data = self.form.data
             form_data.pop("csrf_token", None)
-            for field in self.form.data:
-                if isinstance(self.form[field], FileField) or isinstance(
-                    self.form[field], MultipleFileField
+            for field in form_data:
+                print()
+                print(f"Processing field '{field}'")
+                print(type(form_data[field]))
+                if isinstance(form_data[field], FileField) or isinstance(
+                    form_data[field], MultipleFileField
                 ):
                     # TODO: Handle file saving
                     print(f"Removing file field '{field}' from saved data")
                     form_data.pop(field, None)
-                    file = self.process_file(self.form[field])
+                    file = self.process_file(form_data[field])
                     form_data[field] = file
-                # elif isinstance(self.form[field], FormField):
+                # elif isinstance(form_data[field], FormField):
                 #     form_data[field].pop("csrf_token", None)
                 # TODO: Remove on next release of TNA Frontend Jinja which can handle datetime objects
-                elif isinstance(self.form[field], TnaDateField):
+                elif isinstance(form_data[field], datetime.date):
                     form_data[field] = form_data[field].strftime("%d %m %Y")
             self.save_form_data(form_data)
 
