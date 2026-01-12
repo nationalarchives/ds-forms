@@ -111,7 +111,16 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
         page_config = page.yaml_config
 
         for redirection in page_config.get("redirectWhenComplete", []):
-            redirect_page = form_flow.get_page_by_id(redirection.get("page", ""))
+            redirect_page_id = redirection.get("page", "")
+            redirect_page = None
+            if redirect_page_id:
+                try:
+                    redirect_page = form_flow.get_page_by_id(
+                        redirection.get("page", "")
+                    )
+                except KeyError:
+                    # Page not found
+                    pass
             redirect_url = redirection.get("url", "")
             redirect_flask_method = redirection.get("flaskMethod", "")
             if not (redirect_page or redirect_url or redirect_flask_method):
@@ -133,7 +142,10 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
             )
 
         for requirement in page_config.get("requireResponse", []):
-            required_page = form_flow.get_page_by_id(requirement.get("page"))
+            try:
+                required_page = form_flow.get_page_by_id(requirement.get("page"))
+            except KeyError:
+                required_page = None
             if not required_page:
                 raise ValueError(
                     f"Required page '{requirement.get('page')}' not found in form flow as a prerequisite to '{page.slug}'."
@@ -145,9 +157,14 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
             )
 
         if require_completion_of := page_config.get("requires", []):
-            required_pages = [
-                form_flow.get_page_by_id(id) for id in require_completion_of
-            ]
+            required_pages = []
+            for id in require_completion_of:
+                try:
+                    required_page = form_flow.get_page_by_id(id)
+                    required_pages.append(required_page)
+                except KeyError:
+                    # Page not found
+                    pass
             if any([page is None for page in required_pages]):
                 raise ValueError(
                     f"One or more required pages for 'requires' of '{page.slug}' not found in form flow."
@@ -155,18 +172,28 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
             page.require_completion_of(*required_pages)
 
         if require_completion_of_any := page_config.get("requiresAny", []):
-            required_pages = [
-                form_flow.get_page_by_id(id) for id in require_completion_of_any
-            ]
+            required_pages = []
+            for id in require_completion_of_any:
+                try:
+                    required_page = form_flow.get_page_by_id(id)
+                    required_pages.append(required_page)
+                except KeyError:
+                    # Page not found
+                    pass
             if any([page is None for page in required_pages]):
                 raise ValueError(
                     f"One or more required pages for 'requiresAny' of '{page.slug}' not found in form flow."
                 )
-            fallback_page = form_flow.get_page_by_id(
-                page_config.get("redirectIfNotComplete", None)
-            )
-            page.require_completion_of_any(
-                pages=required_pages, fallback_page=fallback_page
-            )
+            fallback_page_id = page_config.get("redirectIfNotComplete", None)
+            if fallback_page_id is not None:
+                try:
+                    fallback_page = form_flow.get_page_by_id(fallback_page_id)
+                    page.require_completion_of_any(
+                        pages=required_pages, fallback_page=fallback_page
+                    )
+                except KeyError:
+                    raise ValueError(
+                        f"Fallback page '{fallback_page_id}' for 'requiresAny' of '{page.slug}' not found in form flow."
+                    )
 
     return form_flow

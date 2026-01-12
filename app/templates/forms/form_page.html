@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 
+{%- from 'components/back-link/macro.html' import tnaBackLink -%}
 {%- from 'components/details/macro.html' import tnaDetails -%}
 {%- from 'forms/macros/altcha_widget.html' import altcha_widget -%}
 {%- from 'forms/macros/form_error_summary.html' import form_error_summary -%}
@@ -10,6 +11,25 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='altcha.css', v=app_config.BUILD_VERSION) }}" media="screen">
     {%- endif %}
 {% endblock header %}
+
+{% block beforeContent %}
+{%- if content.breadcrumbs or content.backLink %}
+<div class="tna-container">
+  <div class="tna-column tna-column--full tna-!--padding-vertical-s">
+    {%- if content.breadcrumbs %}
+    {{ tnaBreadcrumbs({
+      'items': content.breadcrumbs['items']
+    }) }}
+    {%- elif content.backLink %}
+    {{ tnaBackLink({
+      'text': content.backLink.text,
+      'href': get_page_by_id(content.backLink.page).get_page_path()
+    }) }}
+    {%- endif %}
+  </div>
+</div>
+{%- endif %}
+{% endblock beforeContent %}
 
 {% block content %}
   <div class="tna-section">
@@ -84,6 +104,7 @@
           <ul class="tna-ul">
             {% for page in pages %}
             <li>
+              {{ page.id }}:
               <a href="{{ page.get_page_path() }}">{{ page.name }}</a>
               {% if page.is_complete(temporary_validation=True) %}
                 (Complete)

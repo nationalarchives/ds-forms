@@ -1,6 +1,27 @@
 {% extends "base.html" %}
 
+{%- from 'components/back-link/macro.html' import tnaBackLink -%}
+{%- from 'components/breadcrumbs/macro.html' import tnaBreadcrumbs -%}
 {%- from 'components/button/macro.html' import tnaButton -%}
+
+{% block beforeContent %}
+{%- if content.breadcrumbs or content.backLink %}
+<div class="tna-container">
+  <div class="tna-column tna-column--full tna-!--padding-vertical-s">
+    {%- if content.breadcrumbs %}
+    {{ tnaBreadcrumbs({
+      'items': content.breadcrumbs['items']
+    }) }}
+    {%- elif content.backLink %}
+    {{ tnaBackLink({
+      'text': content.backLink.text,
+      'href': get_page_by_id(content.backLink.page).get_page_path()
+    }) }}
+    {%- endif %}
+  </div>
+</div>
+{%- endif %}
+{% endblock beforeContent %}
 
 {% block content %}
   <div class="tna-section">

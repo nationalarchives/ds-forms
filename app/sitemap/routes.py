@@ -2,7 +2,7 @@ import os
 
 from app.forms.config import form_flow_from_config, load_config
 from app.sitemap import bp
-from flask import current_app, make_response, render_template, url_for
+from flask import current_app, make_response, render_template
 
 
 @bp.route("/sitemap.xml")
@@ -15,14 +15,7 @@ def index():
             config = load_config(name)
             form_flow = form_flow_from_config(config, name)
             if not form_flow.meta("exclude_from_sitemap", False):
-                forms.append(
-                    url_for(
-                        "forms.start_page",
-                        form_slug=name.replace(".yml", ""),
-                        _external=True,
-                        _scheme="https",
-                    )
-                )
+                forms.append(form_flow.get_starting_page().get_page_path(external=True))
 
     xml_sitemap_index = render_template("sitemap.xml", forms=forms)
     response = make_response(xml_sitemap_index)

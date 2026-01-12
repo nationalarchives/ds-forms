@@ -38,7 +38,7 @@ class FormFlow:
         metadata: Optional[dict] = None,
     ):
         self.slug = slug
-        self.pages: dict[str:"FormPage"] = {}
+        self.pages: dict[str, "FormPage"] = {}
         self.starting_page_id: str = ""
         self.final_page_id: str = ""
         self.metadata: dict = metadata if metadata else {}
@@ -59,11 +59,11 @@ class FormFlow:
         id: str,
         name: str,
         slug: str,
-        content: Optional[dict] = {},
+        content: dict = {},
         template: str = "",
         form: Optional[FlaskForm] = None,
         altcha: bool = False,
-        yaml_config: Optional[dict] = None,
+        yaml_config: dict = {},
     ):
         """
         Add a page to the flow.
@@ -87,11 +87,11 @@ class FormFlow:
         id: str,
         name: str,
         slug: str = "/",
-        content: Optional[dict] = {},
+        content: dict = {},
         template: str = "",
         form: Optional[FlaskForm] = None,
         altcha: bool = False,
-        yaml_config: Optional[dict] = None,
+        yaml_config: dict = {},
     ):
         """
         Set the starting page of the flow.
@@ -114,9 +114,9 @@ class FormFlow:
         id: str,
         name: str,
         slug: str = "/",
-        content: Optional[dict] = {},
+        content: dict = {},
         template: str = "",
-        yaml_config: Optional[dict] = None,
+        yaml_config: dict = {},
     ):
         """
         Set the final page of the flow.
@@ -131,22 +131,29 @@ class FormFlow:
             yaml_config=yaml_config,
         )
         self.final_page_id = id
-        self.result_handlers_config = yaml_config.get("resultHandlers", {})
+        if yaml_config and "resultHandlers" in yaml_config:
+            self.result_handlers_config = yaml_config.get("resultHandlers", {})
         return final_page
 
     def get_all_pages(self) -> list["FormPage"]:
         """
         Retrieve all pages in the flow.
         """
-        return self.pages.values()
+        return list(self.pages.values())
 
-    def get_page_by_id(self, id: str) -> Optional["FormPage"]:
+    def get_page_by_id(self, id: str) -> "FormPage":
         """
         Retrieve a page by its id.
         """
-        if id and id in self.pages:
+        if not id:
+            raise ValueError("Page id must be provided")
+        if id in self.pages:
             return self.pages[id]
-        return None
+        if id == "startingPage":
+            return self.get_starting_page()
+        if id == "finalPage":
+            return self.get_final_page()
+        raise KeyError(f"Page with id '{id}' not found in flow")
 
     def get_page_by_slug(self, slug: str) -> Optional["FormPage"]:
         """
@@ -160,7 +167,10 @@ class FormFlow:
         """
         if not self.starting_page_id:
             raise ValueError("Starting page is not set for this flow")
-        return self.get_page_by_id(self.starting_page_id)
+        try:
+            return self.get_page_by_id(self.starting_page_id)
+        except KeyError:
+            raise ValueError("Starting page is not found in this flow")
 
     def get_starting_path(self) -> str:
         """
@@ -180,7 +190,10 @@ class FormFlow:
         """
         if not self.final_page_id:
             raise ValueError("Final page is not set for this flow")
-        return self.get_page_by_id(self.final_page_id)
+        try:
+            return self.get_page_by_id(self.final_page_id)
+        except KeyError:
+            raise ValueError("Final page is not found in this flow")
 
     def get_data(self) -> dict:
         """
@@ -295,34 +308,39 @@ class FormFlow:
             "mongodb": MongoDBResultHandler,
             "api": APIResultHandler,
         }
-        for result_handler in self.result_handlers_config:
-            current_app.logger.debug(f"Processing result handler: {result_handler}")
-            handler_type = result_handler.get("type", "")
-            if handler_type not in handler_classes:
-                raise ValueError(f"Unsupported result handler type: {handler_type}")
+        if self.result_handlers_config:
+            for result_handler in self.result_handlers_config:
+                current_app.logger.debug(f"Processing result handler: {result_handler}")
+                handler_type = result_handler.get("type", "")
+                if handler_type not in handler_classes:
+                    raise ValueError(f"Unsupported result handler type: {handler_type}")
 
-            details = result_handler.get("details", {})
-            if not details:
-                raise ValueError("Result handler details are not set for this flow")
+                details = result_handler.get("details", {})
+                if not details:
+                    raise ValueError("Result handler details are not set for this flow")
 
-            try:
-                handler = handler_classes[handler_type](**details.get("init", {}))
-                handler.process(data=self.get_data(), **details.get("process", {}))
-                handler_success = handler.send(**details.get("send", {}))
-                if not handler_success:
+                try:
+                    handler = handler_classes[handler_type](**details.get("init", {}))
+                    handler.process(data=self.get_data(), **details.get("process", {}))
+                    handler_success = handler.send(**details.get("send", {}))
+                    if not handler_success:
+                        current_app.logger.error(
+                            f"Result handler '{handler_type}' failed to send"
+                        )
+                        success = False
+                except Exception as e:
                     current_app.logger.error(
-                        f"Result handler '{handler_type}' failed to send"
+                        f"Error handling form flow completion: {e}"
                     )
                     success = False
-            except Exception as e:
-                current_app.logger.error(f"Error handling form flow completion: {e}")
-                success = False
 
         if success:
             current_app.logger.debug("Form flow completion handled successfully")
         else:
             current_app.logger.error("Form flow completion handling failed")
         session["completion_handled"] = success
+
+        return success
 
 
 class PageCompletionRule(TypedDict):
@@ -407,13 +425,24 @@ class FormPage:
     def __str__(self):
         return f"FormPage({self.id})"
 
-    def get_page_path(self) -> str:
+    def get_page_path(self, external=False) -> str:
         """
         Get the path for this page.
         """
         if self.slug == "/":
-            return url_for("forms.start_page", form_slug=self.flow.slug)
-        return url_for("forms.page", form_slug=self.flow.slug, page_slug=self.slug)
+            return url_for(
+                "forms.start_page",
+                form_slug=self.flow.slug,
+                _scheme="https" if external else None,
+                _external=external,
+            )
+        return url_for(
+            "forms.page",
+            form_slug=self.flow.slug,
+            page_slug=self.slug,
+            _scheme="https" if external else None,
+            _external=external,
+        )
 
     def require_completion_of(self, *pages: "FormPage"):
         """
