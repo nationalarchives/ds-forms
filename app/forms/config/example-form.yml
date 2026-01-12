@@ -1,3 +1,6 @@
+meta:
+  exclude_from_sitemap: true
+
 startingPage:
   id: pizza_or_chocolate
   name: Pizza or chocolate

@@ -35,16 +35,24 @@ class FormFlow:
         self,
         slug: str,
         config_hash: Optional[str] = "",
+        metadata: Optional[dict] = None,
     ):
         self.slug = slug
         self.pages: dict[str:"FormPage"] = {}
         self.starting_page_id: str = ""
         self.final_page_id: str = ""
+        self.metadata: dict = metadata if metadata else {}
         self.result_handlers_config: Optional[list[dict]] = None
         if session.get("config_hash", "") != config_hash:
-            current_app.logger.warn("Form configuration has changed, resetting flow")
+            current_app.logger.warning("Form configuration has changed, resetting flow")
             self.reset()
             session["config_hash"] = config_hash
+
+    def meta(self, key: str, default=None):
+        """
+        Get metadata for the flow.
+        """
+        return self.metadata.get(key, default)
 
     def create_page(
         self,

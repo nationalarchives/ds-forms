@@ -6,13 +6,16 @@ from pathlib import Path
 
 import yaml
 from app.forms.models import FormFlow
+from flask import current_app
 
 
-def load_config(form_slug: str) -> FormFlow:
+def load_config(form_slug: str) -> dict:
     if not form_slug:
         raise ValueError("Form slug must be provided")
 
-    config_path = os.path.join("/", "app", "app", "forms", "config", f"{form_slug}.yml")
+    config_path = os.path.join(
+        current_app.root_path, "forms", "config", f"{form_slug}.yml"
+    )
 
     form_config = Path(config_path)
     if not form_config.is_file():
@@ -42,6 +45,7 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
     form_flow = FormFlow(
         slug=slug,
         config_hash=config_hash,
+        metadata=config.get("meta"),
     )
 
     starting_page_config = config.get("startingPage", {})

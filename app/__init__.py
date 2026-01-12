@@ -117,10 +117,12 @@ def create_app(config_class):
     from .forms import bp as forms_bp
     from .healthcheck import bp as healthcheck_bp
     from .main import bp as site_bp
+    from .sitemap import bp as sitemap_bp
 
     app.register_blueprint(site_bp)
     app.register_blueprint(healthcheck_bp, url_prefix="/healthcheck")
     app.register_blueprint(altcha_bp, url_prefix=f"{application_path_prefix}/altcha")
     app.register_blueprint(forms_bp)
+    app.register_blueprint(sitemap_bp, url_prefix=application_path_prefix)
 
     return app
