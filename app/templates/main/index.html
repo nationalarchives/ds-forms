@@ -35,6 +35,56 @@
           <a href="https://github.com/nationalarchives/ds-docker-actions">Digital Services Docker build actions</a>
         </li>
       </ul>
+      <h2 class="tna-heading-l">Routes</h2>
+      <div class="tna-table-wrapper" tabindex="0" role="region" aria-labelledby="routes-caption">
+        <table class="tna-table">
+          <caption id="routes-caption" class="tna-table__caption">
+            Registered routes in this application
+          </caption>
+          <thead class="tna-table__head">
+            <tr class="tna-table__row">
+              <th class="tna-table__header">Path</th>
+              <th class="tna-table__header">Methods</th>
+            </tr>
+          </thead>
+          <tbody class="tna-table__body">
+            {% for route in routes %}
+            <tr class="tna-table__row">
+              <th class="tna-table__header">{{ route.path }}</th>
+              <td class="tna-table__cell">
+                {{ ', '.join(route.methods) }}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <h2 class="tna-heading-l">Forms</h2>
+      <div class="tna-table-wrapper" tabindex="0" role="region" aria-labelledby="forms-caption">
+        <table class="tna-table">
+          <caption id="forms-caption" class="tna-table__caption">
+            Forms in this application
+          </caption>
+          <thead class="tna-table__head">
+            <tr class="tna-table__row">
+              <th class="tna-table__header">Slug</th>
+              <th class="tna-table__header">Config file</th>
+              <th class="tna-table__header">Route</th>
+            </tr>
+          </thead>
+          <tbody class="tna-table__body">
+            {% for form in forms %}
+            <tr class="tna-table__row">
+              <th class="tna-table__header">{{ form.slug }}</th>
+              <td class="tna-table__cell">{{ form.config }}</td>
+              <td class="tna-table__cell">
+                <a href="{{ form.path }}">{{ form.path }}</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>

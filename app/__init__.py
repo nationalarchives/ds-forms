@@ -13,7 +13,9 @@ from tna_frontend_jinja.wtforms.helpers import WTFormsHelpers
 
 
 def create_app(config_class):
-    app = Flask(__name__, static_url_path="/forms/static")
+    application_path_prefix = "/forms"
+
+    app = Flask(__name__, static_url_path=f"{application_path_prefix}/static")
     app.config.from_object(config_class)
 
     gunicorn_error_logger = logging.getLogger("gunicorn.error")
@@ -118,7 +120,7 @@ def create_app(config_class):
 
     app.register_blueprint(site_bp)
     app.register_blueprint(healthcheck_bp, url_prefix="/healthcheck")
-    app.register_blueprint(altcha_bp, url_prefix="/altcha")
+    app.register_blueprint(altcha_bp, url_prefix=f"{application_path_prefix}/altcha")
     app.register_blueprint(forms_bp)
 
     return app
