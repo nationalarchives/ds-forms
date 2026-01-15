@@ -38,6 +38,10 @@ pages:
   - id: pizza_topping
     name: Pizza toppings
     slug: pizza-topping
+    content:
+      backLink:
+        text: Choose again
+        page: pizza_or_chocolate
     form: PizzaToppingsForm
     requireResponse:
       - page: pizza_or_chocolate
@@ -49,6 +53,10 @@ pages:
   - id: pizza_photo
     name: Pizza photo
     slug: pizza-photo
+    content:
+      backLink:
+        text: Choose a different topping
+        page: pizza_topping
     form: PizzaPhotoForm
     requires:
       - pizza_topping
@@ -61,6 +69,10 @@ pages:
   - id: type_of_chocolate
     name: Type of Chocolate
     slug: type-of-chocolate
+    content:
+      backLink:
+        text: Choose again
+        page: pizza_or_chocolate
     form: TypeOfChocolateForm
     requireResponse:
       - page: pizza_or_chocolate
@@ -85,6 +97,10 @@ pages:
   - id: email
     name: Enter your email address
     slug: email
+    content:
+      backLink:
+        text: Change your address
+        page: address
     form: EmailForm
     requires:
       - address
