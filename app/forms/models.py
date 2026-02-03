@@ -626,7 +626,7 @@ class FormPage:
                     return redirect(redirect_to_page.get_page_path())
 
         for requires_responses in self.requires_responses:
-            (page, key, required_response) = requires_responses
+            page, key, required_response = requires_responses
             data = page.get_saved_form_data()
             if data.get(key, None) != required_response:
                 current_app.logger.warning(
