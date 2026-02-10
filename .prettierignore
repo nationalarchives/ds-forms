@@ -1,2 +1,4 @@
 **/*.html
+**/*.min.js
+**/*.css
 test-results
