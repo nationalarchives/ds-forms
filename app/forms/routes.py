@@ -22,8 +22,8 @@ def start_page(form_slug):
     if not form_flow:
         return render_template("errors/page_not_found.html"), 404
 
-    if form_flow.has_complete_path():
-        return redirect(form_flow.get_final_page().get_page_path())
+    # if form_flow.has_complete_path():
+    #     return redirect(form_flow.get_final_page().get_page_path())
 
     if form_flow.get_starting_path() != request.path:
         return redirect(form_flow.get_starting_path())
