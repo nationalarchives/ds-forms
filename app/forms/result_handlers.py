@@ -106,7 +106,7 @@ class EmailResultHandler(ResultHandler):
                     "Body": {"Html": {"Charset": "UTF-8", "Data": content}},
                 },
             )
-            id = response.get('MessageId')
+            id = response.get("MessageId")
             current_app.logger.debug(f"Email sent with ID {id}")
             self.result_data = {"id": id}
             return True
