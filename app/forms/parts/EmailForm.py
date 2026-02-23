@@ -6,10 +6,10 @@ from wtforms.validators import DataRequired, Email
 
 class EmailForm(FlaskForm):
     email_address = EmailField(
-        "Enter your email address",
+        "Enter your email",
         validators=[
-            DataRequired(message="Enter an email address"),
-            Email(message="Enter a valid email address"),
+            DataRequired(message="Enter an email"),
+            Email(message="Enter a valid email"),
         ],
         widget=TnaEmailInputWidget(),
         render_kw={"size": "l", "autocomplete": "email"},
