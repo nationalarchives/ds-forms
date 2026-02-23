@@ -1,37 +1,35 @@
 {% extends "base.html" %}
 
-{%- from 'components/panel/macro.html' import tnaPanel -%}
+{%- from 'components/breadcrumbs/macro.html' import tnaBreadcrumbs -%}
+{%- from 'components/button/macro.html' import tnaButton -%}
+{%- from 'forms/macros/form_error_summary.html' import form_error_summary -%}
 
 {% block content %}
   <div class="tna-section">
     <div class="tna-container">
       <div class="tna-column tna-column--width-2-3 tna-column--width-5-6-medium tna-column--full-small tna-column--full-tiny">
-        {%- if completion_handled %}
-        {{ tnaPanel({
-          'title': panelTitle or pageTitle,
-          'text': panelText
-        }) }}
-        {{ completion_results }}
-        {{ body | safe }}
-        <p>
-          <a href="{{ form_reset_path }}">Start again</a>
-        </p>
-        {%- else %}
-        <h1 class="tna-heading-xl">An error occured</h1>
-        <p>Something went wrong.</p>
-        {%- if 'retry' in request.args %}
-        <p>
-          <a href="#">Contact us</a>
-        </p>
-        {%- else %}
-        <p>
-          <a href="{{ final_page.get_page_path() }}?retry">Try submitting again</a>
-        </p>
-        {%- endif %}
-        {%- endif %}
+        {{ form_error_summary(form, altcha, altcha_verified) }}
 
-        <hr class="tna-!--margin-top-l">
+        <h1 class="tna-heading-xl">{{ pageTitle }}</h1>
+        {%- if content.description %}
+        <p class="tna-scene-setter">{{ content.description | safe }}</p>
+        {%- endif %}
+        {{ content.body | safe }}
 
+        <form action="{{ page_path }}" method="post" enctype="application/x-www-form-urlencoded" class="tna-!--margin-top-m" novalidate>
+          {{ form.email_address(params={'headingSize': 'm'}) }}
+
+          {{ form.csrf_token }}
+
+          {{ content.beforeSubmit | safe }}
+
+          <div class="tna-button-group">
+            <button class="tna-button" type="submit">Continue</button>
+          </div>
+        </form>
+
+        <hr class="tna-!--margin-top-xl">
+        
         <h2 class="tna-heading-l">Session data</h2>
         <dl class="tna-dl">
           {% for page in session %}
@@ -44,14 +42,12 @@
           <dd>{{ has_complete_path }}</dd>
           <dt>earliest_incomplete_page</dt>
           <dd>{{ earliest_incomplete_page }}</dd>
-          <dt>completion_handled</dt>
-          <dd>{{ completion_handled }}</dd>
         </dl>
-        
         <h2 class="tna-heading-l">All pages</h2>
         <ul class="tna-ul">
           {% for page in pages %}
           <li>
+            {{ page.id }}:
             <a href="{{ page.get_page_path() }}">{{ page.name }}</a>
             {% if page.is_complete(temporary_validation=True) %}
               (Complete)
@@ -63,8 +59,9 @@
         </ul>
 
         <p>
-          <a href="{{ form_reset_path }}">Start again</a>
+          <a href="{{ form_reset_path }}">Clear data and start again</a>
         </p>
+
       </div>
     </div>
   </div>
