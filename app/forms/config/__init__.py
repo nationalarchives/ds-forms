@@ -110,6 +110,9 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
     for page in form_flow.get_all_pages():
         page_config = page.yaml_config
 
+        if not page_config:
+            continue
+
         for redirection in page_config.get("redirectWhenComplete", []):
             redirect_page_id = redirection.get("page", "")
             redirect_page = None
