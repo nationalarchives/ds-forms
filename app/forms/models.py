@@ -25,6 +25,12 @@ from .result_handlers import (
 )
 
 
+class ResultHandlerResult(TypedDict):
+    type: str
+    success: bool
+    result: dict
+
+
 class FormFlow:
     """
     Represents a collection of form pages in a flow.
@@ -222,7 +228,7 @@ class FormFlow:
 
         def deep_completion_check(page: "FormPage") -> Optional["FormPage"]:
             current_app.logger.debug(f"Deep completion check for '{page.id}'")
-            if not page.is_complete(temporary_validation=True):
+            if page.form and not page.is_complete(temporary_validation=True):
                 current_app.logger.debug(f"Page '{page.id}' is not complete")
                 return page
 
@@ -287,7 +293,26 @@ class FormFlow:
         """
         Check if the completion logic has been handled.
         """
-        return session.get("completion_handled", False)
+        return (
+            all(result["success"] for result in self.get_completion_results())
+            if len(self.get_completion_results())
+            else False
+        )
+
+    def get_completion_results(self) -> list[ResultHandlerResult]:
+        """
+        Get the results of the completion handlers.
+        """
+        return session.get("completion_results", [])
+
+    def get_completion_result_first_id(self) -> str:
+        """
+        Get the ID of the first completion result.
+        """
+        results = self.get_completion_results()
+        if len(results) and "result" in results[0] and "id" in results[0]["result"]:
+            return results[0]["result"]["id"]
+        return ""
 
     def handle_completion(self) -> bool:
         if self.is_completion_handled():
@@ -308,6 +333,9 @@ class FormFlow:
             "mongodb": MongoDBResultHandler,
             "api": APIResultHandler,
         }
+
+        results = []
+
         if self.result_handlers_config:
             for result_handler in self.result_handlers_config:
                 current_app.logger.debug(f"Processing result handler: {result_handler}")
@@ -319,26 +347,50 @@ class FormFlow:
                 if not details:
                     raise ValueError("Result handler details are not set for this flow")
 
+                handler = None
                 try:
                     handler = handler_classes[handler_type](**details.get("init", {}))
                     handler.process(data=self.get_data(), **details.get("process", {}))
                     handler_success = handler.send(**details.get("send", {}))
-                    if not handler_success:
+                    if handler_success:
+                        results.append(
+                            {
+                                "type": handler_type,
+                                "success": True,
+                                "result": handler.result(),
+                            }
+                        )
+                    else:
                         current_app.logger.error(
                             f"Result handler '{handler_type}' failed to send"
                         )
-                        success = False
+                        results.append(
+                            {
+                                "type": handler_type,
+                                "success": False,
+                                "result": handler.result(),
+                            }
+                        )
                 except Exception as e:
                     current_app.logger.error(
                         f"Error handling form flow completion: {e}"
                     )
-                    success = False
+                    results.append(
+                        {
+                            "type": handler_type,
+                            "success": False,
+                            "result": handler.result() if handler is not None else {},
+                        }
+                    )
+
+        success = all(result["success"] for result in results)
 
         if success:
             current_app.logger.debug("Form flow completion handled successfully")
         else:
             current_app.logger.error("Form flow completion handling failed")
-        session["completion_handled"] = success
+        # session["completion_handled"] = success
+        session["completion_results"] = results
 
         return success
 
@@ -511,6 +563,7 @@ class FormPage:
         """
         Save the form data to the session.
         """
+        print(f"Saving form data for page '{self.id}': {form_data}")
         session[self.id] = form_data
 
     def altcha_verified(self) -> bool:
@@ -648,16 +701,14 @@ class FormPage:
         if self.flow.is_completion_handled() and self != self.flow.get_final_page():
             return redirect(self.flow.get_final_page().get_page_path())
 
-        if request.method == "POST":
+        if self.form and request.method == "POST":
             form_data = self.form.data
             form_data.pop("csrf_token", None)
             for field in form_data:
                 print()
                 print(f"Processing field '{field}'")
                 print(type(form_data[field]))
-                if isinstance(form_data[field], FileField) or isinstance(
-                    form_data[field], MultipleFileField
-                ):
+                if isinstance(form_data[field], (FileField, MultipleFileField)):
                     # TODO: Handle file saving
                     print(f"Removing file field '{field}' from saved data")
                     form_data.pop(field, None)
@@ -667,6 +718,7 @@ class FormPage:
                 #     form_data[field].pop("csrf_token", None)
                 # TODO: Remove on next release of TNA Frontend Jinja which can handle datetime objects
                 elif isinstance(form_data[field], datetime.date):
+                    print("Date field")
                     form_data[field] = form_data[field].strftime("%d %m %Y")
             self.save_form_data(form_data)
 
@@ -689,19 +741,19 @@ class FormPage:
                         current_app.logger.debug(
                             f"Completion rule matched for page: '{self.id}'"
                         )
-                        if rule["page"]:
+                        if "page" in rule and rule["page"]:
                             current_app.logger.debug(
                                 f"Redirecting to page: '{rule['page'].id}'"
                             )
                             return redirect(rule["page"].get_page_path())
 
-                        if rule["flask_method"]:
+                        if "flask_method" in rule and rule["flask_method"]:
                             current_app.logger.debug(
                                 f"Redirecting to Flask method: '{rule['flask_method']}'"
                             )
                             return redirect(url_for(rule["flask_method"]))
 
-                        if rule["url"]:
+                        if "url" in rule and rule["url"]:
                             current_app.logger.debug(
                                 f"Redirecting to URL: {rule['url']}"
                             )
@@ -732,6 +784,8 @@ class FormPage:
             earliest_incomplete_page=self.flow.get_earliest_incomplete_page(),
             handle_files="fileHandler" in self.yaml_config,
             completion_handled=self.flow.is_completion_handled(),
+            completion_results=self.flow.get_completion_results(),
+            get_completion_result_first_id=self.flow.get_completion_result_first_id(),
             pages=self.flow.get_all_pages(),
             get_page_by_id=self.flow.get_page_by_id,
             final_page=self.flow.get_final_page(),
