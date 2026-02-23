@@ -54,6 +54,10 @@ class Production(Features):
     FORCE_HTTPS: bool = strtobool(os.getenv("FORCE_HTTPS", "False"))
     PREFERRED_URL_SCHEME: str = os.getenv("PREFERRED_URL_SCHEME", "https")
 
+    SESSION_COOKIE_NAME: str = "ds_forms_session"
+    SESSION_COOKIE_PATH: str = "/"
+    SESSION_COOKIE_SECURE: bool = True
+    SESSION_COOKIE_HTTPONLY: bool = True
     SESSION_REDIS_URL: str = os.environ.get("SESSION_REDIS_URL", "")
     if SESSION_REDIS_URL:
         SESSION_TYPE: str = "redis"
@@ -81,6 +85,8 @@ class Staging(Production):
 
 class Develop(Production):
     DEBUG: bool = strtobool(os.getenv("DEBUG", "False"))
+
+    SESSION_COOKIE_SECURE: bool = strtobool(os.getenv("SESSION_COOKIE_SECURE", "True"))
 
 
 class Test(Production):
