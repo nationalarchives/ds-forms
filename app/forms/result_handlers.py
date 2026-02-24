@@ -45,18 +45,9 @@ class EmailResultHandler(ResultHandler):
     """
 
     def __init__(self, **kwargs):
-        aws_access_key_id = current_app.config.get("AWS_ACCESS_KEY_ID")
-        aws_secret_access_key = current_app.config.get("AWS_SECRET_ACCESS_KEY")
-        aws_session_token = current_app.config.get("AWS_SESSION_TOKEN")
-        region_name = current_app.config.get("AWS_DEFAULT_REGION")
-        if not any([aws_access_key_id, aws_secret_access_key, aws_session_token]):
-            raise ValueError("SMTP configuration is not set properly")
         self.client = boto3.client(
             "ses",
-            aws_access_key_id=aws_access_key_id,
-            aws_secret_access_key=aws_secret_access_key,
-            aws_session_token=aws_session_token,
-            region_name=region_name,
+            region_name=current_app.config["AWS_REGION"],
         )
         self.data: dict = {}
         self.content: dict = {}
@@ -96,7 +87,7 @@ class EmailResultHandler(ResultHandler):
         if not to_email:
             raise ValueError("Recipient email address must be provided")
         subject = kwargs.get("subject", "Form Submission")
-        from_email = kwargs.get("from", "noreply@nationalarchives.gov.uk")
+        from_email = kwargs.get("from", current_app.config["SES_DEFAULT_FROM_EMAIL"])
         try:
             response = self.client.send_email(
                 Source=from_email,

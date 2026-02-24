@@ -35,35 +35,33 @@ docker compose exec dev format
 
 In addition to the [base Docker image variables](https://github.com/nationalarchives/docker/blob/main/docker/tna-python/README.md#environment-variables), this application has support for:
 
-| Variable                | Purpose                                                                      | Default             |
-| ----------------------- | ---------------------------------------------------------------------------- | ------------------- |
-| `CONFIG`                | The configuration to use                                                     | `config.Production` |
-| `DEBUG`                 | If true, allow debugging[^1]                                                 | `False`             |
-| `COOKIE_DOMAIN`         | The domain to save cookie preferences against                                | _none_              |
-| `CSP_IMG_SRC`           | A comma separated list of CSP rules for `img-src`                            | `'self'`            |
-| `CSP_SCRIPT_SRC`        | A comma separated list of CSP rules for `script-src`                         | `'self'`            |
-| `CSP_STYLE_SRC`         | A comma separated list of CSP rules for `style-src`                          | `'self'`            |
-| `CSP_FONT_SRC`          | A comma separated list of CSP rules for `font-src`                           | `'self'`            |
-| `CSP_CONNECT_SRC`       | A comma separated list of CSP rules for `connect-src`                        | `'self'`            |
-| `CSP_MEDIA_SRC`         | A comma separated list of CSP rules for `media-src`                          | `'self'`            |
-| `CSP_WORKER_SRC`        | A comma separated list of CSP rules for `worker-src`                         | `'self'`            |
-| `CSP_FRAME_SRC`         | A comma separated list of CSP rules for `frame-src`                          | `'self'`            |
-| `CSP_FRAME_ANCESTORS`   | A comma separated list of CSP rules for `frame-accestors`                    | `'self'`            |
-| `CSP_REPORT_URL`        | The URL to report CSP violations to                                          | _none_              |
-| `FORCE_HTTPS`           | Redirect requests to HTTPS as part of the CSP                                | _none_              |
-| `SESSION_REDIS_URL`     | A URL to a Redis instance used by session storage                            | _none_              |
-| `RATELIMIT_REDIS_URL`   | A URL to a Redis instance used by rate limiting                              | _none_              |
-| `RATELIMIT_DEFAULT`     | The default rate limiting amount[^2]                                         | _none_              |
-| `ALTCHA_HMAC_KEY`       | A secret key to use when generating ALTCHA challenges                        | _none_              |
-| `CACHE_TYPE`            | https://flask-caching.readthedocs.io/en/latest/#configuring-flask-caching    | `FileSystemCache`   |
-| `CACHE_DEFAULT_TIMEOUT` | The number of seconds to cache pages for                                     | `3600`              |
-| `CACHE_DIR`             | Directory for cache when using `CACHE_TYPE=FileSystemCache`                  | `/tmp`              |
-| `CACHE_REDIS_URL`       | The connection string for Redis when using `CACHE_TYPE=RedisCache`           | _none_              |
-| `AWS_ACCESS_KEY_ID`     | The access key ID (used to send emails with SES and store files with S3)     | _none_              |
-| `AWS_SECRET_ACCESS_KEY` | The secret access key (used to send emails with SES and store files with S3) | _none_              |
-| `AWS_SESSION_TOKEN`     | The AWS session token (used to send emails with SES and store files with S3) | _none_              |
-| `AWS_DEFAULT_REGION`    | The default AWS region                                                       | _none_              |
-| `GA4_ID`                | The Google Analytics 4 ID                                                    | _none_              |
+| Variable                | Purpose                                                                   | Default                           |
+| ----------------------- | ------------------------------------------------------------------------- | --------------------------------- |
+| `CONFIG`                | The configuration to use                                                  | `config.Production`               |
+| `DEBUG`                 | If true, allow debugging[^1]                                              | `False`                           |
+| `COOKIE_DOMAIN`         | The domain to save cookie preferences against                             | _none_                            |
+| `CSP_IMG_SRC`           | A comma separated list of CSP rules for `img-src`                         | `'self'`                          |
+| `CSP_SCRIPT_SRC`        | A comma separated list of CSP rules for `script-src`                      | `'self'`                          |
+| `CSP_STYLE_SRC`         | A comma separated list of CSP rules for `style-src`                       | `'self'`                          |
+| `CSP_FONT_SRC`          | A comma separated list of CSP rules for `font-src`                        | `'self'`                          |
+| `CSP_CONNECT_SRC`       | A comma separated list of CSP rules for `connect-src`                     | `'self'`                          |
+| `CSP_MEDIA_SRC`         | A comma separated list of CSP rules for `media-src`                       | `'self'`                          |
+| `CSP_WORKER_SRC`        | A comma separated list of CSP rules for `worker-src`                      | `'self'`                          |
+| `CSP_FRAME_SRC`         | A comma separated list of CSP rules for `frame-src`                       | `'self'`                          |
+| `CSP_FRAME_ANCESTORS`   | A comma separated list of CSP rules for `frame-accestors`                 | `'self'`                          |
+| `CSP_REPORT_URL`        | The URL to report CSP violations to                                       | _none_                            |
+| `FORCE_HTTPS`           | Redirect requests to HTTPS as part of the CSP                             | _none_                            |
+| `SESSION_REDIS_URL`     | A URL to a Redis instance used by session storage                         | _none_                            |
+| `RATELIMIT_REDIS_URL`   | A URL to a Redis instance used by rate limiting                           | _none_                            |
+| `RATELIMIT_DEFAULT`     | The default rate limiting amount[^2]                                      | _none_                            |
+| `ALTCHA_HMAC_KEY`       | A secret key to use when generating ALTCHA challenges                     | _none_                            |
+| `CACHE_TYPE`            | https://flask-caching.readthedocs.io/en/latest/#configuring-flask-caching | `FileSystemCache`                 |
+| `CACHE_DEFAULT_TIMEOUT` | The number of seconds to cache pages for                                  | `3600`                            |
+| `CACHE_DIR`             | Directory for cache when using `CACHE_TYPE=FileSystemCache`               | `/tmp`                            |
+| `CACHE_REDIS_URL`       | The connection string for Redis when using `CACHE_TYPE=RedisCache`        | _none_                            |
+| `AWS_REGION`            | The AWS region to use                                                     | `eu-west-2`                       |
+| `SES_FROM_EMAIL`        | The default "from" email to use                                           | `noreply@nationalarchives.gov.uk` |
+| `GA4_ID`                | The Google Analytics 4 ID                                                 | _none_                            |
 
 [^1] [Debugging in Flask](https://flask.palletsprojects.com/en/2.3.x/debugging/)
 [^2] [Rate limit notation](https://limits.readthedocs.io/en/stable/quickstart.html#rate-limit-string-notation)

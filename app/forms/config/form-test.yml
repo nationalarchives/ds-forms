@@ -36,7 +36,6 @@ finalPage:
             body: <p>Your application has been received and is being processed.</p><p>Your reference number is <strong>{{ reference_number }}</strong>.</p>
           content: <p>TEST EMAIL</p><p>Filled out by {{ email.email_address }}</p>
         send:
-          from: noreply@nationalarchives.gov.uk
           toVar: email.email_address
           subject: Your receipt
     - type: email
@@ -44,6 +43,5 @@ finalPage:
         process:
           template: layouts/email.html
         send:
-          from: noreply@nationalarchives.gov.uk
           to: Andrew.Hosgood@nationalarchives.gov.uk
           subject: New Form Submission
