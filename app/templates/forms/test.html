@@ -2,7 +2,15 @@
 
 {%- from 'components/breadcrumbs/macro.html' import tnaBreadcrumbs -%}
 {%- from 'components/button/macro.html' import tnaButton -%}
+{%- from 'forms/macros/altcha_widget.html' import altcha_widget -%}
 {%- from 'forms/macros/form_error_summary.html' import form_error_summary -%}
+
+{% block header %}
+    {{ super() }}
+    {%- if altcha %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='altcha.css', v=app_config.BUILD_VERSION) }}" media="screen">
+    {%- endif %}
+{% endblock header %}
 
 {% block content %}
   <div class="tna-section">
@@ -18,6 +26,10 @@
 
         <form action="{{ page_path }}" method="post" enctype="application/x-www-form-urlencoded" class="tna-!--margin-top-m" novalidate>
           {{ form.email_address(params={'headingSize': 'm'}) }}
+
+          {%- if altcha %}
+            {{ altcha_widget(altcha_verified) }}
+          {%- endif %}
 
           {{ form.csrf_token }}
 
@@ -66,3 +78,10 @@
     </div>
   </div>
 {% endblock content %}
+
+{% block bodyEnd %}
+    {{ super() }}
+    {%- if altcha %}
+    <script src="{{ url_for('static', filename='altcha.min.js', v=app_config.BUILD_VERSION) }}" type="module" defer></script>
+    {%- endif %}
+{% endblock bodyEnd %}

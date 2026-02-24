@@ -22,13 +22,8 @@ from .result_handlers import (
     EmailResultHandler,
     MongoDBResultHandler,
     PostgresResultHandler,
+    ResultHandlerResult,
 )
-
-
-class ResultHandlerResult(TypedDict):
-    type: str
-    success: bool
-    result: dict
 
 
 class FormFlow:
@@ -428,7 +423,7 @@ class FormPage:
         template: str = "",
         form: Optional[FlaskForm] = None,
         altcha: bool = False,
-        yaml_config: Optional[dict] = None,
+        yaml_config: dict = {},
     ):
         self.flow: "FormFlow" = flow
         self.id: str = id
@@ -472,7 +467,7 @@ class FormPage:
                                 f"Form sub-field '{sub_field.name}' in page '{self.id}' uses 'InputRequired' validator which is not allowed. Use 'DataRequired' instead."
                             )
         self.altcha: bool = altcha
-        self.yaml_config: Optional[dict] = yaml_config
+        self.yaml_config: dict = yaml_config
 
     def __str__(self):
         return f"FormPage({self.id})"
@@ -535,15 +530,30 @@ class FormPage:
         """
         if not (page or flask_method or url):
             raise ValueError("Either 'page', 'url' or 'flask_method' must be provided")
-        self.when_complete.append(
-            {
-                "page": page,
-                "url": url,
-                "flask_method": flask_method,
-                "when": when,
-                "condition": condition,
-            }
-        )
+        if page:
+            self.when_complete.append(
+                {
+                    "page": page,
+                    "when": when,
+                    "condition": condition,
+                }
+            )
+        elif flask_method:
+            self.when_complete.append(
+                {
+                    "flask_method": flask_method,
+                    "when": when,
+                    "condition": condition,
+                }
+            )
+        elif url:
+            self.when_complete.append(
+                {
+                    "url": url,
+                    "when": when,
+                    "condition": condition,
+                }
+            )
         return self
 
     def clear_on_completion(self, *pages: "FormPage"):
@@ -563,10 +573,10 @@ class FormPage:
         """
         Save the form data to the session.
         """
-        print(f"Saving form data for page '{self.id}': {form_data}")
+        current_app.logger.debug(f"Saving form data for page '{self.id}': {form_data}")
         session[self.id] = form_data
 
-    def altcha_verified(self) -> bool:
+    def altcha_verified(self, save_result: bool = True) -> bool:
         """
         Check if the altcha solution is verified or has been verified in the past.
         """
@@ -574,18 +584,26 @@ class FormPage:
             return True
 
         if request.method != "POST":
+            print("Not a POST request")
+            print(
+                f"Session altcha value: {session.get(f'altcha_{self.id}', 'Not set')}"
+            )
             return session.get(f"altcha_{self.id}", True)
+        print("POST request received, verifying altcha")
 
         altcha_payload = request.form.to_dict().get("altcha", "")
+        print(f"Altcha payload: '{altcha_payload}'")
         if not altcha_payload:
             session[f"altcha_{self.id}"] = False
             return False
 
-        solved_altchas = cache.get("solved_altchas", [])
+        solved_altchas = cache.get("solved_altchas") or []
+        print(f"Solved altchas from cache: {solved_altchas}")
         if altcha_payload in solved_altchas:
             current_app.logger.warn("Previously solved altcha used")
             session[f"altcha_{self.id}"] = False
             return False
+        print("Verifying altcha solution")
 
         try:
             alcha_verified, err = verify_solution(
@@ -599,7 +617,7 @@ class FormPage:
             return False
 
         session[f"altcha_{self.id}"] = alcha_verified
-        if alcha_verified:
+        if alcha_verified and save_result:
             solved_altchas.append(altcha_payload)
             cache.set("solved_altchas", solved_altchas)
         return alcha_verified
@@ -610,10 +628,11 @@ class FormPage:
         """
         if self.form and not temporary_validation:
             vaild_form = self.form.validate()
-            return vaild_form and self.altcha_verified()
+            return vaild_form and self.altcha_verified(save_result=False)
         elif self.form_class:
             temp_form = self.form_class(data=self.get_saved_form_data())
             temp_form._fields.pop("csrf_token", None)
+            # TODO: Nested forms with CSRF
             # for field in temp_form._fields:
             #     if isinstance(field, FormField):
             #         for sub_field in field:
@@ -687,7 +706,7 @@ class FormPage:
                 )
                 return redirect(page.get_page_path())
 
-        if self.flow.has_complete_path():
+        if self.flow.has_complete_path() and self.flow.get_final_page() == self:
             self.flow.handle_completion()
 
         return self.validate_and_redirect()
@@ -705,12 +724,10 @@ class FormPage:
             form_data = self.form.data
             form_data.pop("csrf_token", None)
             for field in form_data:
-                print()
-                print(f"Processing field '{field}'")
-                print(type(form_data[field]))
+                current_app.logger.debug(f"Processing field '{field}'")
                 if isinstance(form_data[field], (FileField, MultipleFileField)):
                     # TODO: Handle file saving
-                    print(f"Removing file field '{field}' from saved data")
+                    # current_app.logger.debug(f"Removing file field '{field}' from saved data")
                     form_data.pop(field, None)
                     file = self.process_file(form_data[field])
                     form_data[field] = file
@@ -718,7 +735,6 @@ class FormPage:
                 #     form_data[field].pop("csrf_token", None)
                 # TODO: Remove on next release of TNA Frontend Jinja which can handle datetime objects
                 elif isinstance(form_data[field], datetime.date):
-                    print("Date field")
                     form_data[field] = form_data[field].strftime("%d %m %Y")
             self.save_form_data(form_data)
 

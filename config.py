@@ -25,8 +25,10 @@ class Production(Features):
                 data = json.load(package_json)
                 TNA_FRONTEND_VERSION = data["version"] or ""
             except ValueError:
+                # Can't get the version of TNA Frontend
                 pass
     except FileNotFoundError:
+        # Can't find the package.json file
         pass
 
     SECRET_KEY: str = os.environ.get("SECRET_KEY", "")

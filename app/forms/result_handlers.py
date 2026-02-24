@@ -1,6 +1,7 @@
 import uuid
 from abc import ABC
 from functools import reduce
+from typing import TypedDict
 
 import boto3
 from flask import current_app, render_template, render_template_string
@@ -13,6 +14,12 @@ def deep_get(dictionary, keys, default=None):
         keys.split("."),
         dictionary,
     )
+
+
+class ResultHandlerResult(TypedDict):
+    type: str
+    success: bool
+    result: dict
 
 
 class ResultHandler(ABC):
@@ -75,7 +82,6 @@ class EmailResultHandler(ResultHandler):
         print(self.content)
 
     def send(self, **kwargs) -> bool:
-        print("==========================EMAIL CONTENT START==========================")
         current_app.logger.debug("Sending email")
         if not self.data or not self.content:
             raise ValueError("Email not processed. Call process() with the data first.")
@@ -104,12 +110,12 @@ class EmailResultHandler(ResultHandler):
         except Exception as e:
             current_app.logger.error(f"EmailResultHandler error: {e}")
             return False
-        self.result_data = {"id": self.id()}
-        print(content)
-        print(self.content)
-        print(self.data)
-        # print(f"Email content: {content[20000:]}")
-        return True
+        # self.result_data = {"id": self.id()}
+        # print(content)
+        # print(self.content)
+        # print(self.data)
+        # # print(f"Email content: {content[20000:]}")
+        # return True
 
     def result(self) -> dict:
         return self.result_data
@@ -131,12 +137,10 @@ class APIResultHandler(ResultHandler):
 
     def process(self, data: dict, **kwargs):
         self.content = data
-        pass
 
     def send(self, **kwargs) -> bool:
         if not self.content:
             raise ValueError("Email content is empty. Call process() first.")
-
         try:
             if self.method == "GET":
                 response = get(self.url, headers=self.headers, params=self.params)

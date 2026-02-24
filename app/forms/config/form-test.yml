@@ -6,6 +6,7 @@ startingPage:
   name: Test form
   form: EmailForm
   template: forms/test.html
+  altcha: true
   content:
     description: Use this form to test the email functionality.
     body: |
