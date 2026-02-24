@@ -159,7 +159,7 @@ class MicrosoftDynamicsResultHandler(APIResultHandler):
     """
 
     def __init__(self, **kwargs):
-        pass
+        super().__init__(**kwargs)
 
     def process(self, data: dict, **kwargs):
         pass
