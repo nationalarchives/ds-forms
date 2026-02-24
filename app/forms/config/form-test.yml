@@ -6,7 +6,7 @@ startingPage:
   name: Test form
   form: EmailForm
   template: forms/test.html
-  altcha: true
+  # altcha: true
   content:
     description: Use this form to test the email functionality.
     body: |
@@ -31,18 +31,17 @@ finalPage:
     - type: email
       details:
         process:
-          template: layouts/email.html
+          template: outputs/email.html
           panel:
             title: Application received
             body: <p>Your application has been received and is being processed.</p><p>Your reference number is <strong>{{ reference_number }}</strong>.</p>
           content: <p>TEST EMAIL</p><p>Filled out by {{ email.email_address }}</p>
+          signoff: <p>Kind regards,</p><p>The team</p>
         send:
           toVar: email.email_address
           subject: Your receipt
     - type: email
       details:
-        process:
-          template: layouts/email.html
         send:
           to: Andrew.Hosgood@nationalarchives.gov.uk
           subject: New Form Submission

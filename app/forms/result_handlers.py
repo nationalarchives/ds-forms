@@ -57,31 +57,25 @@ class EmailResultHandler(ResultHandler):
             region_name=current_app.config["AWS_REGION"],
         )
         self.data: dict = {}
-        self.content: dict = {}
+        self.content: str = ""
+        self.template: str = ""
         self.result_data: dict = {}
 
     def process(self, data: dict, **kwargs):
-        self.data = data
-        self.data["reference_number"] = self.id()
-        self.content = {
-            "template": kwargs.get("template") or "outputs/_email-base.html",
-            "content": render_template_string(kwargs.get("content", ""), **self.data),
-            "cta_buttons": kwargs.get("cta_buttons", []),
-            "signoff": render_template_string(kwargs.get("signoff", ""), **self.data),
-        }
-        if "panel" in kwargs:
-            self.content["panel"] = {
-                "title": kwargs["panel"].get("title", ""),
-                "body": render_template_string(
-                    kwargs["panel"].get("body", ""), **self.data
-                ),
+        self.template = kwargs.get("template", "layouts/email_json_dump.html")
+        self.data = {k: v for k, v in kwargs.items() if k != "template"}
+        self.data.update(data)
+        self.data.update(
+            {
+                "reference_number": self.id(),
             }
+        )
 
     def send(self, **kwargs) -> bool:
         current_app.logger.debug("Sending email")
-        if not self.data or not self.content:
-            raise ValueError("Email not processed. Call process() with the data first.")
-        content = render_template(self.content["template"], **self.content)
+        if not self.data:
+            raise ValueError("Email not processed. Call process() with data first.")
+        self.content = render_template(self.template, data=self.data)
         to_email = kwargs.get("to", "")
         if not to_email:
             if to_email_var := kwargs.get("toVar", ""):
@@ -96,7 +90,7 @@ class EmailResultHandler(ResultHandler):
                 Destination={"ToAddresses": [to_email]},
                 Message={
                     "Subject": {"Data": subject},
-                    "Body": {"Html": {"Charset": "UTF-8", "Data": content}},
+                    "Body": {"Html": {"Charset": "UTF-8", "Data": self.content}},
                 },
             )
             id = response.get("MessageId")

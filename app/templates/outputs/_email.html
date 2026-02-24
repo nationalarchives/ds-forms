@@ -1,6 +1,0 @@
-{%- set panel = {
-  "title": render(params.panel.title, **data),
-  "body": render(params.panel.body, **data)
-} if params.panel else {} -%}
-
-{%- include "layouts/email.html" -%}

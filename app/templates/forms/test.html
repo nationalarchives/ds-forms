@@ -39,41 +39,6 @@
             <button class="tna-button" type="submit">Continue</button>
           </div>
         </form>
-
-        <hr class="tna-!--margin-top-xl">
-        
-        <h2 class="tna-heading-l">Session data</h2>
-        <dl class="tna-dl">
-          {% for page in session %}
-          <dt>{{ page }}</dt>
-          <dd>
-            {{ session[page] }}
-          </dd>
-          {% endfor %}
-          <dt>has_complete_path</dt>
-          <dd>{{ has_complete_path }}</dd>
-          <dt>earliest_incomplete_page</dt>
-          <dd>{{ earliest_incomplete_page }}</dd>
-        </dl>
-        <h2 class="tna-heading-l">All pages</h2>
-        <ul class="tna-ul">
-          {% for page in pages %}
-          <li>
-            {{ page.id }}:
-            <a href="{{ page.get_page_path() }}">{{ page.name }}</a>
-            {% if page.is_complete(temporary_validation=True) %}
-              (Complete)
-            {% else %}
-              (Incomplete)
-            {% endif %}
-          </li>
-          {% endfor %}
-        </ul>
-
-        <p>
-          <a href="{{ form_reset_path }}">Clear data and start again</a>
-        </p>
-
       </div>
     </div>
   </div>

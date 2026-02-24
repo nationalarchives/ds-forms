@@ -20,6 +20,7 @@ from wtforms.validators import InputRequired
 from .result_handlers import (
     APIResultHandler,
     EmailResultHandler,
+    MicrosoftDynamicsResultHandler,
     MongoDBResultHandler,
     PostgresResultHandler,
     ResultHandlerResult,
@@ -327,6 +328,7 @@ class FormFlow:
             "postgres": PostgresResultHandler,
             "mongodb": MongoDBResultHandler,
             "api": APIResultHandler,
+            "microsoft_dynamics": MicrosoftDynamicsResultHandler,
         }
 
         results = []

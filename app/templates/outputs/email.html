@@ -1,0 +1,10 @@
+{%- set panel = {
+  "title": render(data.panel.title, **data),
+  "body": render(data.panel.body, **data)
+} if data.panel else {} -%}
+
+{%- set content = render(data.content, **data) if data.content else "" -%}
+
+{%- set signoff = render(data.signoff, **data) if data.signoff else "" -%}
+
+{% include "layouts/email.html" %}
