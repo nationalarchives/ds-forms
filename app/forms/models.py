@@ -598,7 +598,7 @@ class FormPage:
             return False
 
         try:
-            alcha_verified, err = verify_solution(
+            altcha_verified, err = verify_solution(
                 altcha_payload,
                 current_app.config.get("ALTCHA_HMAC_KEY", "secret-hmac-key"),
                 True,
@@ -608,19 +608,19 @@ class FormPage:
             session[f"altcha_{self.id}"] = False
             return False
 
-        session[f"altcha_{self.id}"] = alcha_verified
-        if alcha_verified and save_result:
+        session[f"altcha_{self.id}"] = altcha_verified
+        if altcha_verified and save_result:
             solved_altchas.append(altcha_payload)
             cache.set("solved_altchas", solved_altchas)
-        return alcha_verified
+        return altcha_verified
 
     def is_complete(self, temporary_validation=False) -> bool:
         """
         Check if the form is complete based on the data provided.
         """
         if self.form and not temporary_validation:
-            vaild_form = self.form.validate()
-            return vaild_form and self.altcha_verified(save_result=False)
+            valid_form = self.form.validate()
+            return valid_form and self.altcha_verified(save_result=False)
         elif self.form_class:
             temp_form = self.form_class(data=self.get_saved_form_data())
             temp_form._fields.pop("csrf_token", None)
