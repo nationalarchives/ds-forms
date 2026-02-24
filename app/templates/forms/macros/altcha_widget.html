@@ -17,7 +17,7 @@
   }) %}
     <altcha-widget
       challengeurl="{{ url_for('altcha.get_altcha') }}"
-      style="--altcha-color-border:{{ 'var(--input-border,rgb(1,1,1))' if altcha_verified else 'var(--form-error-border,#c20000)' }};--altcha-border-width:2px;--altcha-border-radius:4px;--altcha-color-error-text:var(--form-error-text,#c20000)"
+      style="--altcha-color-border:{{ 'var(--input-border,rgb(1,1,1))' if altcha_verified else 'var(--form-error-border,#c20000)' }};"
       strings="{&quot;label&quot;:&quot;I am not a robot&quot;}"
       hidelogo
     ></altcha-widget>

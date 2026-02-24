@@ -5,7 +5,7 @@ from app.lib.context_processor import cookie_preference, now_iso_8601, now_times
 from app.lib.limiter import limiter
 from app.lib.talisman import talisman
 from app.lib.template_filters import slugify
-from flask import Flask, render_template
+from flask import Flask, render_template, render_template_string
 from flask_cors import CORS
 from flask_session import Session
 from jinja2 import ChoiceLoader, PackageLoader
@@ -106,6 +106,7 @@ def create_app(config_class):
                 "GA4_ID": app.config.get("GA4_ID"),
             },
             feature={},
+            render=render_template_string,
         )
 
     from .altcha import bp as altcha_bp

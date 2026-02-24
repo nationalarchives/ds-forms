@@ -75,7 +75,7 @@ finalPage:
     - type: email
       details:
         # process:
-        #   template: outputs/example-email.jinja2
+        #   template: outputs/example-email.html
         send:
           from: systems.development@nationalarchives.gov.uk
           to: Andrew.Hosgood@nationalarchives.gov.uk
@@ -83,7 +83,7 @@ finalPage:
     - type: email
       details:
         # process:
-        #   template: outputs/example-email.jinja2
+        #   template: outputs/example-email.html
         send:
           from: systems.development@nationalarchives.gov.uk
           toVar: your_details.email_address

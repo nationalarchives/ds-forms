@@ -1,8 +1,8 @@
-{%- extends 'layouts/base.html' -%}
+{%- extends "layouts/base.html" -%}
 
-{%- from 'components/cookie-banner/macro.html' import tnaCookieBanner -%}
-{%- from 'components/footer/macro.html' import tnaFooter -%}
-{%- from 'components/global-header/macro.html' import tnaGlobalHeader -%}
+{%- from "components/cookie-banner/macro.html" import tnaCookieBanner -%}
+{%- from "components/footer/macro.html" import tnaFooter -%}
+{%- from "components/global-header/macro.html" import tnaGlobalHeader -%}
 
 {%- set theme = request.cookies.get('theme') or 'system' -%}
 {%- set themeAccent = themeAccent if themeAccent else 'blue' -%}

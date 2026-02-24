@@ -151,7 +151,7 @@ finalPage:
         #   smtpUser: EXAMPLE_FORM_EMAIL_SMTP_USER
         #   smtpPassword: EXAMPLE_FORM_EMAIL_SMTP_PASSWORD
         process:
-          template: outputs/example-email.jinja2
+          template: outputs/example-email.html
         send:
           from: Andrew.Hosgood@nationalarchives.gov.uk
           # to: test@test.com

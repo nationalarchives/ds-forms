@@ -61,12 +61,10 @@ class EmailResultHandler(ResultHandler):
         self.result_data: dict = {}
 
     def process(self, data: dict, **kwargs):
-        print("----------- Processing email content with data:", data)
         self.data = data
         self.data["reference_number"] = self.id()
-        print(self.data)
         self.content = {
-            "template": kwargs.get("template") or "layouts/email.html",
+            "template": kwargs.get("template") or "outputs/_email-base.html",
             "content": render_template_string(kwargs.get("content", ""), **self.data),
             "cta_buttons": kwargs.get("cta_buttons", []),
             "signoff": render_template_string(kwargs.get("signoff", ""), **self.data),
@@ -78,8 +76,6 @@ class EmailResultHandler(ResultHandler):
                     kwargs["panel"].get("body", ""), **self.data
                 ),
             }
-
-        print(self.content)
 
     def send(self, **kwargs) -> bool:
         current_app.logger.debug("Sending email")
@@ -110,12 +106,6 @@ class EmailResultHandler(ResultHandler):
         except Exception as e:
             current_app.logger.error(f"EmailResultHandler error: {e}")
             return False
-        # self.result_data = {"id": self.id()}
-        # print(content)
-        # print(self.content)
-        # print(self.data)
-        # # print(f"Email content: {content[20000:]}")
-        # return True
 
     def result(self) -> dict:
         return self.result_data
@@ -140,7 +130,7 @@ class APIResultHandler(ResultHandler):
 
     def send(self, **kwargs) -> bool:
         if not self.content:
-            raise ValueError("Email content is empty. Call process() first.")
+            raise ValueError("API content is empty. Call process() first.")
         try:
             if self.method == "GET":
                 response = get(self.url, headers=self.headers, params=self.params)
@@ -158,6 +148,24 @@ class APIResultHandler(ResultHandler):
         except Exception as e:
             current_app.logger.error(f"APIResultHandler error: {e}")
             return False
+
+    def result(self) -> dict:
+        return {}
+
+
+class MicrosoftDynamicsResultHandler(APIResultHandler):
+    """
+    Handles the result of a form submission by saving it to Microsoft Dynamics.
+    """
+
+    def __init__(self, **kwargs):
+        pass
+
+    def process(self, data: dict, **kwargs):
+        pass
+
+    def send(self, **kwargs) -> bool:
+        return False
 
     def result(self) -> dict:
         return {}

@@ -584,26 +584,18 @@ class FormPage:
             return True
 
         if request.method != "POST":
-            print("Not a POST request")
-            print(
-                f"Session altcha value: {session.get(f'altcha_{self.id}', 'Not set')}"
-            )
             return session.get(f"altcha_{self.id}", True)
-        print("POST request received, verifying altcha")
 
         altcha_payload = request.form.to_dict().get("altcha", "")
-        print(f"Altcha payload: '{altcha_payload}'")
         if not altcha_payload:
             session[f"altcha_{self.id}"] = False
             return False
 
         solved_altchas = cache.get("solved_altchas") or []
-        print(f"Solved altchas from cache: {solved_altchas}")
         if altcha_payload in solved_altchas:
             current_app.logger.warn("Previously solved altcha used")
             session[f"altcha_{self.id}"] = False
             return False
-        print("Verifying altcha solution")
 
         try:
             alcha_verified, err = verify_solution(
@@ -640,7 +632,7 @@ class FormPage:
             is_complete = temp_form.validate()
             if not is_complete:
                 current_app.logger.debug(temp_form.errors)
-            return is_complete and self.altcha_verified()
+            return is_complete and self.altcha_verified(save_result=False)
         return True
 
     def process_file(self, file_field: FileField | MultipleFileField) -> str:
@@ -738,7 +730,7 @@ class FormPage:
                     form_data[field] = form_data[field].strftime("%d %m %Y")
             self.save_form_data(form_data)
 
-            if self.is_complete():
+            if self.is_complete() and self.altcha_verified(save_result=True):
                 for page in self.clear_pages_on_completion:
                     if page.id in session:
                         current_app.logger.debug(f"Clearing page data for: {page.id}")
@@ -792,7 +784,7 @@ class FormPage:
             pageTitle=self.name,
             content=self.content,
             altcha=self.altcha,
-            altcha_verified=self.altcha_verified(),
+            altcha_verified=self.altcha_verified(save_result=False),
             page_path=self.get_page_path(),
             form_reset_path=url_for("forms.reset_form", form_slug=self.flow.slug),
             form=self.form,

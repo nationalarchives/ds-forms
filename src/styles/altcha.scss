@@ -2,7 +2,15 @@
 @use "altcha/dist_external/altcha";
 
 altcha-widget {
+  --altcha-max-width: 320px;
+  --altcha-border-width: 2px;
+  --altcha-border-radius: 2px;
+
   @include spacing.space-above;
 
-  display: block;
+  a[target="_blank"] {
+    &::after {
+      content: " (opens in new tab)";
+    }
+  }
 }
