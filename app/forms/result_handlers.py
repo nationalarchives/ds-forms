@@ -4,7 +4,7 @@ from functools import reduce
 from typing import TypedDict
 
 import boto3
-from flask import current_app, render_template, render_template_string
+from flask import current_app, render_template
 from requests import codes, get, post
 
 
