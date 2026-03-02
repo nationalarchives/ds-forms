@@ -386,7 +386,6 @@ class FormFlow:
             current_app.logger.debug("Form flow completion handled successfully")
         else:
             current_app.logger.error("Form flow completion handling failed")
-        # session["completion_handled"] = success
         session["completion_results"] = results
 
         return success
@@ -728,8 +727,8 @@ class FormPage:
                 # elif isinstance(form_data[field], FormField):
                 #     form_data[field].pop("csrf_token", None)
                 # TODO: Remove on next release of TNA Frontend Jinja which can handle datetime objects
-                elif isinstance(form_data[field], datetime.date):
-                    form_data[field] = form_data[field].strftime("%d %m %Y")
+                # elif isinstance(form_data[field], datetime.date):
+                #     form_data[field] = form_data[field].strftime("%d %m %Y")
             self.save_form_data(form_data)
 
             if self.is_complete() and self.altcha_verified(save_result=True):
