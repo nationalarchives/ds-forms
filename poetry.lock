@@ -26,18 +26,18 @@ files = [
 
 [[package]]
 name = "boto3"
-version = "1.42.53"
+version = "1.42.59"
 description = "The AWS SDK for Python"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "boto3-1.42.53-py3-none-any.whl", hash = "sha256:3bd32f3508a6e9851671d0ef3b1f9e8ee7e8c095aa0488bcd9e86074aef5b7eb"},
-    {file = "boto3-1.42.53.tar.gz", hash = "sha256:56bc79388763995852b6d3fe48023e661e63fc2e60a921273c422d0171b9fbfb"},
+    {file = "boto3-1.42.59-py3-none-any.whl", hash = "sha256:7a66e3e8e2087ea4403e135e9de592e6d63fc9a91080d8dac415bb74df873a72"},
+    {file = "boto3-1.42.59.tar.gz", hash = "sha256:6c4a14a4eb37b58a9048901bdeefbe1c529638b73e8f55413319a25f010ca211"},
 ]
 
 [package.dependencies]
-botocore = ">=1.42.53,<1.43.0"
+botocore = ">=1.42.59,<1.43.0"
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.16.0,<0.17.0"
 
@@ -46,14 +46,14 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "botocore"
-version = "1.42.53"
+version = "1.42.59"
 description = "Low-level, data-driven core of boto 3."
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "botocore-1.42.53-py3-none-any.whl", hash = "sha256:1255db56bc0a284a8caa182c20966277e6c8871b6881cf816d40e993fa5da503"},
-    {file = "botocore-1.42.53.tar.gz", hash = "sha256:0bc1a2e1b6ae4c8397c9bede3bb9007b4f16e159ef2ca7f24837e31d5860caac"},
+    {file = "botocore-1.42.59-py3-none-any.whl", hash = "sha256:d2f2ff7ecc31e86ef46b5daee112cfbca052c13801285fb23af909f7bff5b657"},
+    {file = "botocore-1.42.59.tar.gz", hash = "sha256:5314f19e1da8fc0ebc41bdb8bbe17c9a7397d87f4d887076ac8bdef972a34138"},
 ]
 
 [package.dependencies]
@@ -78,14 +78,14 @@ files = [
 
 [[package]]
 name = "certifi"
-version = "2026.1.4"
+version = "2026.2.25"
 description = "Python package for providing Mozilla's CA Bundle."
 optional = false
 python-versions = ">=3.7"
 groups = ["main", "dev"]
 files = [
-    {file = "certifi-2026.1.4-py3-none-any.whl", hash = "sha256:9943707519e4add1115f44c2bc244f782c0249876bf51b6599fee1ffbedd685c"},
-    {file = "certifi-2026.1.4.tar.gz", hash = "sha256:ac726dd470482006e014ad384921ed6438c457018f4b3d204aea4281258b2120"},
+    {file = "certifi-2026.2.25-py3-none-any.whl", hash = "sha256:027692e4402ad994f1c42e52a4997a9763c646b73e4096e4d5d6db8af1d6f0fa"},
+    {file = "certifi-2026.2.25.tar.gz", hash = "sha256:e887ab5cee78ea814d3472169153c2d12cd43b14bd03329a39a9c6e2e80bfba7"},
 ]
 
 [[package]]
@@ -1040,18 +1040,21 @@ files = [
 
 [[package]]
 name = "tna-frontend-jinja"
-version = "0.35.1"
+version = "0.36.0"
 description = "TNA Frontend Jinja templates"
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "tna_frontend_jinja-0.35.1-py3-none-any.whl", hash = "sha256:260d21ccf6abb95e7ae200ea7133932b19f8c325221fbdbb6bc2af12cdc47fa2"},
-    {file = "tna_frontend_jinja-0.35.1.tar.gz", hash = "sha256:950612a777171b166806fcd853d1099d3935630d006300019d34218c95e4c3b1"},
+    {file = "tna_frontend_jinja-0.36.0-py3-none-any.whl", hash = "sha256:a3ee3a41f15f93de37fa91bfd3a4e2eef7411a6b785947e222794686aa19aa26"},
+    {file = "tna_frontend_jinja-0.36.0.tar.gz", hash = "sha256:5472c44090add0a1d508a4038a6b1041c9b8330face1603bf73e2ee82d4fbd45"},
 ]
 
 [package.dependencies]
-jinja2 = "*"
+jinja2 = ">=3"
+
+[package.extras]
+wtforms = ["flask-wtf[email]"]
 
 [[package]]
 name = "typing-extensions"
@@ -1209,4 +1212,4 @@ email = ["email-validator"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.13"
-content-hash = "8d051ac03e68c192f9b770c4f24c6cd9b35cd18bfc97f1bda6c5588912c57b48"
+content-hash = "b85691e1c9e0478a68cd1155dd29c54a92e0f314edd3050e4d6c2517539fffd7"
