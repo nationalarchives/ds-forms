@@ -62,7 +62,7 @@ class EmailResultHandler(ResultHandler):
         self.result_data: dict = {}
 
     def process(self, data: dict, **kwargs):
-        self.template = kwargs.get("template", "layouts/email_json_dump.html")
+        self.template = kwargs.get("template", "outputs/email_json_dump.html")
         self.data = {k: v for k, v in kwargs.items() if k != "template"}
         self.data.update(data)
         self.data.update(
