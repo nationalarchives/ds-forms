@@ -67,7 +67,9 @@ class EmailResultHandler(ResultHandler):
         self.data.update(data)
         self.data.update(
             {
-                "reference_number": self.id(),
+                "reference_number": self.data.get(
+                    "completion_result_first_id", self.id()
+                ),
             }
         )
 

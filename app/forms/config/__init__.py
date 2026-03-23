@@ -81,7 +81,7 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
             id=id,
             name=page.get("name", ""),
             slug=page.get("slug", ""),
-            content=page.get("content", ""),
+            content=page.get("content", {}),
             template=page.get("template", ""),
             form=(
                 getattr(
@@ -102,7 +102,7 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
         id=final_page_id,
         name=final_page_config.get("name", ""),
         slug=final_page_config.get("slug", "/"),
-        content=final_page_config.get("content", ""),
+        content=final_page_config.get("content", {}),
         template=final_page_config.get("template", ""),
         yaml_config=final_page_config,
     )

@@ -20,7 +20,7 @@ finalPage:
   slug: complete
   content:
     panelTitle: Your application has been submitted
-    panelText: Your reference number is {{ get_completion_result_first_id }}.
+    panelText: Your reference number is {{ completion_result_first_id }}.
     description: This is the final page of the flow.
     body: |
       <p>Thank you for completing the form. We will be in touch shortly.</p>
