@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "tna-flask-application"
+name = "ds-forms"
 version = "0.1.0"
 description = ""
 authors = ["Andrew Hosgood <andrew.hosgood@nationalarchives.gov.uk>"]
