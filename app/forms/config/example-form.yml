@@ -95,7 +95,7 @@ pages:
       - page: email
 
   - id: email
-    name: Enter your email address
+    name: Enter your email
     slug: email
     content:
       backLink:
