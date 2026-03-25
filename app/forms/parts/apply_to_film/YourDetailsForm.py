@@ -19,7 +19,7 @@ class YourDetailsForm(FlaskForm):
     )
 
     email_address = EmailField(
-        "Enter your email address",
+        "Enter your email",
         validators=[
             DataRequired(message="Enter an email address"),
             Email(message="Enter a valid email address"),

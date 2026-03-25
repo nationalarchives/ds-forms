@@ -118,7 +118,7 @@ test("page redirects - pizza path", async ({ page }) => {
   await page.getByRole("button", { name: "Continue" }).click();
   await expect(page).toHaveURL("/example-form/email/");
   await expect(page.locator("main")).toHaveText(/There is a problem/);
-  await page.getByLabel("Enter your email address").fill("test@test.com");
+  await page.getByLabel("Enter your email").fill("test@test.com");
   await page.getByRole("button", { name: "Continue" }).click();
   await expect(page).toHaveURL("/example-form/complete/");
   // await expect(page.locator("main")).toHaveText(/Thank you for completing the form. We will be in touch shortly./);
@@ -203,7 +203,7 @@ test("page redirects - chocolate path", async ({ page }) => {
   await page.getByRole("button", { name: "Continue" }).click();
   await expect(page).toHaveURL("/example-form/email/");
   await expect(page.locator("main")).toHaveText(/There is a problem/);
-  await page.getByLabel("Enter your email address").fill("test@test.com");
+  await page.getByLabel("Enter your email").fill("test@test.com");
   await page.getByRole("button", { name: "Continue" }).click();
   await expect(page).toHaveURL("/example-form/complete/");
   // await expect(page.locator("main")).toHaveText(/Thank you for completing the form. We will be in touch shortly./);
