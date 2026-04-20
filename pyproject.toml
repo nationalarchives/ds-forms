@@ -11,7 +11,6 @@ python = "^3.13"
 flask = "^3.1.0"
 requests = "^2.31.0"
 tna-frontend-jinja = "0.38.0"
-flask-talisman = "^1.1.0"
 flask-wtf = "^1.2.2"
 email-validator = "^2.2.0"
 pyyaml = "^6.0.2"
@@ -24,6 +23,7 @@ altcha = "^0.2.0"
 flask-cors = "^6.0.1"
 flask-caching = "^2.3.1"
 pytest = "^8.4.2"
+tna-utilities = {extras = ["flask"], version = "^1.4.0"}
 
 [tool.poetry.group.dev]
 optional = true
