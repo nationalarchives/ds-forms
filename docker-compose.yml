@@ -6,7 +6,7 @@ services:
         IMAGE: ghcr.io/nationalarchives/tna-python-dev
         IMAGE_TAG: preview
     environment:
-      - ENVIRONMENT_NAME=develop
+      - ENVIRONMENT_NAME=localhost
       - CONFIG=config.Develop
       - BUILD_VERSION=local
       - DEBUG=true
