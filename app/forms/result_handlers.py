@@ -1,5 +1,5 @@
 import uuid
-from abc import ABC
+from abc import ABC, abstractmethod
 from functools import reduce
 from typing import TypedDict
 
@@ -28,20 +28,25 @@ class ResultHandler(ABC):
     This class should be extended to implement specific result handling logic.
     """
 
+    @abstractmethod
     def __init__(self, **kwargs):
         raise NotImplementedError(
             "Subclasses must implement the __init__ dunder method"
         )
 
+    @abstractmethod
     def id(self) -> str:
         return uuid.uuid4().hex
 
+    @abstractmethod
     def process(self, data: dict, **kwargs):
         raise NotImplementedError("Subclasses must implement the process method")
 
+    @abstractmethod
     def send(self, **kwargs) -> bool:
         raise NotImplementedError("Subclasses must implement the send method")
 
+    @abstractmethod
     def result(self) -> dict:
         raise NotImplementedError("Subclasses must implement the result method")
 
@@ -79,9 +84,8 @@ class EmailResultHandler(ResultHandler):
             raise ValueError("Email not processed. Call process() with data first.")
         self.content = render_template(self.template, data=self.data)
         to_email = kwargs.get("to", "")
-        if not to_email:
-            if to_email_var := kwargs.get("toVar", ""):
-                to_email = deep_get(self.data, to_email_var, "")
+        if not to_email and (to_email_var := kwargs.get("toVar", "")):
+            to_email = deep_get(self.data, to_email_var, "")
         if not to_email:
             raise ValueError("Recipient email address must be provided")
         subject = kwargs.get("subject", "Form Submission")
@@ -100,7 +104,7 @@ class EmailResultHandler(ResultHandler):
             self.result_data = {"id": id}
             return True
         except Exception as e:
-            current_app.logger.error(f"EmailResultHandler error: {e}")
+            current_app.logger.exception(f"EmailResultHandler error: {e}")
             return False
 
     def result(self) -> dict:
@@ -131,7 +135,7 @@ class APIResultHandler(ResultHandler):
             if self.method == "GET":
                 response = get(self.url, headers=self.headers, params=self.params)
                 return response.status_code == codes.ok
-            elif self.method == "POST":
+            if self.method == "POST":
                 response = post(
                     self.url,
                     json=self.content,
@@ -139,10 +143,9 @@ class APIResultHandler(ResultHandler):
                     params=self.params,
                 )
                 return response.status_code == codes.ok
-            else:
-                raise ValueError(f"Unsupported HTTP method: {self.method}")
+            raise ValueError(f"Unsupported HTTP method: {self.method}")
         except Exception as e:
-            current_app.logger.error(f"APIResultHandler error: {e}")
+            current_app.logger.exception(f"APIResultHandler error: {e}")
             return False
 
     def result(self) -> dict:

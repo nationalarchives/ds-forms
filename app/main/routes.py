@@ -1,7 +1,8 @@
 import os
 
-from app.main import bp
 from flask import current_app, render_template, url_for
+
+from app.main import bp
 
 
 @bp.route("/")
@@ -15,7 +16,7 @@ def index():
     forms = [
         {
             "slug": name.replace(".yml", ""),
-            "config": f"{forms_directory.replace("/app/app", "app")}/{name}",
+            "config": f"{forms_directory.replace('/app/app', 'app')}/{name}",
             "path": url_for("forms.start_page", form_slug=name.replace(".yml", "")),
         }
         for name in os.listdir(forms_directory)

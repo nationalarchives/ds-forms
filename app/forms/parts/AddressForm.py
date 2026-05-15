@@ -1,8 +1,9 @@
-from app.lib.validators import UKPostcode
 from flask_wtf import FlaskForm
 from tna_frontend_jinja.wtforms import TnaFieldsetWidget, TnaTextInputWidget
 from wtforms import FormField, StringField
 from wtforms.validators import DataRequired
+
+from app.lib.validators import UKPostcode
 
 
 class AddressFormFields(FlaskForm):

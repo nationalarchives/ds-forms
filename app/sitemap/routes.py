@@ -1,8 +1,9 @@
 import os
 
+from flask import current_app, make_response, render_template
+
 from app.forms.config import form_flow_from_config, load_config
 from app.sitemap import bp
-from flask import current_app, make_response, render_template
 
 
 @bp.route("/sitemap.xml")

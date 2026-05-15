@@ -19,5 +19,5 @@ def cookie_preference(policy):
     if "cookies_policy" in request.cookies:
         cookies_policy = request.cookies["cookies_policy"]
         preferences = json.loads(unquote(cookies_policy))
-        return preferences[policy] if policy in preferences else None
+        return preferences.get(policy, None)
     return None

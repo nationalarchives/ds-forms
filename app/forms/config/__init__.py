@@ -5,8 +5,9 @@ import os.path
 from pathlib import Path
 
 import yaml
-from app.forms.models import FormFlow
 from flask import current_app
+
+from app.forms.models import FormFlow
 
 
 def load_config(form_slug: str) -> dict:
@@ -27,7 +28,9 @@ def load_config(form_slug: str) -> dict:
         with open(config_path) as stream:
             return yaml.safe_load(stream)
     except yaml.YAMLError as e:
-        raise ValueError(f"Error loading YAML configuration for form {form_slug}: {e}")
+        raise ValueError(
+            f"Error loading YAML configuration for form {form_slug}"
+        ) from e
 
 
 def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
@@ -194,9 +197,9 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
                     page.require_completion_of_any(
                         pages=required_pages, fallback_page=fallback_page
                     )
-                except KeyError:
+                except KeyError as e:
                     raise ValueError(
                         f"Fallback page '{fallback_page_id}' for 'requiresAny' of '{page.slug}' not found in form flow."
-                    )
+                    ) from e
 
     return form_flow
