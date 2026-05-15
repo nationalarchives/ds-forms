@@ -1,7 +1,8 @@
+from flask import current_app, redirect, render_template, request
+
 from app.forms import bp
 from app.forms.config import form_flow_from_config, load_config
 from app.lib.limiter import limiter
-from flask import current_app, redirect, render_template, request
 
 
 def get_form_flow(form_slug: str):
@@ -16,7 +17,7 @@ def start_page(form_slug):
     except FileNotFoundError:
         return render_template("errors/page_not_found.html"), 404
     except ValueError as e:
-        current_app.logger.error(f"Error loading form flow for '{form_slug}': {e}")
+        current_app.logger.exception(f"Error loading form flow for '{form_slug}': {e}")
         return render_template("errors/server.html"), 500
 
     if not form_flow:
@@ -39,7 +40,9 @@ def reset_form(form_slug):
     except FileNotFoundError:
         return render_template("errors/page_not_found.html"), 404
     except ValueError as e:
-        current_app.logger.error(f"Error resetting form flow for '{form_slug}': {e}")
+        current_app.logger.exception(
+            f"Error resetting form flow for '{form_slug}': {e}"
+        )
         return render_template("errors/server.html"), 500
 
     if not form_flow:
@@ -57,7 +60,7 @@ def page(form_slug, page_slug):
     except FileNotFoundError:
         return render_template("errors/page_not_found.html"), 404
     except ValueError as e:
-        current_app.logger.error(
+        current_app.logger.exception(
             f"Error loading form flow page for '{form_slug}/{page_slug}': {e}"
         )
         return render_template("errors/server.html"), 500

@@ -1,6 +1,7 @@
+from flask import current_app
+
 from app.healthcheck import bp
 from app.lib.limiter import limiter
-from flask import current_app
 
 
 @bp.route("/live/")

@@ -1,4 +1,3 @@
-from app.forms.parts.AddressForm import AddressFormFields
 from flask_wtf import FlaskForm
 from tna_frontend_jinja.wtforms import (
     TnaEmailInputWidget,
@@ -7,6 +6,8 @@ from tna_frontend_jinja.wtforms import (
 )
 from wtforms import EmailField, FormField, StringField
 from wtforms.validators import DataRequired, Email
+
+from app.forms.parts.AddressForm import AddressFormFields
 
 
 class YourDetailsForm(FlaskForm):

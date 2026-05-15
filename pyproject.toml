@@ -36,9 +36,6 @@ requests-mock = "^1.12.1"
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.black]
-include = '\.pyi?$'
-
 [tool.pytest.ini_options]
 testpaths = [
     "test",

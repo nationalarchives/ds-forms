@@ -3,7 +3,6 @@ from collections.abc import Callable
 from typing import Optional, TypedDict
 
 from altcha import verify_solution
-from app.lib.cache import cache
 from flask import (
     Response,
     current_app,
@@ -16,6 +15,8 @@ from flask import (
 from flask_wtf import FlaskForm
 from wtforms import FileField, FormField, MultipleFileField
 from wtforms.validators import InputRequired
+
+from app.lib.cache import cache
 
 from .result_handlers import (
     APIResultHandler,
@@ -36,15 +37,15 @@ class FormFlow:
     def __init__(
         self,
         slug: str,
-        config_hash: Optional[str] = "",
-        metadata: Optional[dict] = None,
+        config_hash: str | None = "",
+        metadata: dict | None = None,
     ):
         self.slug = slug
-        self.pages: dict[str, "FormPage"] = {}
+        self.pages: dict[str, FormPage] = {}
         self.starting_page_id: str = ""
         self.final_page_id: str = ""
         self.metadata: dict = metadata if metadata else {}
-        self.result_handlers_config: Optional[list[dict]] = None
+        self.result_handlers_config: list[dict] | None = None
         if session.get("config_hash", "") != config_hash:
             current_app.logger.warning("Form configuration has changed, resetting flow")
             self.reset()
@@ -61,15 +62,19 @@ class FormFlow:
         id: str,
         name: str,
         slug: str,
-        content: dict = {},
+        content: dict | None = None,
         template: str = "",
-        form: Optional[FlaskForm] = None,
+        form: FlaskForm | None = None,
         altcha: bool = False,
-        yaml_config: dict = {},
+        yaml_config: dict | None = None,
     ):
         """
         Add a page to the flow.
         """
+        if yaml_config is None:
+            yaml_config = {}
+        if content is None:
+            content = {}
         new_page = FormPage(
             flow=self,
             id=id,
@@ -89,15 +94,19 @@ class FormFlow:
         id: str,
         name: str,
         slug: str = "/",
-        content: dict = {},
+        content: dict | None = None,
         template: str = "",
-        form: Optional[FlaskForm] = None,
+        form: FlaskForm | None = None,
         altcha: bool = False,
-        yaml_config: dict = {},
+        yaml_config: dict | None = None,
     ):
         """
         Set the starting page of the flow.
         """
+        if yaml_config is None:
+            yaml_config = {}
+        if content is None:
+            content = {}
         starting_page = self.create_page(
             id=id,
             name=name,
@@ -116,13 +125,17 @@ class FormFlow:
         id: str,
         name: str,
         slug: str = "/",
-        content: dict = {},
+        content: dict | None = None,
         template: str = "",
-        yaml_config: dict = {},
+        yaml_config: dict | None = None,
     ):
         """
         Set the final page of the flow.
         """
+        if yaml_config is None:
+            yaml_config = {}
+        if content is None:
+            content = {}
         final_page = self.create_page(
             id=id,
             name=name,
@@ -171,8 +184,8 @@ class FormFlow:
             raise ValueError("Starting page is not set for this flow")
         try:
             return self.get_page_by_id(self.starting_page_id)
-        except KeyError:
-            raise ValueError("Starting page is not found in this flow")
+        except KeyError as e:
+            raise ValueError("Starting page is not found in this flow") from e
 
     def get_starting_path(self) -> str:
         """
@@ -181,10 +194,7 @@ class FormFlow:
         starting_page = self.get_starting_page()
         if starting_page.slug == "/":
             return url_for("forms.start_page", form_slug=self.slug)
-        else:
-            return url_for(
-                "forms.page", form_slug=self.slug, page_slug=starting_page.slug
-            )
+        return url_for("forms.page", form_slug=self.slug, page_slug=starting_page.slug)
 
     def get_final_page(self) -> "FormPage":
         """
@@ -194,8 +204,8 @@ class FormFlow:
             raise ValueError("Final page is not set for this flow")
         try:
             return self.get_page_by_id(self.final_page_id)
-        except KeyError:
-            raise ValueError("Final page is not found in this flow")
+        except KeyError as e:
+            raise ValueError("Final page is not found in this flow") from e
 
     def get_data(self) -> dict:
         """
@@ -369,7 +379,7 @@ class FormFlow:
                             }
                         )
                 except Exception as e:
-                    current_app.logger.error(
+                    current_app.logger.exception(
                         f"Error handling form flow completion: {e}"
                     )
                     results.append(
@@ -392,8 +402,8 @@ class FormFlow:
 
 
 class PageCompletionRule(TypedDict):
-    condition: Optional[Callable]
-    when: Optional[tuple[str, str]]
+    condition: Callable | None
+    when: tuple[str, str] | None
 
 
 class PageCompletionRuleFormPage(PageCompletionRule):
@@ -420,30 +430,30 @@ class FormPage:
         id: str,
         name: str,
         slug: str = "/",
-        content: Optional[dict] = {},
+        content: dict | None = None,
         template: str = "",
-        form: Optional[FlaskForm] = None,
+        form: FlaskForm | None = None,
         altcha: bool = False,
-        yaml_config: dict = {},
+        yaml_config: dict | None = None,
     ):
-        self.flow: "FormFlow" = flow
+        self.flow: FormFlow = flow
         self.id: str = id
         self.name: str = name
         self.slug: str = slug
-        self.content: Optional[dict] = content
+        self.content: dict | None = content if content is not None else {}
         self.template: str = template if template else "forms/form_page.html"
-        self.requires_completion_of: list["FormPage"] = []
-        self.requires_completion_of_any: list["FormPage"] = []
-        self.requires_completion_of_any_fallback: Optional["FormPage"] = None
-        self.requires_responses: list[tuple["FormPage", str, str]] = []
+        self.requires_completion_of: list[FormPage] = []
+        self.requires_completion_of_any: list[FormPage] = []
+        self.requires_completion_of_any_fallback: FormPage | None = None
+        self.requires_responses: list[tuple[FormPage, str, str]] = []
         self.when_complete: list[
             PageCompletionRuleFormPage
             | PageCompletionRuleFlaskMethod
             | PageCompletionRuleURL
         ] = []
-        self.clear_pages_on_completion: list["FormPage"] = []
-        self.form: Optional[FlaskForm] = None
-        self.form_class: Optional[FlaskForm] = form if form else None
+        self.clear_pages_on_completion: list[FormPage] = []
+        self.form: FlaskForm | None = None
+        self.form_class: FlaskForm | None = form if form else None
         if self.form_class:
             temp_form = self.form_class()
             for field in temp_form:
@@ -468,7 +478,7 @@ class FormPage:
                                 f"Form sub-field '{sub_field.name}' in page '{self.id}' uses 'InputRequired' validator which is not allowed. Use 'DataRequired' instead."
                             )
         self.altcha: bool = altcha
-        self.yaml_config: dict = yaml_config
+        self.yaml_config: dict = yaml_config if yaml_config is not None else {}
 
     def __str__(self):
         return f"FormPage({self.id})"
@@ -521,10 +531,10 @@ class FormPage:
     def redirect_when_complete(
         self,
         page: Optional["FormPage"] = None,
-        flask_method: Optional[str] = "",
-        url: Optional[str] = "",
-        when: Optional[tuple[str, str]] = None,
-        condition: Optional[Callable] = None,
+        flask_method: str | None = "",
+        url: str | None = "",
+        when: tuple[str, str] | None = None,
+        condition: Callable | None = None,
     ):
         """
         Set the page to redirect to when this page is completed.
@@ -568,7 +578,7 @@ class FormPage:
         """
         Get the form data from the session or other storage.
         """
-        return session[self.id] if self.id in session else {}
+        return session.get(self.id, {})
 
     def save_form_data(self, form_data: dict):
         """
@@ -599,13 +609,13 @@ class FormPage:
             return False
 
         try:
-            altcha_verified, err = verify_solution(
+            altcha_verified, _err = verify_solution(
                 altcha_payload,
                 current_app.config.get("ALTCHA_HMAC_KEY", "secret-hmac-key"),
                 True,
             )
         except Exception as e:
-            current_app.logger.error(f"Error verifying altcha: {e}")
+            current_app.logger.exception(f"Error verifying altcha: {e}")
             session[f"altcha_{self.id}"] = False
             return False
 
@@ -622,7 +632,7 @@ class FormPage:
         if self.form and not temporary_validation:
             valid_form = self.form.validate()
             return valid_form and self.altcha_verified(save_result=False)
-        elif self.form_class:
+        if self.form_class:
             temp_form = self.form_class(data=self.get_saved_form_data())
             temp_form._fields.pop("csrf_token", None)
             # TODO: Nested forms with CSRF
@@ -676,19 +686,14 @@ class FormPage:
                     return redirect(
                         self.requires_completion_of_any_fallback.get_page_path()
                     )
-                else:
-                    redirect_to_page = next(
-                        (
-                            p
-                            for p in self.requires_completion_of_any
-                            if not p.is_complete()
-                        ),
-                        self.requires_completion_of_any[0],
-                    )
-                    current_app.logger.warning(
-                        f"Redirecting to first required incomplete page: {redirect_to_page.id}"
-                    )
-                    return redirect(redirect_to_page.get_page_path())
+                redirect_to_page = next(
+                    (p for p in self.requires_completion_of_any if not p.is_complete()),
+                    self.requires_completion_of_any[0],
+                )
+                current_app.logger.warning(
+                    f"Redirecting to first required incomplete page: {redirect_to_page.id}"
+                )
+                return redirect(redirect_to_page.get_page_path())
 
         for requires_responses in self.requires_responses:
             page, key, required_response = requires_responses
@@ -750,28 +755,27 @@ class FormPage:
                         current_app.logger.debug(
                             f"Completion rule matched for page: '{self.id}'"
                         )
-                        if "page" in rule and rule["page"]:
+                        if rule.get("page"):
                             current_app.logger.debug(
                                 f"Redirecting to page: '{rule['page'].id}'"
                             )
                             return redirect(rule["page"].get_page_path())
 
-                        if "flask_method" in rule and rule["flask_method"]:
+                        if rule.get("flask_method"):
                             current_app.logger.debug(
                                 f"Redirecting to Flask method: '{rule['flask_method']}'"
                             )
                             return redirect(url_for(rule["flask_method"]))
 
-                        if "url" in rule and rule["url"]:
+                        if rule.get("url"):
                             current_app.logger.debug(
                                 f"Redirecting to URL: {rule['url']}"
                             )
                             return redirect(rule["url"])
 
                 raise Exception("No matching completion rule found")
-        else:
-            if self.altcha and f"altcha_{self.id}" in session:
-                session.pop(f"altcha_{self.id}")
+        elif self.altcha and f"altcha_{self.id}" in session:
+            session.pop(f"altcha_{self.id}")
 
         # if not self.flow.has_complete_path() and self.flow.get_earliest_incomplete_page() != self:
         #     current_app.logger.warning(
