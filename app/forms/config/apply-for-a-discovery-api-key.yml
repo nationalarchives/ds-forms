@@ -1,0 +1,47 @@
+meta:
+  exclude_from_sitemap: true
+
+startingPage:
+  id: start
+  name: Apply for a Discovery API key
+  form: DiscoveryApiKeyForm
+  template: forms/form_page.html
+  altcha: true
+  content:
+    # description: Use this form to test the email functionality.
+    body: |
+      <p>Completing this form should provide you with a simple email receipt.</p>
+  redirectWhenComplete:
+    - page: final_page
+
+finalPage:
+  id: final_page
+  name: Thank you
+  slug: complete
+  content:
+    panelTitle: Your application has been submitted
+    panelText: Your reference number is {{ completion_result_first_id }}.
+    description: This is the final page of the flow.
+    body: |
+      <p>Thank you for completing the form. We will be in touch shortly.</p>
+  template: forms/final.html
+  requires:
+    - email
+  resultHandlers:
+    - type: email
+      details:
+        process:
+          template: outputs/email.html
+          panel:
+            title: Application received
+            body: <p>Your application has been received and is being processed.</p><p>Your reference number is <strong>{{ reference_number }}</strong>.</p>
+          content: <p>TEST EMAIL</p><p>Filled out by {{ email.email_address }}</p>
+          signoff: <p>Kind regards,</p><p>The team</p>
+        send:
+          toVar: email.email_address
+          subject: Your receipt
+    - type: email
+      details:
+        send:
+          to: Andrew.Hosgood@nationalarchives.gov.uk
+          subject: New form submission for Discovery API key
