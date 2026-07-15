@@ -1,6 +1,12 @@
 from flask_wtf import FlaskForm
-from tna_frontend_jinja.wtforms import TnaEmailInputWidget, TnaTextInputWidget, TnaTelInputWidget, TnaTextareaWidget, TnaCheckboxWidget
-from wtforms import StringField, EmailField, TelField, TextAreaField, BooleanField
+from tna_frontend_jinja.wtforms import (
+    TnaCheckboxWidget,
+    TnaEmailInputWidget,
+    TnaTelInputWidget,
+    TnaTextareaWidget,
+    TnaTextInputWidget,
+)
+from wtforms import BooleanField, EmailField, StringField, TelField, TextAreaField
 from wtforms.validators import DataRequired, Email, Optional, Regexp
 
 
