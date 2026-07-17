@@ -34,7 +34,6 @@ class ResultHandler(ABC):
             "Subclasses must implement the __init__ dunder method"
         )
 
-    @abstractmethod
     def id(self) -> str:
         return uuid.uuid4().hex
 
