@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 
+{%- from 'components/button/macro.html' import tnaButton -%}
 {%- from 'components/panel/macro.html' import tnaPanel -%}
 
 {% block content %}
@@ -9,13 +10,10 @@
         {%- if completion_handled %}
         {{ tnaPanel({
           'title': panelTitle or pageTitle,
-          'text': panelText
+          'text': panelText or 'Your reference number is ' ~ completion_result_first_id ~ '.'
         }) }}
         {{ completion_results }}
         {{ body | safe }}
-        <p>
-          <a href="{{ form_reset_path }}">Start again</a>
-        </p>
         {%- else %}
         <h1 class="tna-heading-xl">An error occured</h1>
         <p>Something went wrong.</p>
@@ -24,47 +22,14 @@
           <a href="#">Contact us</a>
         </p>
         {%- else %}
-        <p>
-          <a href="{{ final_page.get_page_path() }}?retry">Try submitting again</a>
-        </p>
+        <div class="tna-button-group">
+          {{ tnaButton({
+            'text': 'Try submitting again',
+            'href': final_page.get_page_path() ~ '?retry'
+          }) }}
+        </div>
         {%- endif %}
         {%- endif %}
-
-        <hr class="tna-!--margin-top-l">
-
-        <h2 class="tna-heading-l">Session data</h2>
-        <dl class="tna-dl">
-          {% for page in session %}
-          <dt>{{ page }}</dt>
-          <dd>
-            {{ session[page] }}
-          </dd>
-          {% endfor %}
-          <dt>has_complete_path</dt>
-          <dd>{{ has_complete_path }}</dd>
-          <dt>earliest_incomplete_page</dt>
-          <dd>{{ earliest_incomplete_page }}</dd>
-          <dt>completion_handled</dt>
-          <dd>{{ completion_handled }}</dd>
-        </dl>
-        
-        <h2 class="tna-heading-l">All pages</h2>
-        <ul class="tna-ul">
-          {% for page in pages %}
-          <li>
-            <a href="{{ page.get_page_path() }}">{{ page.name }}</a>
-            {% if page.is_complete(temporary_validation=True) %}
-              (Complete)
-            {% else %}
-              (Incomplete)
-            {% endif %}
-          </li>
-          {% endfor %}
-        </ul>
-
-        <p>
-          <a href="{{ form_reset_path }}">Start again</a>
-        </p>
       </div>
     </div>
   </div>

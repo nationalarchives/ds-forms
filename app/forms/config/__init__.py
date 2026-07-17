@@ -31,6 +31,10 @@ def load_config(form_slug: str) -> dict:
         raise ValueError(
             f"Error loading YAML configuration for form {form_slug}"
         ) from e
+    except Exception as e:
+        raise ValueError(
+            f"Unexpected error loading configuration for form {form_slug}"
+        ) from e
 
 
 def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901

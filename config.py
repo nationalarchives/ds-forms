@@ -75,8 +75,21 @@ class Production(Features):
     CACHE_REDIS_URL: str = os.environ.get("CACHE_REDIS_URL", "")
 
     AWS_REGION: str = os.environ.get("AWS_REGION", "eu-west-2")
-    SES_DEFAULT_FROM_EMAIL: str = os.environ.get(
+    DEFAULT_FROM_EMAIL: str = os.environ.get(
         "SES_FROM_EMAIL", "noreply@nationalarchives.gov.uk"
+    )
+
+    FORM_APPLY_TO_FILM_INBOX: str = os.environ.get(
+        "FORM_APPLY_TO_FILM_INBOX", "Andrew.Hosgood@nationalarchives.gov.uk"
+    )
+    FORM_HOLOCAUST_MEMORIAL_FOUNDATION_TESTIMONY_LICENCE_REQUEST_INBOX: str = (
+        os.environ.get(
+            "FORM_HOLOCAUST_MEMORIAL_FOUNDATION_TESTIMONY_LICENCE_REQUEST_INBOX",
+            "Andrew.Hosgood@nationalarchives.gov.uk",
+        )
+    )
+    FORM_DISCOVERY_API_KEY_INBOX: str = os.environ.get(
+        "FORM_DISCOVERY_API_KEY_INBOX", "Andrew.Hosgood@nationalarchives.gov.uk"
     )
 
     GA4_ID: str = os.environ.get("GA4_ID", "")

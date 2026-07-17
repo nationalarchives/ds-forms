@@ -1,3 +1,6 @@
+meta:
+  exclude_from_sitemap: true
+
 startingPage:
   id: start
   name: Apply to film at The National Archives
@@ -81,7 +84,7 @@ finalPage:
         #   template: outputs/example-email.html
         send:
           from: systems.development@nationalarchives.gov.uk
-          to: Andrew.Hosgood@nationalarchives.gov.uk
+          toConfigVar: FORM_APPLY_TO_FILM_INBOX
           subject: New Form Submission (original)
     - type: email
       details:

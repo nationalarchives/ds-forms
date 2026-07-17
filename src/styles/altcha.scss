@@ -1,3 +1,6 @@
+@use "@nationalarchives/frontend/nationalarchives/tools/a11y";
+@use "@nationalarchives/frontend/nationalarchives/tools/borders";
+@use "@nationalarchives/frontend/nationalarchives/tools/colour";
 @use "@nationalarchives/frontend/nationalarchives/tools/spacing";
 @use "altcha/dist_external/altcha";
 
@@ -12,5 +15,101 @@ altcha-widget {
     &::after {
       content: " (opens in new tab)";
     }
+  }
+}
+
+.altcha-main {
+  padding: 1rem;
+
+  gap: 1rem;
+}
+
+.altcha-checkbox {
+  width: 2rem;
+
+  input {
+    width: 1px;
+    height: 1px;
+
+    position: absolute;
+    z-index: -1;
+
+    opacity: 0;
+  }
+
+  &:has(input:focus-visible) {
+    + .altcha-label {
+      &::before {
+        @include a11y.focus-outline;
+      }
+    }
+  }
+
+  &:has(input:checked) {
+    + .altcha-label {
+      &::before {
+        @include colour.colour-background("input-foreground");
+      }
+
+      &::after {
+        display: block;
+      }
+    }
+  }
+}
+
+.altcha-checkbox-verifying {
+  + .altcha-label {
+    &::before {
+      visibility: hidden;
+    }
+  }
+}
+
+.altcha-label {
+  min-height: 2rem;
+
+  position: relative;
+
+  &::before,
+  &::after {
+    content: "";
+
+    width: 2rem;
+
+    position: absolute;
+    top: 0;
+    right: calc(100% + 1rem);
+  }
+
+  &::before {
+    height: 2rem;
+
+    display: block;
+    box-sizing: border-box;
+
+    z-index: 1;
+
+    border-radius: 2px;
+    @include colour.colour-background("input-background");
+    @include colour.colour-font("input-foreground");
+    @include colour.colour-border("input-border", 2px);
+  }
+
+  &::after {
+    width: 1.25rem;
+    height: 0.5rem;
+    margin-top: -0.1875rem;
+
+    display: none;
+
+    top: 1rem;
+    right: calc(100% + 0.5rem);
+    z-index: 2;
+
+    border: 0 var(--input-background, rgb(255 255 255)) solid;
+    border-width: 0 0 0.1875rem 0.1875rem;
+
+    transform: translateX(-50%) translateY(-50%) rotate(-45deg);
   }
 }
