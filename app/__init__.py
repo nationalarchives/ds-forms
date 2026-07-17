@@ -6,6 +6,7 @@ from flask_cors import CORS
 from flask_session import Session
 from jinja2 import ChoiceLoader, PackageLoader
 from tna_frontend_jinja.wtforms.helpers import WTFormsHelpers
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from app.lib.cache import cache
 from app.lib.context_processor import cookie_preference, now_iso_8601, now_timestamp
@@ -19,6 +20,7 @@ def create_app(config_class):
 
     app = Flask(__name__, static_url_path=f"{application_path_prefix}/static")
     app.config.from_object(config_class)
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 
     gunicorn_error_logger = logging.getLogger("gunicorn.error")
     app.logger.handlers.extend(gunicorn_error_logger.handlers)
