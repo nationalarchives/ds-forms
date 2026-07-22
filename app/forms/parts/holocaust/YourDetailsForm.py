@@ -21,13 +21,15 @@ class YourDetailsForm(FlaskForm):
     )
 
     email_address = EmailField(
-        "Enter your email",
+        "Email address",
         validators=[
             DataRequired(message="Enter an email address"),
-            Email(message="Enter a valid email address"),
+            Email(
+                message="Enter an email address in the correct format, like name@example.com"
+            ),
         ],
         widget=TnaEmailInputWidget(),
-        render_kw={"autocomplete": "email"},
+        render_kw={"size": "l", "autocomplete": "email"},
     )
 
     address = FormField(
