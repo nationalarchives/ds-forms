@@ -13,6 +13,6 @@ class SitemapBlueprintTestCase(unittest.TestCase):
         rv = self.client.get("/forms/sitemap.xml")
         self.assertEqual(rv.status_code, 200)
         self.assertIn(
-            f"<loc>{self.domain}/apply-to-film-at-the-national-archives/</loc>", rv.text
+            f"<loc>{self.domain}/apply-for-a-discovery-api-key/</loc>", rv.text
         )
         self.assertNotIn(f"<loc>{self.domain}/example-form/</loc>", rv.text)

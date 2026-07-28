@@ -153,7 +153,6 @@ finalPage:
         process:
           template: outputs/example-email.html
         send:
-          from: Andrew.Hosgood@nationalarchives.gov.uk
           # to: test@test.com
           toVar: email.email_address
           subject: New Form Submission

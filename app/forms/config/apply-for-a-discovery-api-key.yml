@@ -1,6 +1,3 @@
-meta:
-  exclude_from_sitemap: true
-
 startingPage:
   id: start
   name: Apply for a Discovery API key
@@ -43,5 +40,5 @@ finalPage:
     - type: email
       details:
         send:
-          to: Andrew.Hosgood@nationalarchives.gov.uk
+          toConfigVar: FORM_DISCOVERY_API_KEY_INBOX
           subject: New form submission for Discovery API key
