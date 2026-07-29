@@ -16,8 +16,8 @@
   }) %}
     <altcha-widget
       challengeurl="{{ url_for('altcha.get_altcha') }}"
-      style="--altcha-color-border:{{ 'var(--input-border,rgb(1,1,1))' if altcha_verified else 'var(--form-error-border,#c20000)' }};"
       strings="{&quot;label&quot;:&quot;I am not a robot&quot;}"
+      class="{{ 'altcha-widget--error' if not altcha_verified else '' }}"
       hidelogo
     ></altcha-widget>
   {%- endcall %}
