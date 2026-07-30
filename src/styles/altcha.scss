@@ -8,8 +8,13 @@ altcha-widget {
   --altcha-max-width: 320px;
   --altcha-border-width: 2px;
   --altcha-border-radius: 2px;
+  --altcha-color-border: var(--input-border, rgb(1 1 1));
 
   @include spacing.space-above;
+
+  &.altcha-widget--error:not(:has([data-state="verified"])) {
+    --altcha-color-border: var(--form-error-border, #c20000);
+  }
 
   a[target="_blank"] {
     &::after {
