@@ -17,6 +17,7 @@ def is_iaid_valid(iaid):
     try:
         data = record_details(iaid)
     except:  # noqa: E722
+        current_app.logger.warning(f"IAID {iaid} is not valid")
         return False
     return True if data else False
 

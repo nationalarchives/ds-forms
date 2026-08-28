@@ -80,10 +80,12 @@
           {%- endif %}
 
           {{ content.beforeSubmit | safe }}
-
+          
+          {% block submitButton %}
           <div class="tna-button-group">
             <button class="tna-button" type="submit">Continue</button>
           </div>
+          {% endblock submitButton %}
         </form>
 
         {% block debug %}

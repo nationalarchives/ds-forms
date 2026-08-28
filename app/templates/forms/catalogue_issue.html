@@ -21,24 +21,17 @@
           <h2 class="tna-heading-m">Record details for {{ iaid }}</h2>
           {% set accordion_items = [] %}
 
-          {% if record.title %}
-            {% do accordion_items.append({
-              'title': 'Title',
-              'text': record.title | striptags
-            }) %}
-          {% endif %}
-
-          {% if record.referenceNumber %}
-            {% do accordion_items.append({
-              'title': 'Reference number',
-              'text': record.referenceNumber
-            }) %}
-          {% endif %}
-
           {% if record.type %}
             {% do accordion_items.append({
               'title': 'Type',
               'text': record.type
+            }) %}
+          {% endif %}
+          
+          {% if record.level.value %}
+            {% do accordion_items.append({
+              'title': 'Level',
+              'text': record.level.value
             }) %}
           {% endif %}
           
@@ -60,13 +53,6 @@
             {% do accordion_items.append({
               'title': 'Legal status',
               'text': record.legalStatus
-            }) %}
-          {% endif %}
-          
-          {% if record.level %}
-            {% do accordion_items.append({
-              'title': 'Level',
-              'text': record.level.value
             }) %}
           {% endif %}
 
@@ -97,6 +83,8 @@
         <dd>{{ iaid }}</dd>
         <dt>Title</dt>
         <dd>{{ record.title | striptags }}</dd>
+        <dt>Reference number</dt>
+        <dd>{{ record.referenceNumber }}</dd>
       </dl>
       <div class="tna-button-group">
         {{ tnaButton({
@@ -113,4 +101,21 @@
   {{ form.your_details() }}
   {{ form.csrf_token() }}
 {% endblock formFields %}
+          
+{% block submitButton %}
+<div class="tna-button-group">
+  {{ tnaButton({
+    'text': 'Submit issue',
+    'buttonElement': 'button',
+    'buttonType': 'submit'
+  }) }}
+  {{ tnaButton({
+    'text': 'Clear data and start again',
+    'href': form_reset_path,
+    'plain': True
+  }) }}
+</div>
+{% endblock submitButton %}
 
+{% block debug %}
+{% endblock debug %}
