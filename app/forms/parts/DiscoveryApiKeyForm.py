@@ -58,6 +58,7 @@ class DiscoveryApiKeyForm(FlaskForm):
         ],
         widget=TnaTextareaWidget(),
     )
+
     user_research = BooleanField(
         "User research",
         description="I am happy for The National Archives to contact me for research purposes",

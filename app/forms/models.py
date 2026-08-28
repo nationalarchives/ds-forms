@@ -36,11 +36,11 @@ class FormFlow:
 
     def __init__(
         self,
-        slug: str,
+        path: str,
         config_hash: str | None = "",
         metadata: dict | None = None,
     ):
-        self.slug = slug
+        self.path = path
         self.pages: dict[str, FormPage] = {}
         self.starting_page_id: str = ""
         self.final_page_id: str = ""
@@ -193,8 +193,8 @@ class FormFlow:
         """
         starting_page = self.get_starting_page()
         if starting_page.slug == "/":
-            return url_for("forms.start_page", form_slug=self.slug)
-        return url_for("forms.page", form_slug=self.slug, page_slug=starting_page.slug)
+            return url_for("forms.start_page", form_path=self.path)
+        return url_for("forms.page", form_path=self.path, page_slug=starting_page.slug)
 
     def get_final_page(self) -> "FormPage":
         """
@@ -292,7 +292,7 @@ class FormFlow:
         """
         Reset the flow by clearing all session data related to this flow.
         """
-        current_app.logger.debug(f"Resetting form flow for '{self.slug}'")
+        current_app.logger.debug(f"Resetting form flow for '{self.path}'")
         session.clear()
 
     def is_completion_handled(self) -> bool:
@@ -490,13 +490,13 @@ class FormPage:
         if self.slug == "/":
             return url_for(
                 "forms.start_page",
-                form_slug=self.flow.slug,
+                form_path=self.flow.path,
                 _scheme="https" if external else None,
                 _external=external,
             )
         return url_for(
             "forms.page",
-            form_slug=self.flow.slug,
+            form_path=self.flow.path,
             page_slug=self.slug,
             _scheme="https" if external else None,
             _external=external,
@@ -578,14 +578,14 @@ class FormPage:
         """
         Get the form data from the session or other storage.
         """
-        return session.get(self.id, {})
+        return session.get("responses", {}).get(self.id, {})
 
     def save_form_data(self, form_data: dict):
         """
         Save the form data to the session.
         """
         current_app.logger.debug(f"Saving form data for page '{self.id}': {form_data}")
-        session[self.id] = form_data
+        session.setdefault("responses", {})[self.id] = form_data
 
     def altcha_verified(self, save_result: bool = True) -> bool:
         """
@@ -595,17 +595,21 @@ class FormPage:
             return True
 
         if request.method != "POST":
-            return session.get(f"altcha_{self.id}", True)
+            return session.get("responses", {}).get(self.id, {}).get("altcha", True)
 
         altcha_payload = request.form.to_dict().get("altcha", "")
         if not altcha_payload:
-            session[f"altcha_{self.id}"] = False
+            session.setdefault("responses", {}).setdefault(self.id, {})["altcha"] = (
+                False
+            )
             return False
 
         solved_altchas = cache.get("solved_altchas") or []
         if altcha_payload in solved_altchas:
             current_app.logger.warn("Previously solved altcha used")
-            session[f"altcha_{self.id}"] = False
+            session.setdefault("responses", {}).setdefault(self.id, {})["altcha"] = (
+                False
+            )
             return False
 
         try:
@@ -616,10 +620,14 @@ class FormPage:
             )
         except Exception as e:
             current_app.logger.exception(f"Error verifying altcha: {e}")
-            session[f"altcha_{self.id}"] = False
+            session.setdefault("responses", {}).setdefault(self.id, {})["altcha"] = (
+                False
+            )
             return False
 
-        session[f"altcha_{self.id}"] = altcha_verified
+        session.setdefault("responses", {}).setdefault(self.id, {})["altcha"] = (
+            altcha_verified
+        )
         if altcha_verified and save_result:
             solved_altchas.append(altcha_payload)
             cache.set("solved_altchas", solved_altchas)
@@ -738,9 +746,9 @@ class FormPage:
 
             if self.is_complete() and self.altcha_verified(save_result=True):
                 for page in self.clear_pages_on_completion:
-                    if page.id in session:
+                    if page.id in session.get("responses", {}):
                         current_app.logger.debug(f"Clearing page data for: {page.id}")
-                        session.pop(page.id, None)
+                        session["responses"].pop(page.id, None)
 
                 for rule in self.when_complete:
                     current_app.logger.debug(f"Checking completion rule: {rule}")
@@ -774,8 +782,8 @@ class FormPage:
                             return redirect(rule["url"])
 
                 raise Exception("No matching completion rule found")
-        elif self.altcha and f"altcha_{self.id}" in session:
-            session.pop(f"altcha_{self.id}")
+        elif self.altcha and f"altcha_{self.id}" in session.get("responses", {}):
+            session["responses"].pop(f"altcha_{self.id}")
 
         # if not self.flow.has_complete_path() and self.flow.get_earliest_incomplete_page() != self:
         #     current_app.logger.warning(
@@ -791,7 +799,7 @@ class FormPage:
             altcha=self.altcha,
             altcha_verified=self.altcha_verified(save_result=False),
             page_path=self.get_page_path(),
-            form_reset_path=url_for("forms.reset_form", form_slug=self.flow.slug),
+            form_reset_path=url_for("forms.reset_form", form_path=self.flow.path),
             form=self.form,
             has_complete_path=self.flow.has_complete_path(),
             earliest_incomplete_page=self.flow.get_earliest_incomplete_page(),

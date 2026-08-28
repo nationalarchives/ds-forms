@@ -10,18 +10,18 @@ from flask import current_app
 from app.forms.models import FormFlow
 
 
-def load_config(form_slug: str) -> dict:
-    if not form_slug:
-        raise ValueError("Form slug must be provided")
+def load_config(form_path: str) -> dict:
+    if not form_path:
+        raise ValueError("Form path must be provided")
 
     config_path = os.path.join(
-        current_app.root_path, "forms", "config", f"{form_slug}.yml"
+        current_app.root_path, "forms", "config", f"{form_path}.yml"
     )
 
     form_config = Path(config_path)
     if not form_config.is_file():
         raise FileNotFoundError(
-            f"Form configuration file not found for form: {form_config}"
+            f"Form configuration file not found for form: {form_path}"
         )
 
     try:
@@ -29,15 +29,15 @@ def load_config(form_slug: str) -> dict:
             return yaml.safe_load(stream)
     except yaml.YAMLError as e:
         raise ValueError(
-            f"Error loading YAML configuration for form {form_slug}"
+            f"Error loading YAML configuration for form {form_path}"
         ) from e
     except Exception as e:
         raise ValueError(
-            f"Unexpected error loading configuration for form {form_slug}"
+            f"Unexpected error loading configuration for form {form_path}"
         ) from e
 
 
-def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
+def form_flow_from_config(config: dict, path: str) -> FormFlow:  # noqa: C901
     if not config:
         raise ValueError("Configuration cannot be empty")
 
@@ -50,7 +50,7 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
     ).hexdigest()
 
     form_flow = FormFlow(
-        slug=slug,
+        path=path,
         config_hash=config_hash,
         metadata=config.get("meta"),
     )

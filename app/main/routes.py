@@ -13,13 +13,25 @@ def index():
     ]
     routes.sort(key=lambda x: x["path"])
     forms_directory = os.path.join(current_app.root_path, "forms", "config")
-    forms = [
-        {
-            "slug": name.replace(".yml", ""),
-            "config": f"{forms_directory.replace('/app/app', 'app')}/{name}",
-            "path": url_for("forms.start_page", form_slug=name.replace(".yml", "")),
-        }
-        for name in os.listdir(forms_directory)
-        if name.endswith(".yml")
-    ]
+
+    forms = []
+    for root, _dirs, files in os.walk(forms_directory):
+        for name in files:
+            if name.endswith(".yml"):
+                relative_path = os.path.relpath(
+                    os.path.join(root, name), forms_directory
+                )
+                print(f"Found form config file: {relative_path}")
+
+                forms.append(
+                    {
+                        "slug": relative_path.replace(".yml", ""),
+                        "config": f"{os.path.relpath(os.path.join(root, name), current_app.root_path)}",
+                        "path": url_for(
+                            "forms.start_page",
+                            form_path=relative_path.replace(".yml", ""),
+                        ),
+                    }
+                )
+
     return render_template("main/index.html", routes=routes, forms=forms)

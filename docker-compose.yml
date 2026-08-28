@@ -15,11 +15,13 @@ services:
       - COOKIE_DOMAIN=localhost
       - SESSION_REDIS_URL=redis://redis:6379/0
       - RATELIMIT_REDIS_URL=redis://redis:6379/1
+      - CSP_STYLE_SRC='sha256-pg+oQARqMq4wCazyrsMt8HY89BJkXkEFkwNWxg2iPdg='
       - ALTCHA_HMAC_KEY=abc123
       - CACHE_TYPE=RedisCache
       - CACHE_REDIS_URL=redis://redis:6379/2
       - SESSION_COOKIE_SECURE=False
       # - RATELIMIT_DEFAULT=5 per 5 seconds
+      - ROSETTA_API_URL=https://rosetta-dev.k-int.com/rosetta/data
     ports:
       - 65514:8080
     volumes:

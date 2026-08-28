@@ -11,6 +11,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from app.lib.cache import cache
 from app.lib.context_processor import cookie_preference, now_iso_8601, now_timestamp
 from app.lib.limiter import limiter
+from app.lib.records_api import record_details
 from app.lib.talisman import talisman
 from app.lib.template_filters import slugify
 
@@ -63,6 +64,7 @@ def create_app(config_class):
             PackageLoader("tna_frontend_jinja"),
         ]
     )
+    app.jinja_env.add_extension("jinja2.ext.do")
 
     WTFormsHelpers(app)
 
@@ -87,6 +89,7 @@ def create_app(config_class):
             },
             feature={},
             render=render_template_string,
+            record_details=record_details,
         )
 
     from .altcha import bp as altcha_bp

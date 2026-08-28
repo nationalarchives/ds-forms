@@ -1,0 +1,49 @@
+meta:
+  exclude_from_sitemap: true
+
+startingPage:
+  id: info
+  name: Report an issue with the catalogue
+  form: CatalogueIssue
+  template: forms/catalogue_issue.html
+  # altcha: true
+  content:
+    supertitle: Catalogue
+    # description: Report an issue with the catalogue.
+    # body: |
+    #   <p>Completing this form should provide you with a simple email receipt.</p>
+    breadcrumbs:
+      items:
+        - text: Home
+          href: /
+        - text: Catalogue
+          href: /catalogue/
+  redirectWhenComplete:
+    - page: final_page
+
+finalPage:
+  id: final_page
+  name: Thank you
+  slug: complete
+  content:
+    panelTitle: Your application has been submitted
+    panelText: Your reference number is {{ completion_result_first_id }}.
+    description: This is the final page of the flow.
+    body: |
+      <p>Thank you for completing the form. We will be in touch shortly.</p>
+  template: forms/final.html
+  requires:
+    - info
+  resultHandlers:
+    - type: email
+      details:
+        process:
+          template: outputs/email.html
+          panel:
+            title: Application received
+            body: <p>Your application has been received and is being processed.</p><p>Your reference number is <strong>{{ reference_number }}</strong>.</p>
+          content: <p>TEST EMAIL</p><p>Filled out by {{ email.email_address }}</p>
+          signoff: <p>Kind regards,</p><p>The team</p>
+        send:
+          toConfigVar: FORM_REPORT_A_CATALOGUE_ISSUE_INBOX
+          subject: An issue has been reported with the catalogue

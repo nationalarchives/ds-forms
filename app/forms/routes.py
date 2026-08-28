@@ -5,19 +5,19 @@ from app.forms.config import form_flow_from_config, load_config
 from app.lib.limiter import limiter
 
 
-def get_form_flow(form_slug: str):
-    config = load_config(form_slug)
-    return form_flow_from_config(config, form_slug)
+def get_form_flow(form_path: str):
+    config = load_config(form_path)
+    return form_flow_from_config(config, form_path)
 
 
-@bp.route("/<string:form_slug>/", methods=["GET", "POST"])
-def start_page(form_slug):
+@bp.route("/<path:form_path>/", methods=["GET", "POST"])
+def start_page(form_path):
     try:
-        form_flow = get_form_flow(form_slug)
+        form_flow = get_form_flow(form_path)
     except FileNotFoundError:
         return render_template("errors/page_not_found.html"), 404
     except ValueError as e:
-        current_app.logger.exception(f"Error loading form flow for '{form_slug}': {e}")
+        current_app.logger.exception(f"Error loading form flow for '{form_path}': {e}")
         return render_template("errors/server.html"), 500
 
     if not form_flow:
@@ -32,16 +32,16 @@ def start_page(form_slug):
     return form_flow.get_starting_page().serve()
 
 
-@bp.route("/<string:form_slug>/reset/")
+@bp.route("/<path:form_path>/reset/")
 @limiter.exempt
-def reset_form(form_slug):
+def reset_form(form_path):
     try:
-        form_flow = get_form_flow(form_slug)
+        form_flow = get_form_flow(form_path)
     except FileNotFoundError:
         return render_template("errors/page_not_found.html"), 404
     except ValueError as e:
         current_app.logger.exception(
-            f"Error resetting form flow for '{form_slug}': {e}"
+            f"Error resetting form flow for '{form_path}': {e}"
         )
         return render_template("errors/server.html"), 500
 
@@ -53,15 +53,15 @@ def reset_form(form_slug):
     return redirect(form_flow.get_starting_path())
 
 
-@bp.route("/<string:form_slug>/<string:page_slug>/", methods=["GET", "POST"])
-def page(form_slug, page_slug):
+@bp.route("/<path:form_path>/<string:page_slug>/", methods=["GET", "POST"])
+def page(form_path, page_slug):
     try:
-        form_flow = get_form_flow(form_slug)
+        form_flow = get_form_flow(form_path)
     except FileNotFoundError:
-        return render_template("errors/page_not_found.html"), 404
+        return start_page(f"{form_path}/{page_slug}")
     except ValueError as e:
         current_app.logger.exception(
-            f"Error loading form flow page for '{form_slug}/{page_slug}': {e}"
+            f"Error loading form flow page for '{form_path}/{page_slug}': {e}"
         )
         return render_template("errors/server.html"), 500
 
