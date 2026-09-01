@@ -16,8 +16,8 @@ def start_page(form_path):
         form_flow = get_form_flow(form_path)
     except FileNotFoundError:
         return render_template("errors/page_not_found.html"), 404
-    except ValueError as e:
-        current_app.logger.exception(f"Error loading form flow for '{form_path}': {e}")
+    except ValueError:
+        current_app.logger.exception(f"Error loading form flow for '{form_path}'")
         return render_template("errors/server.html"), 500
 
     if not form_flow:
@@ -39,10 +39,8 @@ def reset_form(form_path):
         form_flow = get_form_flow(form_path)
     except FileNotFoundError:
         return render_template("errors/page_not_found.html"), 404
-    except ValueError as e:
-        current_app.logger.exception(
-            f"Error resetting form flow for '{form_path}': {e}"
-        )
+    except ValueError:
+        current_app.logger.exception(f"Error resetting form flow for '{form_path}'")
         return render_template("errors/server.html"), 500
 
     if not form_flow:
@@ -59,9 +57,9 @@ def page(form_path, page_slug):
         form_flow = get_form_flow(form_path)
     except FileNotFoundError:
         return start_page(f"{form_path}/{page_slug}")
-    except ValueError as e:
+    except ValueError:
         current_app.logger.exception(
-            f"Error loading form flow page for '{form_path}/{page_slug}': {e}"
+            f"Error loading form flow page for '{form_path}/{page_slug}'"
         )
         return render_template("errors/server.html"), 500
 

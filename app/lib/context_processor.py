@@ -6,12 +6,12 @@ from flask import request
 
 
 def now_iso_8601():
-    now = datetime.now()
+    now = datetime.now(tz=datetime.utcnow().astimezone().tzinfo)
     return now.strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def now_timestamp():
-    now = datetime.now()
+    now = datetime.now(tz=datetime.utcnow().astimezone().tzinfo)
     return now.timestamp()
 
 

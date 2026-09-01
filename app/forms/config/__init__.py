@@ -177,7 +177,7 @@ def form_flow_from_config(config: dict, path: str) -> FormFlow:  # noqa: C901
                 except KeyError:
                     # Page not found
                     pass
-            if any([page is None for page in required_pages]):
+            if any(page is None for page in required_pages):
                 raise ValueError(
                     f"One or more required pages for 'requires' of '{page.slug}' not found in form flow."
                 )
@@ -188,7 +188,7 @@ def form_flow_from_config(config: dict, path: str) -> FormFlow:  # noqa: C901
             for id in require_completion_of_any:
                 required_page = form_flow.get_page_by_id(id)
                 required_pages.append(required_page)
-            if any([page is None for page in required_pages]):
+            if any(page is None for page in required_pages):
                 raise ValueError(
                     f"One or more required pages for 'requiresAny' of '{page.slug}' not found in form flow."
                 )

@@ -102,9 +102,9 @@ class EmailResultHandler(ResultHandler):
                 )
                 module = __import__(import_path, fromlist=[function_name])
                 to_email = getattr(module, function_name)(self.data)
-            except Exception as e:
+            except Exception:
                 current_app.logger.exception(
-                    f"Error calling function {to_email_function}: {e}"
+                    f"Error calling function {to_email_function}"
                 )
         if not to_email:
             raise ValueError("Recipient email address must be provided")
@@ -123,8 +123,8 @@ class EmailResultHandler(ResultHandler):
             current_app.logger.debug(f"Email sent with ID {id}")
             self.result_data = {"id": id}
             return True
-        except Exception as e:
-            current_app.logger.exception(f"EmailResultHandler error: {e}")
+        except Exception:
+            current_app.logger.exception("EmailResultHandler error")
             return False
 
     def result(self) -> dict:
@@ -164,8 +164,8 @@ class APIResultHandler(ResultHandler):
                 )
                 return response.status_code == codes.ok
             raise ValueError(f"Unsupported HTTP method: {self.method}")
-        except Exception as e:
-            current_app.logger.exception(f"APIResultHandler error: {e}")
+        except Exception:
+            current_app.logger.exception("APIResultHandler error")
             return False
 
     def result(self) -> dict:

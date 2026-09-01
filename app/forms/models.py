@@ -223,7 +223,7 @@ class FormFlow:
         """
         return self.get_earliest_incomplete_page() is None
 
-    def get_earliest_incomplete_page(self) -> Optional["FormPage"]:  # noqa: C901
+    def get_earliest_incomplete_page(self) -> Optional["FormPage"]:
         """
         Working backwards through the flow, find a required page that is not complete.
         """
@@ -330,7 +330,7 @@ class FormFlow:
             current_app.logger.error(
                 "Flow does not have a complete path. Cannot handle completion"
             )
-            raise Exception("Flow does not have a complete path")
+            raise ValueError("Flow does not have a complete path")
 
         success = True
 
@@ -379,10 +379,8 @@ class FormFlow:
                                 "result": handler.result(),
                             }
                         )
-                except Exception as e:
-                    current_app.logger.exception(
-                        f"Error handling form flow completion: {e}"
-                    )
+                except Exception:
+                    current_app.logger.exception("Error handling form flow completion")
                     results.append(
                         {
                             "type": handler_type,
@@ -461,10 +459,8 @@ class FormPage:
             temp_form = self.form_class()
             for field in temp_form:
                 if any(
-                    [
-                        isinstance(validator, InputRequired)
-                        for validator in field.validators
-                    ]
+                    isinstance(validator, InputRequired)
+                    for validator in field.validators
                 ):
                     raise ValueError(
                         f"Field '{field.name}' in page '{self.id}' uses 'InputRequired' validator which is not allowed. Use 'DataRequired' instead."
@@ -472,10 +468,8 @@ class FormPage:
                 if isinstance(field, FormField):
                     for sub_field in field:
                         if any(
-                            [
-                                isinstance(validator, InputRequired)
-                                for validator in sub_field.validators
-                            ]
+                            isinstance(validator, InputRequired)
+                            for validator in sub_field.validators
                         ):
                             raise ValueError(
                                 f"Form sub-field '{sub_field.name}' in page '{self.id}' uses 'InputRequired' validator which is not allowed. Use 'DataRequired' instead."
@@ -616,7 +610,7 @@ class FormPage:
 
         solved_altchas = cache.get("solved_altchas") or []
         if altcha_payload in solved_altchas:
-            current_app.logger.warn("Previously solved altcha used")
+            current_app.logger.warning("Previously solved altcha used")
             session.setdefault(self.form_path, {}).setdefault(
                 "responses", {}
             ).setdefault(self.id, {})["altcha"] = False
@@ -628,8 +622,8 @@ class FormPage:
                 current_app.config.get("ALTCHA_HMAC_KEY", "secret-hmac-key"),
                 True,
             )
-        except Exception as e:
-            current_app.logger.exception(f"Error verifying altcha: {e}")
+        except Exception:
+            current_app.logger.exception("Error verifying altcha")
             session.setdefault(self.form_path, {}).setdefault(
                 "responses", {}
             ).setdefault(self.id, {})["altcha"] = False
@@ -727,7 +721,7 @@ class FormPage:
 
         return self.validate_and_redirect()
 
-    def validate_and_redirect(  # noqa: C901
+    def validate_and_redirect(
         self,
     ) -> Response:  # TODO: Refactor this method
         """
@@ -791,7 +785,7 @@ class FormPage:
                             )
                             return redirect(rule["url"])
 
-                raise Exception("No matching completion rule found")
+                raise ValueError("No matching completion rule found")
         elif self.altcha and f"altcha_{self.id}" in session.get(self.form_path, {}).get(
             "responses", {}
         ):
