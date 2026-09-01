@@ -19,6 +19,8 @@ def load_config(form_path: str) -> dict:
     )
 
     form_config = Path(config_path)
+    print("!!!!!!!!!!!!!!")
+    print(f"Loading form configuration from: {form_config}")
     if not form_config.is_file():
         raise FileNotFoundError(
             f"Form configuration file not found for form: {form_path}"
@@ -184,26 +186,18 @@ def form_flow_from_config(config: dict, path: str) -> FormFlow:  # noqa: C901
         if require_completion_of_any := page_config.get("requiresAny", []):
             required_pages = []
             for id in require_completion_of_any:
-                try:
-                    required_page = form_flow.get_page_by_id(id)
-                    required_pages.append(required_page)
-                except KeyError:
-                    # Page not found
-                    pass
+                required_page = form_flow.get_page_by_id(id)
+                required_pages.append(required_page)
             if any([page is None for page in required_pages]):
                 raise ValueError(
                     f"One or more required pages for 'requiresAny' of '{page.slug}' not found in form flow."
                 )
             fallback_page_id = page_config.get("redirectIfNotComplete", None)
-            if fallback_page_id is not None:
-                try:
-                    fallback_page = form_flow.get_page_by_id(fallback_page_id)
-                    page.require_completion_of_any(
-                        pages=required_pages, fallback_page=fallback_page
-                    )
-                except KeyError as e:
-                    raise ValueError(
-                        f"Fallback page '{fallback_page_id}' for 'requiresAny' of '{page.slug}' not found in form flow."
-                    ) from e
+            fallback_page = (
+                form_flow.get_page_by_id(fallback_page_id) if fallback_page_id else None
+            )
+            page.require_completion_of_any(
+                pages=required_pages, fallback_page=fallback_page
+            )
 
     return form_flow

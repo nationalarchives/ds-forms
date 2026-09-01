@@ -1,0 +1,47 @@
+meta:
+  exclude_from_sitemap: true
+
+startingPage:
+  id: start
+  name: Testing requires
+  form: TestAlphaBetaGammaForm
+  redirectWhenComplete:
+    - page: alpha_page
+
+pages:
+  - id: alpha_page
+    name: Alpha
+    slug: alpha
+    form: TestAlphaBetaGammaForm
+    requiresAny:
+      - start
+    redirectWhenComplete:
+      - page: beta_page
+
+  - id: beta_page
+    name: Beta
+    slug: beta
+    form: TestAlphaBetaGammaForm
+    requiresAny:
+      - start
+      - alpha_page
+    redirectWhenComplete:
+      - page: final
+
+  - id: gamma_page
+    name: Gamma
+    slug: gamma
+    form: TestAlphaBetaGammaForm
+    redirectWhenComplete:
+      - page: final
+    requiresAny:
+      - start
+    redirectIfNotComplete: start
+
+finalPage:
+  id: final
+  name: Final
+  slug: final
+  template: forms/test/static.html
+  requiresAny:
+    - beta_page
