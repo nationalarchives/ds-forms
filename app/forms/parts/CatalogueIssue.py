@@ -54,7 +54,7 @@ class YourDetailsFields(FlaskForm):
         render_kw={"headingSize": "xs", "autocomplete": "name"},
     )
 
-    email_address = EmailField(
+    email = EmailField(
         "Email address (optional)",
         validators=[
             Optional(),
@@ -87,7 +87,7 @@ class CatalogueIssue(FlaskForm):
         render_kw={"headingLevel": 2, "headingSize": "l"},
     )
 
-    your_details = FormField(
+    reporter = FormField(
         YourDetailsFields,
         label="Your details",
         description="We need this to contact you about the issue.",

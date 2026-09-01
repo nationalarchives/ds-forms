@@ -42,7 +42,7 @@ finalPage:
           panel:
             title: Application received
             body: <p>Your application has been received and is being processed.</p><p>Your reference number is <strong>{{ reference_number }}</strong>.</p>
-          content: <p>TEST EMAIL</p><p>Filled out by {{ email.email_address }}</p>
+          content: <p>TEST EMAIL</p><p>Filled out by {{ responses.info.reporter.email_address or 'anonymous user' }}</p>
           signoff: <p>Kind regards,</p><p>The team</p>
         send:
           toConfigVar: FORM_REPORT_A_CATALOGUE_ISSUE_INBOX
