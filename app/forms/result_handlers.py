@@ -94,6 +94,18 @@ class EmailResultHandler(ResultHandler):
             to_email = deep_get(self.data, to_email_var, "")
         if not to_email and (to_email_config_var := kwargs.get("toConfigVar", "")):
             to_email = current_app.config.get(to_email_config_var, "")
+        if not to_email and (to_email_function := kwargs.get("toFunction", "")):
+            try:
+                import_path, function_name = to_email_function.rsplit(".", 1)
+                current_app.logger.debug(
+                    f"Importing {function_name} from {import_path}"
+                )
+                module = __import__(import_path, fromlist=[function_name])
+                to_email = getattr(module, function_name)(self.data)
+            except Exception as e:
+                current_app.logger.exception(
+                    f"Error calling function {to_email_function}: {e}"
+                )
         if not to_email:
             raise ValueError("Recipient email address must be provided")
         subject = kwargs.get("subject", "Form Submission")

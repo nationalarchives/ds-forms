@@ -85,9 +85,6 @@ class Production(Features):
     FORM_APPLY_TO_FILM_INBOX: str = os.environ.get(
         "FORM_APPLY_TO_FILM_INBOX", DEFAULT_INBOX
     )
-    FORM_REPORT_A_CATALOGUE_ISSUE_INBOX: str = os.environ.get(
-        "FORM_REPORT_A_CATALOGUE_ISSUE_INBOX", DEFAULT_INBOX
-    )
     FORM_HOLOCAUST_MEMORIAL_FOUNDATION_TESTIMONY_LICENCE_REQUEST_INBOX: str = (
         os.environ.get(
             "FORM_HOLOCAUST_MEMORIAL_FOUNDATION_TESTIMONY_LICENCE_REQUEST_INBOX",
@@ -97,6 +94,21 @@ class Production(Features):
     FORM_DISCOVERY_API_KEY_INBOX: str = os.environ.get(
         "FORM_DISCOVERY_API_KEY_INBOX", DEFAULT_INBOX
     )
+    FORM_REPORT_A_CATALOGUE_ISSUE_INBOXES: str = {
+        "DIGITAL_DOWNLOADS": os.environ.get(
+            "FORM_REPORT_A_CATALOGUE_ISSUE_DIGITAL_DOWNLOADS_INBOX", DEFAULT_INBOX
+        ),
+        "DIGITAL_PRESERVATION": os.environ.get(
+            "FORM_REPORT_A_CATALOGUE_ISSUE_DIGITAL_PRESERVATION_INBOX", DEFAULT_INBOX
+        ),
+        "FINDING_ARCHIVES_PROJECT": os.environ.get(
+            "FORM_REPORT_A_CATALOGUE_ISSUE_FINDING_ARCHIVES_PROJECT_INBOX",
+            DEFAULT_INBOX,
+        ),
+        "CATALOGUE_AMENDMENTS": os.environ.get(
+            "FORM_REPORT_A_CATALOGUE_ISSUE_CATALOGUE_AMENDMENTS_INBOX", DEFAULT_INBOX
+        ),
+    }
 
     GA4_ID: str = os.environ.get("GA4_ID", "")
 
