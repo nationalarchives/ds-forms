@@ -70,6 +70,7 @@ class YourDetailsFields(FlaskForm):
 class CatalogueIssue(FlaskForm):
     record_iaid = StringField(
         "Record IAID",
+        description="This is the unique identifier for the record you are reporting an issue with. It can be found in the URL of the record details page.",
         filters=[lambda x: x.strip() if isinstance(x, str) else x],
         validators=[
             DataRequired(message="Enter the record IAID"),

@@ -47,3 +47,10 @@ finalPage:
         send:
           toConfigVar: FORM_REPORT_A_CATALOGUE_ISSUE_INBOX
           subject: An issue has been reported with the catalogue
+    - type: email2
+      details:
+        process:
+          template: outputs/email_json_dump.html
+        send:
+          toConfigVar: FORM_REPORT_A_CATALOGUE_ISSUE_INBOX
+          subject: An issue has been reported with the catalogue (JSON dump)
