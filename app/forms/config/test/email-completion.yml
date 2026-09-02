@@ -1,0 +1,25 @@
+meta:
+  exclude_from_sitemap: true
+
+startingPage:
+  id: start
+  name: Testing email completion
+  form: EmailForm
+  redirectWhenComplete:
+    - page: final
+
+finalPage:
+  id: final
+  name: Final
+  slug: final
+  template: forms/test/static.html
+  requires:
+    - start
+  resultHandlers:
+    - type: email
+      details:
+        process:
+          template: outputs/email_json_dump.html
+        send:
+          toVar: start.email_address
+          subject: Test completion email

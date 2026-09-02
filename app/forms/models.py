@@ -1,6 +1,6 @@
 # import datetime
 from collections.abc import Callable
-from typing import Optional, TypedDict
+from typing import Optional
 
 from altcha import verify_solution
 from flask import (
@@ -19,11 +19,7 @@ from wtforms.validators import InputRequired
 from app.lib.cache import cache
 
 from .result_handlers import (
-    APIResultHandler,
-    EmailResultHandler,
-    MicrosoftDynamicsResultHandler,
-    MongoDBResultHandler,
-    PostgresResultHandler,
+    RESULT_HANDLER_CLASSES,
     ResultHandlerResult,
 )
 
@@ -334,21 +330,13 @@ class FormFlow:
 
         success = True
 
-        handler_classes = {
-            "email": EmailResultHandler,
-            "postgres": PostgresResultHandler,
-            "mongodb": MongoDBResultHandler,
-            "api": APIResultHandler,
-            "microsoft_dynamics": MicrosoftDynamicsResultHandler,
-        }
-
         results = []
 
         if self.result_handlers_config:
             for result_handler in self.result_handlers_config:
                 current_app.logger.debug(f"Processing result handler: {result_handler}")
                 handler_type = result_handler.get("type", "")
-                if handler_type not in handler_classes:
+                if handler_type not in RESULT_HANDLER_CLASSES:
                     raise ValueError(f"Unsupported result handler type: {handler_type}")
 
                 details = result_handler.get("details", {})
@@ -357,7 +345,9 @@ class FormFlow:
 
                 handler = None
                 try:
-                    handler = handler_classes[handler_type](**details.get("init", {}))
+                    handler = RESULT_HANDLER_CLASSES[handler_type](
+                        **details.get("init", {})
+                    )
                     handler.process(data=self.get_data(), **details.get("process", {}))
                     handler_success = handler.send(**details.get("send", {}))
                     if handler_success:
@@ -400,21 +390,113 @@ class FormFlow:
         return success
 
 
-class PageCompletionRule(TypedDict):
-    condition: Callable | None
-    when: tuple[str, str] | None
+class CompletionRedirectRule:
+    """
+    Base class for a redirect target that applies once a page is completed.
+    Subclasses provide the actual redirect destination via `resolve`.
+    """
+
+    def __init__(
+        self,
+        when: tuple[str, str] | None = None,
+        condition: Callable | None = None,
+    ):
+        self.when = when
+        self.condition = condition
+
+    def matches(self, form_data: dict) -> bool:
+        """
+        Determine whether this rule applies to the given submitted form data.
+        """
+        if self.when is None and self.condition is None:
+            return True
+        if self.when and form_data.get(self.when[0], None) == self.when[1]:
+            return True
+        if self.condition and self.condition(form_data):
+            return True
+        return False
+
+    def resolve(self) -> str:
+        """
+        Get the URL to redirect to when this rule matches.
+        """
+        raise NotImplementedError("Subclasses must implement the resolve method")
 
 
-class PageCompletionRuleFormPage(PageCompletionRule):
-    page: "FormPage"
+class PageRedirectRule(CompletionRedirectRule):
+    def __init__(self, page: "FormPage", **kwargs):
+        super().__init__(**kwargs)
+        self.page = page
+
+    def __str__(self):
+        return f"PageRedirectRule(page={self.page.id})"
+
+    def resolve(self) -> str:
+        return self.page.get_page_path()
 
 
-class PageCompletionRuleFlaskMethod(PageCompletionRule):
-    flask_method: str
+class FlaskMethodRedirectRule(CompletionRedirectRule):
+    def __init__(self, flask_method: str, **kwargs):
+        super().__init__(**kwargs)
+        self.flask_method = flask_method
+
+    def __str__(self):
+        return f"FlaskMethodRedirectRule(flask_method={self.flask_method})"
+
+    def resolve(self) -> str:
+        return url_for(self.flask_method)
 
 
-class PageCompletionRuleURL(PageCompletionRule):
-    url: str
+class URLRedirectRule(CompletionRedirectRule):
+    def __init__(self, url: str, **kwargs):
+        super().__init__(**kwargs)
+        self.url = url
+
+    def __str__(self):
+        return f"URLRedirectRule(url={self.url})"
+
+    def resolve(self) -> str:
+        return self.url
+
+
+class AltchaVerifier:
+    """
+    Verifies altcha proof-of-work solutions, independent of any particular form page.
+    """
+
+    def __init__(self, hmac_key_config: str = "ALTCHA_HMAC_KEY"):
+        self.hmac_key_config = hmac_key_config
+
+    def verify(self, payload: str) -> bool:
+        """
+        Verify an altcha payload, rejecting empty or previously-solved payloads.
+        """
+        if not payload:
+            return False
+
+        if payload in (cache.get("solved_altchas") or []):
+            current_app.logger.warning("Previously solved altcha used")
+            return False
+
+        try:
+            verified, _err = verify_solution(
+                payload,
+                current_app.config.get(self.hmac_key_config, "secret-hmac-key"),
+                True,
+            )
+        except Exception:
+            current_app.logger.exception("Error verifying altcha")
+            return False
+
+        return verified
+
+    def mark_solved(self, payload: str):
+        """
+        Record a payload as solved so it cannot be reused.
+        """
+        solved_altchas = cache.get("solved_altchas") or []
+        solved_altchas.append(payload)
+        cache.set("solved_altchas", solved_altchas)
 
 
 class FormPage:
@@ -435,6 +517,7 @@ class FormPage:
         form_path: str = "",
         altcha: bool = False,
         yaml_config: dict | None = None,
+        altcha_verifier: "AltchaVerifier | None" = None,
     ):
         self.flow: FormFlow = flow
         self.id: str = id
@@ -446,11 +529,7 @@ class FormPage:
         self.requires_completion_of_any: list[FormPage] = []
         self.requires_completion_of_any_fallback: FormPage | None = None
         self.requires_responses: list[tuple[FormPage, str, str]] = []
-        self.when_complete: list[
-            PageCompletionRuleFormPage
-            | PageCompletionRuleFlaskMethod
-            | PageCompletionRuleURL
-        ] = []
+        self.when_complete: list[CompletionRedirectRule] = []
         self.clear_pages_on_completion: list[FormPage] = []
         self.form: FlaskForm | None = None
         self.form_class: FlaskForm | None = form if form else None
@@ -476,9 +555,24 @@ class FormPage:
                             )
         self.altcha: bool = altcha
         self.yaml_config: dict = yaml_config if yaml_config is not None else {}
+        self.altcha_verifier: AltchaVerifier = altcha_verifier or AltchaVerifier()
 
     def __str__(self):
         return f"FormPage({self.id})"
+
+    def _get_response_field(self, key: str, default=None):
+        """
+        Get a single field from this page's saved response data.
+        """
+        return self.get_saved_form_data().get(key, default)
+
+    def _set_response_field(self, key: str, value):
+        """
+        Set a single field on this page's saved response data.
+        """
+        session.setdefault(self.form_path, {}).setdefault(
+            "responses", {}
+        ).setdefault(self.id, {})[key] = value
 
     def get_page_path(self, external=False) -> str:
         """
@@ -539,29 +633,14 @@ class FormPage:
         if not (page or flask_method or url):
             raise ValueError("Either 'page', 'url' or 'flask_method' must be provided")
         if page:
-            self.when_complete.append(
-                {
-                    "page": page,
-                    "when": when,
-                    "condition": condition,
-                }
-            )
+            rule = PageRedirectRule(page=page, when=when, condition=condition)
         elif flask_method:
-            self.when_complete.append(
-                {
-                    "flask_method": flask_method,
-                    "when": when,
-                    "condition": condition,
-                }
+            rule = FlaskMethodRedirectRule(
+                flask_method=flask_method, when=when, condition=condition
             )
-        elif url:
-            self.when_complete.append(
-                {
-                    "url": url,
-                    "when": when,
-                    "condition": condition,
-                }
-            )
+        else:
+            rule = URLRedirectRule(url=url, when=when, condition=condition)
+        self.when_complete.append(rule)
         return self
 
     def clear_on_completion(self, *pages: "FormPage"):
@@ -594,48 +673,14 @@ class FormPage:
             return True
 
         if request.method != "POST":
-            return (
-                session.get(self.form_path, {})
-                .get("responses", {})
-                .get(self.id, {})
-                .get("altcha", True)
-            )
+            return self._get_response_field("altcha", True)
 
         altcha_payload = request.form.to_dict().get("altcha", "")
-        if not altcha_payload:
-            session.setdefault(self.form_path, {}).setdefault(
-                "responses", {}
-            ).setdefault(self.id, {})["altcha"] = False
-            return False
-
-        solved_altchas = cache.get("solved_altchas") or []
-        if altcha_payload in solved_altchas:
-            current_app.logger.warning("Previously solved altcha used")
-            session.setdefault(self.form_path, {}).setdefault(
-                "responses", {}
-            ).setdefault(self.id, {})["altcha"] = False
-            return False
-
-        try:
-            altcha_verified, _err = verify_solution(
-                altcha_payload,
-                current_app.config.get("ALTCHA_HMAC_KEY", "secret-hmac-key"),
-                True,
-            )
-        except Exception:
-            current_app.logger.exception("Error verifying altcha")
-            session.setdefault(self.form_path, {}).setdefault(
-                "responses", {}
-            ).setdefault(self.id, {})["altcha"] = False
-            return False
-
-        session.setdefault(self.form_path, {}).setdefault("responses", {}).setdefault(
-            self.id, {}
-        )["altcha"] = altcha_verified
-        if altcha_verified and save_result:
-            solved_altchas.append(altcha_payload)
-            cache.set("solved_altchas", solved_altchas)
-        return altcha_verified
+        verified = self.altcha_verifier.verify(altcha_payload)
+        self._set_response_field("altcha", verified)
+        if verified and save_result:
+            self.altcha_verifier.mark_solved(altcha_payload)
+        return verified
 
     def is_complete(self, temporary_validation=False) -> bool:
         """
@@ -756,34 +801,11 @@ class FormPage:
 
                 for rule in self.when_complete:
                     current_app.logger.debug(f"Checking completion rule: {rule}")
-                    if (
-                        (rule["when"] is None and rule["condition"] is None)
-                        or (
-                            rule["when"]
-                            and form_data.get(rule["when"][0], None) == rule["when"][1]
-                        )
-                        or (rule["condition"] and rule["condition"](form_data))
-                    ):
+                    if rule.matches(form_data):
                         current_app.logger.debug(
                             f"Completion rule matched for page: '{self.id}'"
                         )
-                        if rule.get("page"):
-                            current_app.logger.debug(
-                                f"Redirecting to page: '{rule['page'].id}'"
-                            )
-                            return redirect(rule["page"].get_page_path())
-
-                        if rule.get("flask_method"):
-                            current_app.logger.debug(
-                                f"Redirecting to Flask method: '{rule['flask_method']}'"
-                            )
-                            return redirect(url_for(rule["flask_method"]))
-
-                        if rule.get("url"):
-                            current_app.logger.debug(
-                                f"Redirecting to URL: {rule['url']}"
-                            )
-                            return redirect(rule["url"])
+                        return redirect(rule.resolve())
 
                 raise ValueError("No matching completion rule found")
         elif self.altcha and f"altcha_{self.id}" in session.get(self.form_path, {}).get(

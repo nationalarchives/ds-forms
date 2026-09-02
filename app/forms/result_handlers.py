@@ -141,6 +141,7 @@ class APIResultHandler(ResultHandler):
         self.method = kwargs.get("method", "").upper()
         self.headers = kwargs.get("headers", "")
         self.params = kwargs.get("params", {})
+        self.content: dict | None = None
 
         if not any([self.url, self.method]):
             raise ValueError("API URL and method must be provided")
@@ -224,3 +225,14 @@ class MongoDBResultHandler(ResultHandler):
 
     def result(self) -> dict:
         return {}
+
+
+# Registry of available result handlers, keyed by the "type" used in form YAML config.
+# New handler types are added here rather than requiring changes to code that consumes them.
+RESULT_HANDLER_CLASSES: dict[str, type[ResultHandler]] = {
+    "email": EmailResultHandler,
+    "postgres": PostgresResultHandler,
+    "mongodb": MongoDBResultHandler,
+    "api": APIResultHandler,
+    "microsoft_dynamics": MicrosoftDynamicsResultHandler,
+}
