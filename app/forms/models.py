@@ -412,9 +412,7 @@ class CompletionRedirectRule:
             return True
         if self.when and form_data.get(self.when[0], None) == self.when[1]:
             return True
-        if self.condition and self.condition(form_data):
-            return True
-        return False
+        return bool(self.condition and self.condition(form_data))
 
     def resolve(self) -> str:
         """
@@ -570,9 +568,9 @@ class FormPage:
         """
         Set a single field on this page's saved response data.
         """
-        session.setdefault(self.form_path, {}).setdefault(
-            "responses", {}
-        ).setdefault(self.id, {})[key] = value
+        session.setdefault(self.form_path, {}).setdefault("responses", {}).setdefault(
+            self.id, {}
+        )[key] = value
 
     def get_page_path(self, external=False) -> str:
         """

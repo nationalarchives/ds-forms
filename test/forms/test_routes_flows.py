@@ -64,24 +64,16 @@ class RedirectWhenCompleteRouteTestCase(unittest.TestCase):
         self.client = self.app.test_client()
 
     def test_redirects_to_page_based_on_when_condition(self):
-        rv = self.client.post(
-            "/test/redirect-when-complete/", data={"option": "a"}
-        )
+        rv = self.client.post("/test/redirect-when-complete/", data={"option": "a"})
         self.assertTrue(rv.location.endswith("/test/redirect-when-complete/alpha/"))
 
         self.client = self.app.test_client()
-        rv = self.client.post(
-            "/test/redirect-when-complete/", data={"option": "b"}
-        )
+        rv = self.client.post("/test/redirect-when-complete/", data={"option": "b"})
         self.assertTrue(rv.location.endswith("/test/redirect-when-complete/beta/"))
 
     def test_redirects_to_an_external_url(self):
-        rv = self.client.post(
-            "/test/redirect-when-complete/", data={"option": "g"}
-        )
-        self.assertEqual(
-            rv.location, "https://design-system.nationalarchives.gov.uk/"
-        )
+        rv = self.client.post("/test/redirect-when-complete/", data={"option": "g"})
+        self.assertEqual(rv.location, "https://design-system.nationalarchives.gov.uk/")
 
     def test_unconditional_rule_on_second_page_reaches_final_page(self):
         self.client.post("/test/redirect-when-complete/", data={"option": "a"})

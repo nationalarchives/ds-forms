@@ -4,7 +4,7 @@ meta:
 startingPage:
   id: start
   name: Testing redirectWhenComplete
-  form: TestAlphaBetaGammaForm
+  form: test.AlphaBetaGammaForm
   redirectWhenComplete:
     - page: alpha_page
       when:
@@ -23,7 +23,7 @@ pages:
   - id: alpha_page
     name: Alpha
     slug: alpha
-    form: TestAlphaBetaGammaForm
+    form: test.AlphaBetaGammaForm
     redirectWhenComplete:
       - page: beta_page
 

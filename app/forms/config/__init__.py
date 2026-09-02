@@ -10,6 +10,16 @@ from flask import current_app
 from app.forms.models import FormFlow
 
 
+def _load_form_class(form_name: str | None):
+    """
+    Import a form part by name, e.g. 'YourDetailsForm' or 'apply_to_film.YourDetailsForm'.
+    """
+    if not form_name:
+        return None
+    module = importlib.import_module(f"app.forms.parts.{form_name}")
+    return getattr(module, form_name.split(".")[-1])
+
+
 def load_config(form_path: str) -> dict:
     if not form_path:
         raise ValueError("Form path must be provided")
@@ -65,16 +75,7 @@ def form_flow_from_config(config: dict, path: str) -> FormFlow:  # noqa: C901
         slug=starting_page_config.get("slug", "/"),
         content=starting_page_config.get("content", ""),
         template=starting_page_config.get("template", ""),
-        form=(
-            getattr(
-                importlib.import_module(
-                    f"app.forms.parts.{starting_page_config.get('form')}"
-                ),
-                starting_page_config.get("form"),
-            )
-            if starting_page_config.get("form")
-            else None
-        ),
+        form=_load_form_class(starting_page_config.get("form")),
         altcha=starting_page_config.get("altcha", False),
         yaml_config=starting_page_config,
     )
@@ -92,14 +93,7 @@ def form_flow_from_config(config: dict, path: str) -> FormFlow:  # noqa: C901
             slug=page.get("slug", ""),
             content=page.get("content", {}),
             template=page.get("template", ""),
-            form=(
-                getattr(
-                    importlib.import_module(f"app.forms.parts.{page.get('form')}"),
-                    page.get("form").split(".")[-1],
-                )
-                if page.get("form")
-                else None
-            ),
+            form=_load_form_class(page.get("form")),
             altcha=page.get("altcha", False),
             yaml_config=page,
         )

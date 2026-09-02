@@ -4,7 +4,7 @@ meta:
 startingPage:
   id: start
   name: Testing requires
-  form: TestAlphaBetaGammaForm
+  form: test.AlphaBetaGammaForm
   redirectWhenComplete:
     - page: alpha_page
 
@@ -12,7 +12,7 @@ pages:
   - id: alpha_page
     name: Alpha
     slug: alpha
-    form: TestAlphaBetaGammaForm
+    form: test.AlphaBetaGammaForm
     requiresAny:
       - start
     redirectWhenComplete:
@@ -21,7 +21,7 @@ pages:
   - id: beta_page
     name: Beta
     slug: beta
-    form: TestAlphaBetaGammaForm
+    form: test.AlphaBetaGammaForm
     requiresAny:
       - start
       - alpha_page
@@ -31,7 +31,7 @@ pages:
   - id: gamma_page
     name: Gamma
     slug: gamma
-    form: TestAlphaBetaGammaForm
+    form: test.AlphaBetaGammaForm
     redirectWhenComplete:
       - page: final
     requiresAny:

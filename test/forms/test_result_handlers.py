@@ -120,7 +120,9 @@ class MicrosoftDynamicsResultHandlerTestCase(unittest.TestCase):
         self.ctx.pop()
 
     def test_send_always_returns_false(self):
-        handler = MicrosoftDynamicsResultHandler(url="https://example.com", method="post")
+        handler = MicrosoftDynamicsResultHandler(
+            url="https://example.com", method="post"
+        )
         handler.process(data={"a": 1})
         self.assertFalse(handler.send())
         self.assertEqual(handler.result(), {})

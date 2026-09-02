@@ -4,7 +4,7 @@ from wtforms import RadioField
 from wtforms.validators import DataRequired
 
 
-class TestAlphaBetaGammaForm(FlaskForm):
+class AlphaBetaGammaForm(FlaskForm):
     option = RadioField(
         "Select an option",
         choices=[

@@ -3,9 +3,7 @@ from unittest.mock import MagicMock, patch
 
 from app import create_app
 from app.forms.models import FormFlow
-from app.forms.parts.TestAlphaBetaGammaForm import (
-    TestAlphaBetaGammaForm as AlphaBetaGammaForm,
-)
+from app.forms.parts.test.AlphaBetaGammaForm import AlphaBetaGammaForm
 
 
 class FormFlowTestCase(unittest.TestCase):

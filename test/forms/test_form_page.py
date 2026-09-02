@@ -3,13 +3,11 @@ from unittest.mock import MagicMock
 
 from flask_wtf import FlaskForm
 from wtforms import StringField
-from wtforms.validators import DataRequired, InputRequired
+from wtforms.validators import InputRequired
 
 from app import create_app
 from app.forms.models import FormFlow
-from app.forms.parts.TestAlphaBetaGammaForm import (
-    TestAlphaBetaGammaForm as AlphaBetaGammaForm,
-)
+from app.forms.parts.test.AlphaBetaGammaForm import AlphaBetaGammaForm
 
 
 class InputRequiredForm(FlaskForm):
