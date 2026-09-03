@@ -11,6 +11,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from app.lib.cache import cache
 from app.lib.context_processor import cookie_preference, now_iso_8601, now_timestamp
 from app.lib.limiter import limiter
+from app.lib.records_api import record_details
 from app.lib.talisman import talisman
 from app.lib.template_filters import slugify
 
@@ -63,6 +64,7 @@ def create_app(config_class):
             PackageLoader("tna_frontend_jinja"),
         ]
     )
+    app.jinja_env.add_extension("jinja2.ext.do")
 
     WTFormsHelpers(app)
 
@@ -73,11 +75,11 @@ def create_app(config_class):
 
     @app.context_processor
     def context_processor():
-        return dict(
-            cookie_preference=cookie_preference,
-            now_iso_8601=now_iso_8601,
-            now_timestamp=now_timestamp,
-            app_config={
+        return {
+            "cookie_preference": cookie_preference,
+            "now_iso_8601": now_iso_8601,
+            "now_timestamp": now_timestamp,
+            "app_config": {
                 "ENVIRONMENT_NAME": app.config.get("ENVIRONMENT_NAME"),
                 "CONTAINER_IMAGE": app.config.get("CONTAINER_IMAGE"),
                 "BUILD_VERSION": app.config.get("BUILD_VERSION"),
@@ -85,9 +87,10 @@ def create_app(config_class):
                 "COOKIE_DOMAIN": app.config.get("COOKIE_DOMAIN"),
                 "GA4_ID": app.config.get("GA4_ID"),
             },
-            feature={},
-            render=render_template_string,
-        )
+            "feature": {},
+            "render": render_template_string,
+            "record_details": record_details,
+        }
 
     from .altcha import bp as altcha_bp
     from .forms import bp as forms_bp

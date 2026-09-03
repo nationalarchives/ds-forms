@@ -1,5 +1,6 @@
 import json
 import os
+from typing import ClassVar
 
 from redis import Redis
 
@@ -42,7 +43,7 @@ class Production(Features):
     CSP_REPORT_URI: str = os.environ.get("CSP_REPORT_URI", "")
     if CSP_REPORT_URI and BUILD_VERSION:
         CSP_REPORT_URI += f"&sentry_release={BUILD_VERSION}" if BUILD_VERSION else ""
-    CONTENT_SECURITY_POLICY: dict = {
+    CONTENT_SECURITY_POLICY: ClassVar[dict] = {
         "connect-src": os.environ.get("CSP_CONNECT_SRC", "").split(","),
         "font-src": os.environ.get("CSP_FONT_SRC", "").split(","),
         "frame-ancestors": os.environ.get("CSP_FRAME_ANCESTORS", "").split(","),
@@ -52,7 +53,7 @@ class Production(Features):
         "report-uri": CSP_REPORT_URI,
         "script-src": os.environ.get("CSP_SCRIPT_SRC", "").split(","),
         "style-src": os.environ.get("CSP_STYLE_SRC", "").split(","),
-        "worker-src": os.environ.get("CSP_WORKER_SRC", "").split(","),
+        "worker-src": os.environ.get("CSP_WORKER_SRC", "'self',blob:").split(","),
     }
     FORCE_HTTPS: bool = strtobool(os.getenv("FORCE_HTTPS", "False"))
     PREFERRED_URL_SCHEME: str = os.getenv("PREFERRED_URL_SCHEME", "https")
@@ -79,20 +80,40 @@ class Production(Features):
         "SES_FROM_EMAIL", "noreply@nationalarchives.gov.uk"
     )
 
+    DEFAULT_INBOX: str = os.environ.get(
+        "DEFAULT_INBOX", "webmaster@nationalarchives.gov.uk"
+    )
     FORM_APPLY_TO_FILM_INBOX: str = os.environ.get(
-        "FORM_APPLY_TO_FILM_INBOX", "Andrew.Hosgood@nationalarchives.gov.uk"
+        "FORM_APPLY_TO_FILM_INBOX", DEFAULT_INBOX
     )
     FORM_HOLOCAUST_MEMORIAL_FOUNDATION_TESTIMONY_LICENCE_REQUEST_INBOX: str = (
         os.environ.get(
             "FORM_HOLOCAUST_MEMORIAL_FOUNDATION_TESTIMONY_LICENCE_REQUEST_INBOX",
-            "Andrew.Hosgood@nationalarchives.gov.uk",
+            DEFAULT_INBOX,
         )
     )
     FORM_DISCOVERY_API_KEY_INBOX: str = os.environ.get(
-        "FORM_DISCOVERY_API_KEY_INBOX", "Andrew.Hosgood@nationalarchives.gov.uk"
+        "FORM_DISCOVERY_API_KEY_INBOX", DEFAULT_INBOX
     )
+    FORM_REPORT_A_CATALOGUE_ISSUE_INBOXES: str = {
+        "DIGITAL_DOWNLOADS": os.environ.get(
+            "FORM_REPORT_A_CATALOGUE_ISSUE_DIGITAL_DOWNLOADS_INBOX", DEFAULT_INBOX
+        ),
+        "DIGITAL_PRESERVATION": os.environ.get(
+            "FORM_REPORT_A_CATALOGUE_ISSUE_DIGITAL_PRESERVATION_INBOX", DEFAULT_INBOX
+        ),
+        "FINDING_ARCHIVES_PROJECT": os.environ.get(
+            "FORM_REPORT_A_CATALOGUE_ISSUE_FINDING_ARCHIVES_PROJECT_INBOX",
+            DEFAULT_INBOX,
+        ),
+        "CATALOGUE_AMENDMENTS": os.environ.get(
+            "FORM_REPORT_A_CATALOGUE_ISSUE_CATALOGUE_AMENDMENTS_INBOX", DEFAULT_INBOX
+        ),
+    }
 
     GA4_ID: str = os.environ.get("GA4_ID", "")
+
+    ROSETTA_API_URL: str = os.environ.get("ROSETTA_API_URL", "")
 
 
 class Staging(Production):

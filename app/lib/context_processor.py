@@ -1,17 +1,17 @@
 import json
-from datetime import datetime
+from datetime import UTC, datetime
 from urllib.parse import unquote
 
 from flask import request
 
 
 def now_iso_8601():
-    now = datetime.now()
-    return now.strftime("%Y-%m-%dT%H:%M:%SZ")
+    now = datetime.now(UTC)
+    return now.isoformat(timespec="seconds").replace("+00:00", "Z")
 
 
 def now_timestamp():
-    now = datetime.now()
+    now = datetime.now(UTC)
     return now.timestamp()
 
 

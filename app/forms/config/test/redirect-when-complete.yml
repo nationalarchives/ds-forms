@@ -1,0 +1,34 @@
+meta:
+  exclude_from_sitemap: true
+
+startingPage:
+  id: start
+  name: Testing redirectWhenComplete
+  form: test.AlphaBetaGammaForm
+  redirectWhenComplete:
+    - page: alpha_page
+      when:
+        key: option
+        value: a
+    - page: beta_page
+      when:
+        key: option
+        value: b
+    - url: https://design-system.nationalarchives.gov.uk/
+      when:
+        key: option
+        value: g
+
+pages:
+  - id: alpha_page
+    name: Alpha
+    slug: alpha
+    form: test.AlphaBetaGammaForm
+    redirectWhenComplete:
+      - page: beta_page
+
+finalPage:
+  id: beta_page
+  name: Beta
+  slug: beta
+  template: forms/test/static.html

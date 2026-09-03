@@ -2,26 +2,82 @@ import hashlib
 import importlib
 import json
 import os.path
+import re
 from pathlib import Path
 
 import yaml
 from flask import current_app
+from flask_wtf import FlaskForm
 
 from app.forms.models import FormFlow
 
+FORM_NAME_PATTERN = re.compile(r"^[a-zA-Z][a-zA-Z0-9_]*(\.[a-zA-Z][a-zA-Z0-9_]*)*$")
 
-def load_config(form_slug: str) -> dict:
-    if not form_slug:
-        raise ValueError("Form slug must be provided")
+
+def _load_form_class(form_name: str | None) -> type[FlaskForm] | None:
+    """
+    Import a form part by name, e.g. 'YourDetailsForm' or 'apply_to_film.YourDetailsForm'.
+    Only permits valid FlaskForm subclasses residing under 'app.forms.parts'.
+    """
+    if not form_name:
+        return None
+
+    if not isinstance(form_name, str):
+        raise TypeError("Form name must be a string")
+
+    form_name = form_name.strip()
+    if not form_name:
+        return None
+
+    if not FORM_NAME_PATTERN.match(form_name):
+        raise ValueError(f"Invalid form class name format: '{form_name}'")
+
+    module_path = f"app.forms.parts.{form_name}"
+    try:
+        module = importlib.import_module(module_path)
+    except (ImportError, ModuleNotFoundError, AttributeError, ValueError) as e:
+        raise ValueError(f"Could not import form module '{module_path}'") from e
+
+    if not module.__name__.startswith("app.forms.parts."):
+        raise ValueError(
+            f"Form module '{module.__name__}' is outside allowed package 'app.forms.parts'"
+        )
+
+    class_name = form_name.split(".")[-1]
+    form_class = getattr(module, class_name, None)
+
+    if form_class is None:
+        raise ValueError(
+            f"Form class '{class_name}' not found in module '{module_path}'"
+        )
+
+    if not isinstance(form_class, type):
+        raise TypeError(
+            f"Object '{class_name}' in module '{module_path}' is not a class"
+        )
+
+    if not issubclass(form_class, FlaskForm):
+        raise TypeError(
+            f"Form class '{class_name}' in module '{module_path}' is not a valid FlaskForm subclass"
+        )
+
+    return form_class
+
+
+def load_config(form_path: str) -> dict:
+    if not form_path:
+        raise ValueError("Form path must be provided")
 
     config_path = os.path.join(
-        current_app.root_path, "forms", "config", f"{form_slug}.yml"
+        current_app.root_path, "forms", "config", f"{form_path}.yml"
     )
 
     form_config = Path(config_path)
+    print("!!!!!!!!!!!!!!")
+    print(f"Loading form configuration from: {form_config}")
     if not form_config.is_file():
         raise FileNotFoundError(
-            f"Form configuration file not found for form: {form_config}"
+            f"Form configuration file not found for form: {form_path}"
         )
 
     try:
@@ -29,15 +85,15 @@ def load_config(form_slug: str) -> dict:
             return yaml.safe_load(stream)
     except yaml.YAMLError as e:
         raise ValueError(
-            f"Error loading YAML configuration for form {form_slug}"
+            f"Error loading YAML configuration for form {form_path}"
         ) from e
     except Exception as e:
         raise ValueError(
-            f"Unexpected error loading configuration for form {form_slug}"
+            f"Unexpected error loading configuration for form {form_path}"
         ) from e
 
 
-def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
+def form_flow_from_config(config: dict, path: str) -> FormFlow:  # noqa: C901
     if not config:
         raise ValueError("Configuration cannot be empty")
 
@@ -50,7 +106,7 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
     ).hexdigest()
 
     form_flow = FormFlow(
-        slug=slug,
+        path=path,
         config_hash=config_hash,
         metadata=config.get("meta"),
     )
@@ -63,16 +119,7 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
         slug=starting_page_config.get("slug", "/"),
         content=starting_page_config.get("content", ""),
         template=starting_page_config.get("template", ""),
-        form=(
-            getattr(
-                importlib.import_module(
-                    f"app.forms.parts.{starting_page_config.get('form')}"
-                ),
-                starting_page_config.get("form"),
-            )
-            if starting_page_config.get("form")
-            else None
-        ),
+        form=_load_form_class(starting_page_config.get("form")),
         altcha=starting_page_config.get("altcha", False),
         yaml_config=starting_page_config,
     )
@@ -90,14 +137,7 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
             slug=page.get("slug", ""),
             content=page.get("content", {}),
             template=page.get("template", ""),
-            form=(
-                getattr(
-                    importlib.import_module(f"app.forms.parts.{page.get('form')}"),
-                    page.get("form").split(".")[-1],
-                )
-                if page.get("form")
-                else None
-            ),
+            form=_load_form_class(page.get("form")),
             altcha=page.get("altcha", False),
             yaml_config=page,
         )
@@ -175,7 +215,7 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
                 except KeyError:
                     # Page not found
                     pass
-            if any([page is None for page in required_pages]):
+            if any(page is None for page in required_pages):
                 raise ValueError(
                     f"One or more required pages for 'requires' of '{page.slug}' not found in form flow."
                 )
@@ -184,26 +224,18 @@ def form_flow_from_config(config: dict, slug: str) -> FormFlow:  # noqa: C901
         if require_completion_of_any := page_config.get("requiresAny", []):
             required_pages = []
             for id in require_completion_of_any:
-                try:
-                    required_page = form_flow.get_page_by_id(id)
-                    required_pages.append(required_page)
-                except KeyError:
-                    # Page not found
-                    pass
-            if any([page is None for page in required_pages]):
+                required_page = form_flow.get_page_by_id(id)
+                required_pages.append(required_page)
+            if any(page is None for page in required_pages):
                 raise ValueError(
                     f"One or more required pages for 'requiresAny' of '{page.slug}' not found in form flow."
                 )
             fallback_page_id = page_config.get("redirectIfNotComplete", None)
-            if fallback_page_id is not None:
-                try:
-                    fallback_page = form_flow.get_page_by_id(fallback_page_id)
-                    page.require_completion_of_any(
-                        pages=required_pages, fallback_page=fallback_page
-                    )
-                except KeyError as e:
-                    raise ValueError(
-                        f"Fallback page '{fallback_page_id}' for 'requiresAny' of '{page.slug}' not found in form flow."
-                    ) from e
+            fallback_page = (
+                form_flow.get_page_by_id(fallback_page_id) if fallback_page_id else None
+            )
+            page.require_completion_of_any(
+                pages=required_pages, fallback_page=fallback_page
+            )
 
     return form_flow

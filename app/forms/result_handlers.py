@@ -94,6 +94,18 @@ class EmailResultHandler(ResultHandler):
             to_email = deep_get(self.data, to_email_var, "")
         if not to_email and (to_email_config_var := kwargs.get("toConfigVar", "")):
             to_email = current_app.config.get(to_email_config_var, "")
+        if not to_email and (to_email_function := kwargs.get("toFunction", "")):
+            try:
+                import_path, function_name = to_email_function.rsplit(".", 1)
+                current_app.logger.debug(
+                    f"Importing {function_name} from {import_path}"
+                )
+                module = __import__(import_path, fromlist=[function_name])
+                to_email = getattr(module, function_name)(self.data)
+            except Exception:
+                current_app.logger.exception(
+                    f"Error calling function {to_email_function}"
+                )
         if not to_email:
             raise ValueError("Recipient email address must be provided")
         subject = kwargs.get("subject", "Form Submission")
@@ -111,8 +123,8 @@ class EmailResultHandler(ResultHandler):
             current_app.logger.debug(f"Email sent with ID {id}")
             self.result_data = {"id": id}
             return True
-        except Exception as e:
-            current_app.logger.exception(f"EmailResultHandler error: {e}")
+        except Exception:
+            current_app.logger.exception("EmailResultHandler error")
             return False
 
     def result(self) -> dict:
@@ -129,6 +141,7 @@ class APIResultHandler(ResultHandler):
         self.method = kwargs.get("method", "").upper()
         self.headers = kwargs.get("headers", "")
         self.params = kwargs.get("params", {})
+        self.content: dict | None = None
 
         if not any([self.url, self.method]):
             raise ValueError("API URL and method must be provided")
@@ -152,8 +165,8 @@ class APIResultHandler(ResultHandler):
                 )
                 return response.status_code == codes.ok
             raise ValueError(f"Unsupported HTTP method: {self.method}")
-        except Exception as e:
-            current_app.logger.exception(f"APIResultHandler error: {e}")
+        except Exception:
+            current_app.logger.exception("APIResultHandler error")
             return False
 
     def result(self) -> dict:
@@ -212,3 +225,14 @@ class MongoDBResultHandler(ResultHandler):
 
     def result(self) -> dict:
         return {}
+
+
+# Registry of available result handlers, keyed by the "type" used in form YAML config.
+# New handler types are added here rather than requiring changes to code that consumes them.
+RESULT_HANDLER_CLASSES: dict[str, type[ResultHandler]] = {
+    "email": EmailResultHandler,
+    "postgres": PostgresResultHandler,
+    "mongodb": MongoDBResultHandler,
+    "api": APIResultHandler,
+    "microsoft_dynamics": MicrosoftDynamicsResultHandler,
+}

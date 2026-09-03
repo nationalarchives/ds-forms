@@ -1,1 +1,19 @@
 @use "@nationalarchives/frontend/nationalarchives/all";
+
+@use "@nationalarchives/frontend/nationalarchives/tools/colour";
+@use "@nationalarchives/frontend/nationalarchives/tools/spacing";
+
+.tna-record-details-summary {
+  height: 100vh;
+  height: 100dvh;
+  padding: spacing.space(1);
+
+  box-sizing: border-box;
+  overflow: visible auto;
+
+  position: sticky;
+  top: 0;
+
+  @include colour.tint;
+  // @include colour.thick-keyline(left);
+}

@@ -1,0 +1,118 @@
+{% extends "forms/form_page.html" %}
+
+{%- from 'components/accordion/macro.html' import tnaAccordion -%}
+{%- from 'components/button/macro.html' import tnaButton -%}
+
+{% set iaid = session.responses.info.record_iaid if session.responses and session.responses.info and session.responses.info.record_iaid else request.args.get('iaid') %}
+{% set record = record_details(iaid) if iaid else None %}
+{# {% set pageTitle = 'Report an issue for ' ~ iaid if iaid else pageTitle %} #}
+
+{% block content %}
+  <div class="tna-section">
+    <div class="tna-container">
+      <div class="tna-column tna-column--width-2-3 tna-column--full-small tna-column--full-tiny tna-!--margin-bottom-l">
+      {% block formBody %}
+        {{ super() }}
+      {% endblock formBody %}
+      </div>
+      {% if record %}
+      <div class="tna-column tna-column--width-1-3 tna-column--full-small tna-column--full-tiny tna-!--margin-bottom-l">
+        <div class="tna-record-details-summary">
+          <h2 class="tna-heading-m">Record details for {{ iaid }}</h2>
+          {% set accordion_items = [] %}
+
+          {% if record.type %}
+            {% do accordion_items.append({
+              'title': 'Type',
+              'text': record.type
+            }) %}
+          {% endif %}
+          
+          {% if record.level.value %}
+            {% do accordion_items.append({
+              'title': 'Level',
+              'text': record.level.value
+            }) %}
+          {% endif %}
+          
+          {% if record.description.value or record.description.raw %}
+            {% do accordion_items.append({
+              'title': 'Description',
+              'text': (record.description.value or record.description.raw) | striptags
+            }) %}
+          {% endif %}
+          
+          {% if record.heldBy %}
+            {% do accordion_items.append({
+              'title': 'Held by',
+              'text': record.heldBy
+            }) %}
+          {% endif %}
+          
+          {% if record.legalStatus %}
+            {% do accordion_items.append({
+              'title': 'Legal status',
+              'text': record.legalStatus
+            }) %}
+          {% endif %}
+
+          {{ tnaAccordion({
+            'itemHeadingLevel': 3,
+            'items': accordion_items,
+            'id': 'record-details-accordion',
+            'toggleAllButton': {
+              'enabled': True,
+              'openAllLabel': 'Show all details',
+              'closeAllLabel': 'Hide all details'
+            },
+            'classes': 'tna-!--margin-top-s'
+          }) }}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+{% endblock content %}
+
+{% block formFields %}
+  {% if record %}
+    <div class="tna-aside tna-background-accent-light">
+      <h2 class="tna-heading-l">Selected record</h2>
+      <dl class="tna-dl tna-dl--right-weighted tna-!--margin-top-s">
+        <dt>IAID</dt>
+        <dd>{{ iaid }}</dd>
+        <dt>Title</dt>
+        <dd>{{ record.title | striptags }}</dd>
+        <dt>Reference number</dt>
+        <dd>{{ record.referenceNumber }}</dd>
+      </dl>
+      <div class="tna-button-group">
+        {{ tnaButton({
+          'text': 'Select another record',
+          'href': form_reset_path
+        }) }}
+      </div>
+    </div>
+    <input type="hidden" name="record_iaid" value="{{ iaid }}">
+  {% else %}
+    {{ form.record_iaid() }}
+  {% endif %}
+  {{ form.issue_details() }}
+  {{ form.reporter() }}
+  {{ form.csrf_token() }}
+{% endblock formFields %}
+          
+{% block submitButton %}
+<div class="tna-button-group">
+  {{ tnaButton({
+    'text': 'Submit issue',
+    'buttonElement': 'button',
+    'buttonType': 'submit'
+  }) }}
+  {{ tnaButton({
+    'text': 'Clear data and start again',
+    'href': form_reset_path,
+    'plain': True
+  }) }}
+</div>
+{% endblock submitButton %}

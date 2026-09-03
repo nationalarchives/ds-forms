@@ -5,7 +5,7 @@
 {%- from "components/global-header/macro.html" import tnaGlobalHeader -%}
 
 {%- set theme = request.cookies.get('theme') or 'system' -%}
-{%- set themeAccent = themeAccent if themeAccent else 'blue' -%}
+{%- set themeAccent = themeAccent if themeAccent else 'green' -%}
 {%- set htmlAttributes = {
   'data-ga4id': app_config.GA4_ID or '',
   'data-tna-cookies-domain': app_config.COOKIE_DOMAIN or ''
@@ -35,6 +35,7 @@
     <meta name="tna.app.build-version" content="{{ app_config.BUILD_VERSION }}">
     <meta name="tna.app.tna-frontend" content="{{ app_config.TNA_FRONTEND_VERSION }}">
     <meta name="tna.settings.theme" content="{{ theme }}">
+    <meta name="robots" content="noindex, nofollow, noarchive, noai">
 {% endblock head %}
 
 {% block stylesheets %}

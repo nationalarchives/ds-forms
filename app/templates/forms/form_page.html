@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {%- from 'components/back-link/macro.html' import tnaBackLink -%}
+{%- from 'components/breadcrumbs/macro.html' import tnaBreadcrumbs -%}
 {%- from 'components/details/macro.html' import tnaDetails -%}
 {%- from 'forms/macros/altcha_widget.html' import altcha_widget -%}
 {%- from 'forms/macros/form_error_summary.html' import form_error_summary -%}
@@ -35,19 +36,14 @@
   <div class="tna-section">
     <div class="tna-container">
       <div class="tna-column tna-column--width-2-3 tna-column--width-5-6-medium tna-column--full-small tna-column--full-tiny">
+      {% block formBody %}
         {{ form_error_summary(form, altcha, altcha_verified) }}
 
         {%- set ns = namespace(field_count=0, file_fields_present=False) %}
-        {%- for field in form %}
-          {% if field.name != 'csrf_token' %}
-            {% set ns.field_count = ns.field_count + 1 %}
-          {% endif %}
-          {% if field.type in ['FileField', 'MultipleFileField'] %}
-            {% set ns.file_fields_present = True %}
-          {% endif %}
-        {%- endfor %}
+        {%- set field_count = form | select('ne', 'csrf_token') | list | length %}
+        {%- set file_fields_present = form | selectattr('type', 'in', ['FileField', 'MultipleFileField']) | list | length > 0 %}
 
-        {%- if ns.field_count > 1 %}
+        {%- if field_count > 1 %}
         {%- if content.supertitle %}
         <hgroup class="tna-hgroup-xl">
           <p class="tna-hgroup__supertitle">{{ content.supertitle }}</p>
@@ -57,31 +53,36 @@
         <h1 class="tna-heading-xl">{{ pageTitle }}</h1>
         {%- endif %}
         {%- if content.description %}
-        <p class="tna-scene-setter">{{ content.description | safe }}</p>
+        <p class="tna-large-paragraph">{{ content.description | safe }}</p>
         {%- endif %}
         {{ content.body | safe }}
         {%- endif %}
 
-        <form action="{{ page_path }}" method="post" enctype="{{ 'multipart/form-data' if handle_files and ns.file_fields_present else 'application/x-www-form-urlencoded' }}" class="{{ 'tna-!--margin-top-m' if ns.field_count > 1 else '' }}" novalidate>
+        <form action="{{ page_path }}" method="post" enctype="{{ 'multipart/form-data' if handle_files and file_fields_present else 'application/x-www-form-urlencoded' }}" class="{{ 'tna-!--margin-top-m' if field_count > 1 else '' }}" novalidate>
+          {% block formFields %}
           {%- for field in form %}
             {%- set params = {} %}
-            {%- if ns.field_count == 1 %}
+            {%- if field_count == 1 %}
               {% set params = {'headingSize': 'xl', 'headingLevel': 1} %}
             {%- endif %}
             {{ field(params=params) }}
           {%- endfor %}
+          {% endblock formFields %}
 
           {%- if altcha %}
             {{ altcha_widget(altcha_verified) }}
           {%- endif %}
 
           {{ content.beforeSubmit | safe }}
-
+          
+          {% block submitButton %}
           <div class="tna-button-group">
             <button class="tna-button" type="submit">Continue</button>
           </div>
+          {% endblock submitButton %}
         </form>
 
+        {% block debug %}
         <hr class="tna-!--margin-top-xl">
         
         {%- call tnaDetails({
@@ -95,6 +96,9 @@
               {{ session[page] }}
             </dd>
             {% endfor %}
+          </dl>
+          <h2 class="tna-heading-l">Form properties</h2>
+          <dl class="tna-dl">
             <dt>has_complete_path</dt>
             <dd>{{ has_complete_path }}</dd>
             <dt>earliest_incomplete_page</dt>
@@ -119,6 +123,8 @@
         <p>
           <a href="{{ form_reset_path }}">Clear data and start again</a>
         </p>
+        {% endblock debug %}
+        {% endblock formBody %}
       </div>
     </div>
   </div>

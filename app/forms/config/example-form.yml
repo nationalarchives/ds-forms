@@ -151,7 +151,7 @@ finalPage:
         #   smtpUser: EXAMPLE_FORM_EMAIL_SMTP_USER
         #   smtpPassword: EXAMPLE_FORM_EMAIL_SMTP_PASSWORD
         process:
-          template: outputs/example-email.html
+          template: outputs/example_email.html
         send:
           # to: test@test.com
           toVar: email.email_address
