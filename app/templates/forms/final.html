@@ -13,6 +13,12 @@
           'body': '<p>' ~ (content.panelText if content.panelText else ('Your reference number is <strong>' ~ reference_number ~ '</strong>')) ~ '</p>'
         }) }}
         {{ content.body | safe }}
+        <div class="tna-button-group">
+          {{ tnaButton({
+            'text': 'Submit another issue',
+            'href': form_reset_path
+          }) }}
+        </div>
         {%- else %}
         <h1 class="tna-heading-xl">An error occurred</h1>
         <p>Something went wrong.</p>

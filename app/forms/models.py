@@ -839,7 +839,7 @@ class FormPage:
             final_page=self.flow.get_final_page(),
         )
 
-        if self.flow.is_completion_handled() and self == self.flow.get_final_page():
-            self.flow.reset()
+        # if self.flow.is_completion_handled() and self == self.flow.get_final_page():
+        #     self.flow.reset()
 
         return view

@@ -28,7 +28,8 @@ finalPage:
   content:
     panelTitle: Issue submitted
     body: |
-      <p>Thank you for taking the time to help us improve the catalogue. We may contact you within the next 10 days if we need further information. We will not be able to notify you if your suggestion is successful. This is due to the high volume of suggestions we receive.</p>
+      <p>Thank you for taking the time to help us improve the catalogue. We may contact you within the next 10 days if we need further information.</p>
+      <p>We will not be able to notify you if your suggestion is successful. This is due to the high volume of suggestions we receive.</p>
   template: forms/final.html
   requires:
     - info
