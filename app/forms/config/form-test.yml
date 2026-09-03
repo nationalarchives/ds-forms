@@ -20,7 +20,7 @@ finalPage:
   slug: complete
   content:
     panelTitle: Your application has been submitted
-    panelText: Your reference number is {{ completion_result_first_id }}.
+    panelText: Your reference number is {{ reference_number }}.
     description: This is the final page of the flow.
     body: |
       <p>Thank you for completing the form. We will be in touch shortly.</p>
@@ -38,7 +38,7 @@ finalPage:
           content: <p>TEST EMAIL</p><p>Filled out by {{ email.email_address }}</p>
           signoff: <p>Kind regards,</p><p>The team</p>
         send:
-          toVar: email.email_address
+          toVar: data.email.email_address
           subject: Your receipt
     - type: email
       details:

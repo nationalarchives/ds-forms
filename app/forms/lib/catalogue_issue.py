@@ -12,7 +12,7 @@ def report_catalogue_issue_email(data: dict) -> str:
     This function can be used in the 'toFunction' field of the email result handler configuration.
     """
 
-    iaid = deep_get(data, "info.record_iaid", "")
+    iaid = deep_get(data, "data.info.record_iaid", "")
     if not iaid:
         raise ValueError("IAID not found in the provided data.")
 

@@ -173,10 +173,10 @@ class EmailResultHandlerTestCase(unittest.TestCase):
 
         handler = EmailResultHandler()
         handler.process(
-            data={"start": {"email_address": "found@example.com"}},
+            data={"data": {"start": {"email_address": "found@example.com"}}},
             template="outputs/email_json_dump.html",
         )
-        self.assertTrue(handler.send(toVar="start.email_address"))
+        self.assertTrue(handler.send(toVar="data.start.email_address"))
 
         _, kwargs = mock_ses.send_email.call_args
         self.assertEqual(kwargs["Destination"]["ToAddresses"], ["found@example.com"])

@@ -72,6 +72,7 @@ class EmailResultHandler(ResultHandler):
             aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY", None),
         )
         self.data: dict = {}
+        self.processed = False
         self.content: str = ""
         self.template: str = ""
         self.result_data: dict = {}
@@ -80,23 +81,18 @@ class EmailResultHandler(ResultHandler):
         self.template = kwargs.get("template", "outputs/email_json_dump.html")
         self.data = {k: v for k, v in kwargs.items() if k != "template"}
         self.data.update(data)
-        self.data.update(
-            {
-                "reference_number": self.data.get(
-                    "completion_result_first_id", self.id()
-                ),
-            }
-        )
-        print(f"EmailResultHandler.process() data: {self.data}")
+        self.processed = True
 
     def send(self, **kwargs) -> bool:
         current_app.logger.debug("Sending email")
-        if not self.data:
+        if not self.processed:
             raise ValueError("Email not processed. Call process() with data first.")
         self.content = render_template(self.template, data=self.data)
         to_email = kwargs.get("to", "")
         if not to_email and (to_email_var := kwargs.get("toVar", "")):
             to_email = deep_get(self.data, to_email_var, "")
+            if not to_email and isinstance(self.data, dict):
+                to_email = deep_get(self.data.get("data", {}), to_email_var, "")
         if not to_email and (to_email_config_var := kwargs.get("toConfigVar", "")):
             to_email = current_app.config.get(to_email_config_var, "")
         if not to_email and (to_email_function := kwargs.get("toFunction", "")):

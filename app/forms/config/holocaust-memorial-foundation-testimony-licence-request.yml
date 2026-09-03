@@ -89,5 +89,5 @@ finalPage:
         #   template: outputs/example_email.html
         send:
           from: systems.development@nationalarchives.gov.uk
-          toVar: your_details.email_address
+          toVar: data.your_details.email_address
           subject: New Form Submission (acknowledgement)
