@@ -60,7 +60,7 @@ finalPage:
               <dt>Reporter name</dt>
               <dd>{{ data.info.reporter.name or '<not given>' }}</dd>
               <dt>Reporter email</dt>
-              <dd>{{ data.info.reporter.email or '<not given>' }}</dd>
+              <dd>{{ (data.info.reporter.email | urlize) or '<not given>' }}</dd>
               <dt>Reference number</dt>
               <dd>{{ reference_number }}</dd>
             </dl>
