@@ -9,7 +9,7 @@
         {%- if completion_handled %}
         {{ tnaPanel({
           'title': panelTitle or pageTitle,
-          'text': panelText or 'Your reference number is ' ~ completion_result_first_id ~ '.'
+          'text': panelText or 'Your reference number is ' ~ reference_number ~ '.'
         }) }}
         {{ completion_results }}
         {{ body | safe }}

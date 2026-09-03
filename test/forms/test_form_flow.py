@@ -101,10 +101,6 @@ class FormFlowTestCase(unittest.TestCase):
         flow, _, _ = self._build_flow(path="no-results-flow")
         self.assertFalse(flow.is_completion_handled())
 
-    def test_get_completion_result_first_id_defaults_to_empty_string(self):
-        flow, _, _ = self._build_flow(path="no-results-flow-2")
-        self.assertEqual(flow.get_completion_result_first_id(), "")
-
     def test_handle_completion_raises_if_path_incomplete(self):
         flow, start, final = self._build_flow(path="incomplete-flow")
         final.require_completion_of(start)
@@ -133,7 +129,6 @@ class FormFlowTestCase(unittest.TestCase):
         mock_handler_class = MagicMock()
         mock_handler = mock_handler_class.return_value
         mock_handler.send.return_value = True
-        mock_handler.result.return_value = {"id": "abc123"}
 
         flow, _, _ = self._build_flow(path="success-flow")
         flow.result_handlers_config = [
@@ -145,7 +140,6 @@ class FormFlowTestCase(unittest.TestCase):
         ):
             self.assertTrue(flow.handle_completion())
 
-        self.assertEqual(flow.get_completion_result_first_id(), "abc123")
         self.assertTrue(flow.is_completion_handled())
 
     def test_handle_completion_records_failure_result(self):

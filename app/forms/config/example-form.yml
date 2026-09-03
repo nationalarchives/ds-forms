@@ -154,7 +154,7 @@ finalPage:
           template: outputs/example_email.html
         send:
           # to: test@test.com
-          toVar: email.email_address
+          toVar: data.email.email_address
           subject: New Form Submission
 
     # - type: api

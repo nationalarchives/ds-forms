@@ -1,4 +1,5 @@
 # import datetime
+import hashlib
 from collections.abc import Callable
 from typing import Optional
 
@@ -46,6 +47,9 @@ class FormFlow:
             current_app.logger.warning("Form configuration has changed, resetting flow")
             self.reset()
             session.setdefault(self.path, {})["config_hash"] = config_hash
+        self.reference_number: str = hashlib.md5(
+            session.sid.encode("utf-8")
+        ).hexdigest()[:8]
 
     def meta(self, key: str, default=None):
         """
@@ -308,15 +312,6 @@ class FormFlow:
         """
         return session.get(self.path, {}).get("completion_results", [])
 
-    def get_completion_result_first_id(self) -> str:
-        """
-        Get the ID of the first completion result.
-        """
-        results = self.get_completion_results()
-        if len(results) and "result" in results[0] and "id" in results[0]["result"]:
-            return results[0]["result"]["id"]
-        return ""
-
     def handle_completion(self) -> bool:
         if self.is_completion_handled():
             current_app.logger.debug("Completion logic has already been handled")
@@ -347,7 +342,13 @@ class FormFlow:
                     handler = RESULT_HANDLER_CLASSES[handler_type](
                         **details.get("init", {})
                     )
-                    handler.process(data=self.get_data(), **details.get("process", {}))
+                    handler.process(
+                        data={
+                            "data": self.get_data(),
+                            "reference_number": self.reference_number,
+                        },
+                        **details.get("process", {}),
+                    )
                     handler_success = handler.send(**details.get("send", {}))
                     if handler_success:
                         results.append(
@@ -831,7 +832,7 @@ class FormPage:
             handle_files="fileHandler" in self.yaml_config,
             completion_handled=self.flow.is_completion_handled(),
             completion_results=self.flow.get_completion_results(),
-            completion_result_first_id=self.flow.get_completion_result_first_id(),
+            reference_number=self.flow.reference_number,
             pages=self.flow.get_all_pages(),
             get_page_by_id=self.flow.get_page_by_id,
             final_page=self.flow.get_final_page(),

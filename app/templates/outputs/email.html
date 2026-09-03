@@ -11,8 +11,8 @@
 {%- for ctaButton in data.ctaButtons -%}
   {%- do ctaButtons.append({
     "text": ctaButton.text,
-    "html": render(ctaButton.html, **data),
-    "href": render(ctaButton.href, **data),
+    "html": render(ctaButton.html, **data) if ctaButton.html else "",
+    "href": render(ctaButton.href, **data) if ctaButton.href else "",
     "title": ctaButton.title,
     "plain": ctaButton.plain,
     "classes": ctaButton.classes,

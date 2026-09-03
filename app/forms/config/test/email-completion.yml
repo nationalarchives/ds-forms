@@ -21,5 +21,5 @@ finalPage:
         process:
           template: outputs/email_json_dump.html
         send:
-          toVar: start.email_address
+          toVar: data.start.email_address
           subject: Test completion email
