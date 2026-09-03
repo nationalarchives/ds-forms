@@ -3,7 +3,7 @@
 {%- from 'components/accordion/macro.html' import tnaAccordion -%}
 {%- from 'components/button/macro.html' import tnaButton -%}
 
-{% set iaid = session.responses.info.record_iaid if session.responses and session.responses.info and session.responses.info.record_iaid else request.args.get('iaid') %}
+{% set iaid = responses.record_iaid or request.args.get('iaid') %}
 {% set record = record_details(iaid) if iaid else None %}
 {# {% set pageTitle = 'Report an issue for ' ~ iaid if iaid else pageTitle %} #}
 

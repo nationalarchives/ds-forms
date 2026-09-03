@@ -827,6 +827,7 @@ class FormPage:
             page_path=self.get_page_path(),
             form_reset_path=url_for("forms.reset_form", form_path=self.flow.path),
             form=self.form,
+            responses=self.get_saved_form_data(),
             has_complete_path=self.flow.has_complete_path(),
             earliest_incomplete_page=self.flow.get_earliest_incomplete_page(),
             handle_files="fileHandler" in self.yaml_config,
@@ -838,7 +839,7 @@ class FormPage:
             final_page=self.flow.get_final_page(),
         )
 
-        # if self.flow.is_completion_handled() and self == self.flow.get_final_page():
-        #     self.flow.reset()
+        if self.flow.is_completion_handled() and self == self.flow.get_final_page():
+            self.flow.reset()
 
         return view
