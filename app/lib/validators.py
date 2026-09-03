@@ -53,9 +53,6 @@ class RecordIAID:
                 raise ValidationError(message)
             iaid = field.data.strip()
             if not is_iaid_valid(iaid):
-                print(f"Record IAID is not valid: {iaid}")
                 raise ValueError(message)
         except ValueError as exc:
             raise ValidationError(message) from exc
-
-        print(f"Record IAID is valid: {iaid}")

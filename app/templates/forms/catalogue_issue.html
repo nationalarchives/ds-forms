@@ -97,13 +97,16 @@
   {% else %}
     {{ form.record_iaid() }}
   {% endif %}
-  {{ form.issue_details() }}
+  {{ form.error_details() }}
   {{ form.reporter() }}
+  <p>
+    <small>Read our <a href="https://www.nationalarchives.gov.uk/terms-and-conditions/privacy-notice/">Privacy notice</a> to find out how The National Archives handles personal information.</small>
+  </p>
   {{ form.csrf_token() }}
 {% endblock formFields %}
           
 {% block submitButton %}
-<div class="tna-button-group">
+<div class="tna-button-group tna-!--margin-top-l">
   {{ tnaButton({
     'text': 'Submit issue',
     'buttonElement': 'button',
@@ -116,3 +119,6 @@
   }) }}
 </div>
 {% endblock submitButton %}
+
+{% block debug %}
+{% endblock debug %}

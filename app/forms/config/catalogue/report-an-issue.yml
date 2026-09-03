@@ -26,11 +26,10 @@ finalPage:
   name: Thank you
   slug: complete
   content:
-    panelTitle: Your application has been submitted
+    panelTitle: Your issue has been submitted
     panelText: Your reference number is {{ completion_result_first_id }}.
-    description: This is the final page of the flow.
     body: |
-      <p>Thank you for completing the form. We will be in touch shortly.</p>
+      <p>Thank you for taking the time to help us improve the catalogue. We may contact you within the next 10 days if we need further information. We will not be able to notify you if your suggestion is successful. This is due to the high volume of suggestions we receive.</p>
   template: forms/final.html
   requires:
     - info

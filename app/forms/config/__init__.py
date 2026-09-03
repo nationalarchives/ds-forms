@@ -73,8 +73,6 @@ def load_config(form_path: str) -> dict:
     )
 
     form_config = Path(config_path)
-    print("!!!!!!!!!!!!!!")
-    print(f"Loading form configuration from: {form_config}")
     if not form_config.is_file():
         raise FileNotFoundError(
             f"Form configuration file not found for form: {form_path}"

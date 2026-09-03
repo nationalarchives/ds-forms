@@ -21,7 +21,6 @@ def index():
                 relative_path = os.path.relpath(
                     os.path.join(root, name), forms_directory
                 )
-                print(f"Found form config file: {relative_path}")
 
                 forms.append(
                     {

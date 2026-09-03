@@ -1,9 +1,9 @@
 import re
 
-from app.forms.lib.record_details import record_details
 from flask import current_app
 
 from app.forms.result_handlers import deep_get
+from app.lib.records_api import record_details
 
 
 def report_catalogue_issue_email(data: dict) -> str:
@@ -24,9 +24,10 @@ def report_catalogue_issue_email(data: dict) -> str:
     guid_regex = r"^(?:\\{{0,1}(?:[0-9a-fA-F]){8}-(?:[0-9a-fA-F]){4}-(?:[0-9a-fA-F]){4}-(?:[0-9a-fA-F]){4}-(?:[0-9a-fA-F]){12}\\}{0,1})$"
 
     emails = current_app.config.get("FORM_REPORT_A_CATALOGUE_ISSUE_INBOXES", {})
-    default_email = current_app.config.get("DEFAULT_INBOX")
-    email = emails.get("DIGITAL_DOWNLOADS", default_email)
 
+    default_email = current_app.config["DEFAULT_INBOX"]
+
+    email = emails.get("DIGITAL_DOWNLOADS", default_email)
     if re.match(guid_regex, iaid) and not is_parliamentary_archive_record:
         if "-" in iaid:
             email = emails.get("FINDING_ARCHIVES_PROJECT", default_email)
