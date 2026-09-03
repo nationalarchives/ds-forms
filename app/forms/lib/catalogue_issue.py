@@ -1,9 +1,9 @@
 import re
 
-from app.forms.lib.record_details import record_details
 from flask import current_app
 
 from app.forms.result_handlers import deep_get
+from app.lib.records_api import record_details
 
 
 def report_catalogue_issue_email(data: dict) -> str:
