@@ -37,6 +37,7 @@ services:
       - ./:/app
     depends_on:
       - redis
+      - ses
     healthcheck:
       start_period: 10s
       start_interval: 2s
