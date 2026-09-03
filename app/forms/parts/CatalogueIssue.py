@@ -16,9 +16,9 @@ class IssueDetailFields(FlaskForm):
         csrf = False
 
     error = TextAreaField(
-        "What is the issue?",
+        "What is the error?",
         validators=[
-            DataRequired(message="Enter a description of the issue"),
+            DataRequired(message="Enter a description of the error"),
         ],
         widget=TnaTextareaWidget(),
         render_kw={"headingSize": "xs"},
@@ -43,12 +43,12 @@ class IssueDetailFields(FlaskForm):
     )
 
 
-class YourDetailsFields(FlaskForm):
+class ReporterDetailsFields(FlaskForm):
     class Meta:
         csrf = False
 
     name = StringField(
-        "Enter your name (optional)",
+        "Full name (optional)",
         validators=[Optional()],
         widget=TnaTextInputWidget(),
         render_kw={"headingSize": "xs", "autocomplete": "name"},
@@ -80,18 +80,18 @@ class CatalogueIssue(FlaskForm):
         render_kw={"headingSize": "l", "autocomplete": "off", "size": "m"},
     )
 
-    issue_details = FormField(
+    error_details = FormField(
         IssueDetailFields,
-        label="Issue details",
-        description="Please provide as much detail as possible.",
+        label="Error details",
+        description="Please provide as much information as possible.",
         widget=TnaFieldsetWidget(),
         render_kw={"headingLevel": 2, "headingSize": "l"},
     )
 
     reporter = FormField(
-        YourDetailsFields,
-        label="Your details",
-        description="We need this to contact you about the issue.",
+        ReporterDetailsFields,
+        label="Contact information",
+        description="We may contact you if we need more information.",
         widget=TnaFieldsetWidget(),
         render_kw={"headingLevel": 2, "headingSize": "l"},
     )
