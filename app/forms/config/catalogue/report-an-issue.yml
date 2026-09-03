@@ -34,18 +34,6 @@ finalPage:
   requires:
     - info
   resultHandlers:
-    # - type: email
-    #   details:
-    #     process:
-    #       template: outputs/email.html
-    #       panel:
-    #         title: Application received
-    #         body: <p>Your application has been received and is being processed.</p><p>Your reference number is <strong>{{ reference_number }}</strong>.</p>
-    #       content: <p>TEST EMAIL</p><p>Filled out by {{ responses.info.reporter.email_address or 'anonymous user' }}</p>
-    #       signoff: <p>Kind regards,</p><p>The team</p>
-    #     send:
-    #       toConfigVar: FORM_REPORT_A_CATALOGUE_ISSUE_INBOX
-    #       subject: An issue has been reported with the catalogue
     - type: email
       details:
         process:
@@ -53,3 +41,31 @@ finalPage:
         send:
           toFunction: app.forms.lib.catalogue_issue.report_catalogue_issue_email
           subject: An issue has been reported with the catalogue (JSON dump)
+    - type: email
+      details:
+        process:
+          template: outputs/email.html
+          panel:
+            title: Catalogue issue reported
+            body: <p>An issue has been raised for the record <strong>{{ info.record_iaid }}</strong>.</p>
+          content: |
+            <dl class="tna-dl">
+              <dt>IAID</dt>
+              <dd>{{ info.record_iaid }}</dd>
+              <dt>Error</dt>
+              <dd>{{ info.error_details.error }}</dd>
+              <dt>Expected</dt>
+              <dd>{{ info.error_details.expected }}</dd>
+              <dt>Additional information</dt>
+              <dd>{{ info.error_details.additional_information or '<not given>' }}</dd>
+              <dt>Reporter name</dt>
+              <dd>{{ info.reporter.name or '<not given>' }}</dd>
+              <dt>Reporter email</dt>
+              <dd>{{ info.reporter.email or '<not given>' }}</dd>
+            </dl>
+          ctaButtons:
+            - text: View the record
+              href: https://beta.nationalarchives.gov.uk/catalogue/id/{{ info.record_iaid }}/
+        send:
+          toFunction: app.forms.lib.catalogue_issue.report_catalogue_issue_email
+          subject: An issue has been reported with the catalogue

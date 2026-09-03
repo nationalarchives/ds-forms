@@ -1,3 +1,4 @@
+import os
 import uuid
 from abc import ABC, abstractmethod
 from functools import reduce
@@ -66,6 +67,9 @@ class EmailResultHandler(ResultHandler):
         self.client = boto3.client(
             "ses",
             region_name=current_app.config["AWS_REGION"],
+            endpoint_url=current_app.config.get("SES_ENDPOINT", None),
+            aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID", None),
+            aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY", None),
         )
         self.data: dict = {}
         self.content: str = ""
@@ -83,6 +87,7 @@ class EmailResultHandler(ResultHandler):
                 ),
             }
         )
+        print(f"EmailResultHandler.process() data: {self.data}")
 
     def send(self, **kwargs) -> bool:
         current_app.logger.debug("Sending email")

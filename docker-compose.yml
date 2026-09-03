@@ -22,6 +22,10 @@ services:
       - SESSION_COOKIE_SECURE=False
       # - RATELIMIT_DEFAULT=5 per 5 seconds
       - ROSETTA_API_URL=https://rosetta-dev.k-int.com/rosetta/data
+      - AWS_REGION=aws-ses-v2-local
+      - AWS_ACCESS_KEY_ID=
+      - AWS_SECRET_ACCESS_KEY=
+      - SES_ENDPOINT=http://ses:8005
       - DEFAULT_INBOX=DEFAULT_INBOX@nationalarchives.gov.uk
       - FORM_REPORT_A_CATALOGUE_ISSUE_DIGITAL_DOWNLOADS_INBOX=DIGITAL_DOWNLOADS_INBOX@nationalarchives.gov.uk
       - FORM_REPORT_A_CATALOGUE_ISSUE_DIGITAL_PRESERVATION_INBOX=DIGITAL_PRESERVATION_INBOX@nationalarchives.gov.uk
@@ -39,6 +43,11 @@ services:
 
   redis:
     image: redis:latest
+
+  ses:
+    image: ghcr.io/domdomegg/aws-ses-v2-local
+    ports:
+      - 8005:8005
 
   docs:
     image: squidfunk/mkdocs-material

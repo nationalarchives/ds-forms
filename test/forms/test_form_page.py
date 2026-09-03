@@ -76,11 +76,11 @@ class FormPageTestCase(unittest.TestCase):
         self.assertEqual(len(final.when_complete), 1)
         self.assertIs(final.when_complete[0].page, start)
 
-    def test_clear_on_completion_appends_pages(self):
-        _, start, final = self._build_flow(path="clear-on-completion")
-        result = final.clear_on_completion(start)
-        self.assertIs(result, final)
-        self.assertEqual(final.clear_pages_on_completion, [start])
+    # def test_clear_on_completion_appends_pages(self):
+    #     _, start, final = self._build_flow(path="clear-on-completion")
+    #     result = final.clear_on_completion(start)
+    #     self.assertIs(result, final)
+    #     self.assertEqual(final.clear_pages_on_completion, [start])
 
     def test_save_and_get_form_data_round_trip(self):
         _, start, _ = self._build_flow(path="save-form-data")

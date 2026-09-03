@@ -323,13 +323,12 @@ class FormFlow:
             return True
 
         if not self.has_complete_path():
-            current_app.logger.error(
+            current_app.logger.warning(
                 "Flow does not have a complete path. Cannot handle completion"
             )
             raise ValueError("Flow does not have a complete path")
 
         success = True
-
         results = []
 
         if self.result_handlers_config:
@@ -528,7 +527,7 @@ class FormPage:
         self.requires_completion_of_any_fallback: FormPage | None = None
         self.requires_responses: list[tuple[FormPage, str, str]] = []
         self.when_complete: list[CompletionRedirectRule] = []
-        self.clear_pages_on_completion: list[FormPage] = []
+        # self.clear_pages_on_completion: list[FormPage] = []
         self.form: FlaskForm | None = None
         self.form_class: FlaskForm | None = form if form else None
         self.form_path: str = form_path
@@ -641,12 +640,12 @@ class FormPage:
         self.when_complete.append(rule)
         return self
 
-    def clear_on_completion(self, *pages: "FormPage"):
-        """
-        Specify which pages should be cleared from the session when this page is completed.
-        """
-        self.clear_pages_on_completion.extend(pages)
-        return self
+    # def clear_on_completion(self, *pages: "FormPage"):
+    #     """
+    #     Specify which pages should be cleared from the session when this page is completed.
+    #     """
+    #     self.clear_pages_on_completion.extend(pages)
+    #     return self
 
     def get_saved_form_data(self):
         """
@@ -658,7 +657,7 @@ class FormPage:
         """
         Save the form data to the session.
         """
-        current_app.logger.debug(f"Saving form data for page '{self.id}': {form_data}")
+        current_app.logger.debug(f"Saving form data for page '{self.id}'")
         session.setdefault(self.form_path, {}).setdefault("responses", {})[self.id] = (
             form_data
         )
@@ -792,10 +791,10 @@ class FormPage:
             self.save_form_data(form_data)
 
             if self.is_complete() and self.altcha_verified(save_result=True):
-                for page in self.clear_pages_on_completion:
-                    if page.id in session.get(self.form_path, {}).get("responses", {}):
-                        current_app.logger.debug(f"Clearing page data for: {page.id}")
-                        session[self.form_path]["responses"].pop(page.id, None)
+                # for page in self.clear_pages_on_completion:
+                #     if page.id in session.get(self.form_path, {}).get("responses", {}):
+                #         current_app.logger.debug(f"Clearing page data for: {page.id}")
+                #         session[self.form_path]["responses"].pop(page.id, None)
 
                 for rule in self.when_complete:
                     current_app.logger.debug(f"Checking completion rule: {rule}")
@@ -817,7 +816,7 @@ class FormPage:
         #     )
         #     return redirect(self.flow.get_earliest_incomplete_page().get_page_path())
 
-        return render_template(
+        view = render_template(
             self.template,
             flow=self.flow,
             pageTitle=self.name,
@@ -837,3 +836,8 @@ class FormPage:
             get_page_by_id=self.flow.get_page_by_id,
             final_page=self.flow.get_final_page(),
         )
+
+        # if self.flow.is_completion_handled() and self == self.flow.get_final_page():
+        #     self.flow.reset()
+
+        return view
