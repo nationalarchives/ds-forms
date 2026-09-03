@@ -10,7 +10,7 @@
         {%- if completion_handled %}
         {{ tnaPanel({
           'title': content.panelTitle or pageTitle,
-          'body': '<p>' ~ (content.panelText if content.panelText else ('Your reference number is <strong>' ~ reference_number ~ '</strong>.')) ~ '</p>'
+          'body': '<p>' ~ (content.panelText if content.panelText else ('Your reference number is <strong>' ~ reference_number ~ '</strong>')) ~ '</p>'
         }) }}
         {{ content.body | safe }}
         {%- else %}
