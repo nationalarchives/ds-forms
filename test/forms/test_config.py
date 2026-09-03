@@ -1,7 +1,67 @@
 import unittest
 
 from app import create_app
-from app.forms.config import form_flow_from_config, load_config
+from app.forms.config import _load_form_class, form_flow_from_config, load_config
+
+
+class LoadFormClassTestCase(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app("config.Test")
+        self.ctx = self.app.app_context()
+        self.ctx.push()
+
+    def tearDown(self):
+        self.ctx.pop()
+
+    def test_returns_none_for_empty_or_none(self):
+        self.assertIsNone(_load_form_class(None))
+        self.assertIsNone(_load_form_class(""))
+        self.assertIsNone(_load_form_class("   "))
+
+    def test_loads_valid_form_class(self):
+        from app.forms.parts.apply_to_film.YourDetailsForm import YourDetailsForm
+        from app.forms.parts.EmailForm import EmailForm
+
+        self.assertEqual(_load_form_class("EmailForm"), EmailForm)
+        self.assertEqual(
+            _load_form_class("apply_to_film.YourDetailsForm"), YourDetailsForm
+        )
+
+    def test_raises_for_invalid_input_type(self):
+        with self.assertRaises(TypeError):
+            _load_form_class(123)  # type: ignore
+
+    def test_raises_for_path_traversal_attempts(self):
+        for malicious_name in [
+            "../../os",
+            "../sys",
+            "..sys",
+            ".EmailForm",
+            "EmailForm/something",
+            "EmailForm\\something",
+        ]:
+            with self.assertRaises(ValueError):
+                _load_form_class(malicious_name)
+
+    def test_raises_for_dunder_or_private_names(self):
+        for malicious_name in [
+            "__builtins__",
+            "_private",
+            "EmailForm.__class__",
+            "EmailForm.__builtins__",
+        ]:
+            with self.assertRaises(ValueError):
+                _load_form_class(malicious_name)
+
+    def test_raises_for_non_existent_module_or_class(self):
+        for invalid_name in ["NonExistentForm", "sys", "os", "subprocess"]:
+            with self.assertRaises(ValueError):
+                _load_form_class(invalid_name)
+
+    def test_raises_for_non_flask_form_subclass(self):
+        # EmailForm module imports UKPostcode validator class which is not a FlaskForm subclass
+        with self.assertRaises((ValueError, TypeError)):
+            _load_form_class("EmailForm.UKPostcode")
 
 
 class LoadConfigTestCase(unittest.TestCase):

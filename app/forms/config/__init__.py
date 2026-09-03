@@ -2,22 +2,66 @@ import hashlib
 import importlib
 import json
 import os.path
+import re
 from pathlib import Path
 
 import yaml
 from flask import current_app
+from flask_wtf import FlaskForm
 
 from app.forms.models import FormFlow
 
+FORM_NAME_PATTERN = re.compile(r"^[a-zA-Z][a-zA-Z0-9_]*(\.[a-zA-Z][a-zA-Z0-9_]*)*$")
 
-def _load_form_class(form_name: str | None):
+
+def _load_form_class(form_name: str | None) -> type[FlaskForm] | None:
     """
     Import a form part by name, e.g. 'YourDetailsForm' or 'apply_to_film.YourDetailsForm'.
+    Only permits valid FlaskForm subclasses residing under 'app.forms.parts'.
     """
     if not form_name:
         return None
-    module = importlib.import_module(f"app.forms.parts.{form_name}")
-    return getattr(module, form_name.split(".")[-1])
+
+    if not isinstance(form_name, str):
+        raise TypeError("Form name must be a string")
+
+    form_name = form_name.strip()
+    if not form_name:
+        return None
+
+    if not FORM_NAME_PATTERN.match(form_name):
+        raise ValueError(f"Invalid form class name format: '{form_name}'")
+
+    module_path = f"app.forms.parts.{form_name}"
+    try:
+        module = importlib.import_module(module_path)
+    except (ImportError, ModuleNotFoundError, AttributeError, ValueError) as e:
+        raise ValueError(f"Could not import form module '{module_path}'") from e
+
+    if not module.__name__.startswith("app.forms.parts."):
+        raise ValueError(
+            f"Form module '{module.__name__}' is outside allowed package 'app.forms.parts'"
+        )
+
+    class_name = form_name.split(".")[-1]
+    form_class = getattr(module, class_name, None)
+
+    if form_class is None:
+        raise ValueError(
+            f"Form class '{class_name}' not found in module '{module_path}'"
+        )
+
+    if not isinstance(form_class, type):
+        raise TypeError(
+            f"Object '{class_name}' in module '{module_path}' is not a class"
+        )
+
+    if not issubclass(form_class, FlaskForm):
+        raise TypeError(
+            f"Form class '{class_name}' in module '{module_path}' is not a valid FlaskForm subclass"
+        )
+
+    return form_class
 
 
 def load_config(form_path: str) -> dict:
