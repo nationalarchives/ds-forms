@@ -7,4 +7,17 @@
 
 {%- set signoff = render(data.signoff, **data) if data.signoff else "" -%}
 
+{%- set ctaButtons = [] -%}
+{%- for ctaButton in data.ctaButtons -%}
+  {%- do ctaButtons.append({
+    "text": ctaButton.text,
+    "html": render(ctaButton.html, **data),
+    "href": render(ctaButton.href, **data),
+    "title": ctaButton.title,
+    "plain": ctaButton.plain,
+    "classes": ctaButton.classes,
+    "attributes": ctaButton.attributes
+  }) -%}
+{%- endfor -%}
+
 {% include "layouts/email.html" %}

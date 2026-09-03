@@ -74,7 +74,7 @@ class CatalogueIssue(FlaskForm):
         filters=[lambda x: x.strip() if isinstance(x, str) else x],
         validators=[
             DataRequired(message="Enter the record IAID"),
-            RecordIAID(message="Record IAID is not valid"),
+            RecordIAID(message="Enter a valid record IAID"),
         ],
         widget=TnaTextInputWidget(),
         render_kw={"headingSize": "l", "autocomplete": "off", "size": "m"},
