@@ -48,7 +48,7 @@ services:
   ses:
     image: ghcr.io/domdomegg/aws-ses-v2-local
     ports:
-      - 8005:8005
+      - 65512:8005
 
   docs:
     image: squidfunk/mkdocs-material
