@@ -1,5 +1,5 @@
-# import datetime
 import hashlib
+import os
 from collections.abc import Callable
 from typing import Optional
 
@@ -48,7 +48,7 @@ class FormFlow:
             self.reset()
             session.setdefault(self.path, {})["config_hash"] = config_hash
         self.reference_number: str = hashlib.md5(
-            session.sid.encode("utf-8")
+            session.sid.encode("utf-8") + self.path.encode("utf-8")
         ).hexdigest()[:8]
 
     def meta(self, key: str, default=None):
@@ -325,6 +325,10 @@ class FormFlow:
 
         success = True
         results = []
+
+        self.reference_number = hashlib.md5(
+            session.sid.encode("utf-8") + self.path.encode("utf-8") + os.urandom(16)
+        ).hexdigest()[:8]
 
         if self.result_handlers_config:
             for result_handler in self.result_handlers_config:
