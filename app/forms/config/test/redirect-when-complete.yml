@@ -5,6 +5,7 @@ startingPage:
   id: start
   name: Testing redirectWhenComplete
   form: test.AlphaBetaGammaForm
+  minimumTimeToComplete: 0
   redirectWhenComplete:
     - page: alpha_page
       when:
@@ -24,6 +25,7 @@ pages:
     name: Alpha
     slug: alpha
     form: test.AlphaBetaGammaForm
+    minimumTimeToComplete: 0
     redirectWhenComplete:
       - page: beta_page
 

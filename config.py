@@ -75,6 +75,10 @@ class Production(Features):
     CACHE_DIR: str = os.environ.get("CACHE_DIR", "/tmp")
     CACHE_REDIS_URL: str = os.environ.get("CACHE_REDIS_URL", "")
 
+    DEFAULT_MINIMUM_TIME_TO_COMPLETE: int = int(
+        os.environ.get("DEFAULT_MINIMUM_TIME_TO_COMPLETE", "2")
+    )
+
     AWS_REGION: str = os.environ.get("AWS_REGION", "eu-west-2")
     SES_ENDPOINT: str = os.environ.get("SES_ENDPOINT", None)
     DEFAULT_FROM_EMAIL: str = os.environ.get(
@@ -137,3 +141,5 @@ class Test(Production):
 
     FORCE_HTTPS: bool = False
     PREFERRED_URL_SCHEME: str = "http"
+
+    DEFAULT_MINIMUM_TIME_TO_COMPLETE: int = 0

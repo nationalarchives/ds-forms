@@ -20,6 +20,8 @@ test("validate HTML and check accessibility", async ({ page }) => {
 test("empty data", async ({ page }) => {
   await page.goto("/catalogue/report-an-issue/");
 
+  await page.waitForTimeout(3000);
+
   await page.getByRole("button", { name: "Submit issue" }).click();
   await expect(page.locator("main")).toHaveText(/There is a problem/);
   await expect(page.locator("main")).toHaveText(errors.emptyIaid);
@@ -34,6 +36,8 @@ test("empty data", async ({ page }) => {
 test("invalid IAID", async ({ page }) => {
   await page.goto("/catalogue/report-an-issue/");
 
+  await page.waitForTimeout(3000);
+
   await page.getByLabel("Record IAID").fill("invalid");
   await page.getByRole("button", { name: "Submit issue" }).click();
   await expect(page.locator("main")).toHaveText(/There is a problem/);
@@ -42,6 +46,8 @@ test("invalid IAID", async ({ page }) => {
 
 test("invalid email", async ({ page }) => {
   await page.goto("/catalogue/report-an-issue/");
+
+  await page.waitForTimeout(3000);
 
   await page.getByLabel("Email address").fill("invalid");
   await page.getByRole("button", { name: "Submit issue" }).click();
@@ -60,6 +66,8 @@ test("prefilled IAID", async ({ page }) => {
 
 test("complete", async ({ page }) => {
   await page.goto("/catalogue/report-an-issue/");
+
+  await page.waitForTimeout(3000);
 
   await page.getByLabel("Record IAID").fill("C1234");
   await page.getByLabel("What is the error?").fill("Something");

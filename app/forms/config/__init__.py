@@ -186,7 +186,6 @@ def form_flow_from_config(config: dict, path: str) -> FormFlow:  # noqa: C901
                 flask_method=redirect_flask_method,
                 url=redirect_url,
                 when=when,
-                # condition=TODO
             )
 
         for requirement in page_config.get("requireResponse", []):
