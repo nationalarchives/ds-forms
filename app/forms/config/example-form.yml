@@ -119,7 +119,6 @@ finalPage:
   requires:
     - email
   redirectIfNotComplete: pizza_or_chocolate
-  # TODO: Allow multiple handlers
   resultHandlers:
     # - type: postgres
     #   details:

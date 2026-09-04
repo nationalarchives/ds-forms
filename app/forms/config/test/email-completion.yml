@@ -5,6 +5,7 @@ startingPage:
   id: start
   name: Testing email completion
   form: EmailForm
+  minimumTimeToComplete: 0
   redirectWhenComplete:
     - page: final
 

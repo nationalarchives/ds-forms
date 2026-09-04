@@ -35,19 +35,6 @@ class CompletionRedirectRuleTestCase(unittest.TestCase):
         self.assertFalse(rule.matches({"option": "b"}))
         self.assertFalse(rule.matches({}))
 
-    def test_matches_with_condition_callable(self):
-        rule = CompletionRedirectRule(condition=lambda data: data.get("x") == 1)
-        self.assertTrue(rule.matches({"x": 1}))
-        self.assertFalse(rule.matches({"x": 2}))
-
-    def test_matches_with_both_when_and_condition_is_an_or(self):
-        rule = CompletionRedirectRule(
-            when=("option", "a"), condition=lambda data: data.get("y") == "z"
-        )
-        self.assertTrue(rule.matches({"option": "a"}))
-        self.assertTrue(rule.matches({"y": "z"}))
-        self.assertFalse(rule.matches({"option": "b", "y": "not-z"}))
-
 
 class PageRedirectRuleTestCase(unittest.TestCase):
     def setUp(self):

@@ -19,7 +19,7 @@ class UKPostcode:
     def __call__(self, form, field):
         message = self.message
         if message is None:
-            message = field.gettext("Date must be in the future")
+            message = field.gettext("Enter a full UK postcode")
         try:
             if not field.data:
                 raise ValidationError(message)

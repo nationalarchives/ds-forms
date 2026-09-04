@@ -1,6 +1,6 @@
 import hashlib
 import os
-from collections.abc import Callable
+from datetime import UTC, datetime
 from typing import Optional
 
 from altcha import verify_solution
@@ -319,7 +319,7 @@ class FormFlow:
 
         if not self.has_complete_path():
             current_app.logger.warning(
-                "Flow does not have a complete path. Cannot handle completion"
+                "handle_completion called when flow does not have a complete path - cannot handle completion"
             )
             raise ValueError("Flow does not have a complete path")
 
@@ -386,7 +386,7 @@ class FormFlow:
         success = all(result["success"] for result in results)
 
         if success:
-            current_app.logger.debug("Form flow completion handled successfully")
+            current_app.logger.debug("All form flow completion handled successfully")
         else:
             current_app.logger.error("Form flow completion handling failed")
         session.setdefault(self.path, {})["completion_results"] = results
@@ -403,20 +403,16 @@ class CompletionRedirectRule:
     def __init__(
         self,
         when: tuple[str, str] | None = None,
-        condition: Callable | None = None,
     ):
         self.when = when
-        self.condition = condition
 
     def matches(self, form_data: dict) -> bool:
         """
         Determine whether this rule applies to the given submitted form data.
         """
-        if self.when is None and self.condition is None:
+        if self.when is None:
             return True
-        if self.when and form_data.get(self.when[0], None) == self.when[1]:
-            return True
-        return bool(self.condition and self.condition(form_data))
+        return bool(self.when and form_data.get(self.when[0], None) == self.when[1])
 
     def resolve(self) -> str:
         """
@@ -627,7 +623,6 @@ class FormPage:
         flask_method: str | None = "",
         url: str | None = "",
         when: tuple[str, str] | None = None,
-        condition: Callable | None = None,
     ):
         """
         Set the page to redirect to when this page is completed.
@@ -635,13 +630,11 @@ class FormPage:
         if not (page or flask_method or url):
             raise ValueError("Either 'page', 'url' or 'flask_method' must be provided")
         if page:
-            rule = PageRedirectRule(page=page, when=when, condition=condition)
+            rule = PageRedirectRule(page=page, when=when)
         elif flask_method:
-            rule = FlaskMethodRedirectRule(
-                flask_method=flask_method, when=when, condition=condition
-            )
+            rule = FlaskMethodRedirectRule(flask_method=flask_method, when=when)
         else:
-            rule = URLRedirectRule(url=url, when=when, condition=condition)
+            rule = URLRedirectRule(url=url, when=when)
         self.when_complete.append(rule)
         return self
 
@@ -694,11 +687,11 @@ class FormPage:
         if self.form_class:
             temp_form = self.form_class(data=self.get_saved_form_data())
             temp_form._fields.pop("csrf_token", None)
-            # TODO: Nested forms with CSRF
-            # for field in temp_form._fields:
-            #     if isinstance(field, FormField):
-            #         for sub_field in field:
-            #             sub_field.pop("csrf_token", None)
+            for field in temp_form._fields:
+                if isinstance(field, FormField):
+                    for sub_field in field._fields.values():
+                        if hasattr(sub_field, "_fields"):
+                            sub_field._fields.pop("csrf_token", None)
             is_complete = temp_form.validate()
             if not is_complete:
                 current_app.logger.debug(temp_form.errors)
@@ -778,21 +771,35 @@ class FormPage:
             return redirect(self.flow.get_final_page().get_page_path())
 
         if self.form and request.method == "POST":
+            minimum_time_to_complete = self.yaml_config.get(
+                "minimumTimeToComplete",
+                current_app.config["DEFAULT_MINIMUM_TIME_TO_COMPLETE"],
+            )
+            if minimum_time_to_complete:
+                start_time = session.get(self.form_path, {}).get("created", None)
+                now_time = datetime.now(UTC).timestamp()
+                if start_time and (now_time - start_time) < minimum_time_to_complete:
+                    current_app.logger.warning(
+                        f"Form submitted too quickly. Minimum time to complete is {minimum_time_to_complete} seconds."
+                    )
+                    session.setdefault(self.form_path, {})["created"] = datetime.now(
+                        UTC
+                    ).timestamp()
+                    return render_template("errors/rate.html"), 429
             form_data = self.form.data
             form_data.pop("csrf_token", None)
             for field in form_data:
                 current_app.logger.debug(f"Processing field '{field}'")
                 if isinstance(form_data[field], (FileField, MultipleFileField)):
                     # TODO: Handle file saving
-                    # current_app.logger.debug(f"Removing file field '{field}' from saved data")
+                    current_app.logger.info(
+                        f"Removing file field '{field}' from saved data"
+                    )
                     form_data.pop(field, None)
                     file = self.process_file(form_data[field])
                     form_data[field] = file
-                # elif isinstance(form_data[field], FormField):
-                #     form_data[field].pop("csrf_token", None)
-                # TODO: Remove on next release of TNA Frontend Jinja which can handle datetime objects
-                # elif isinstance(form_data[field], datetime.date):
-                #     form_data[field] = form_data[field].strftime("%d %m %Y")
+                elif isinstance(form_data[field], FormField):
+                    form_data[field].pop("csrf_token", None)
             self.save_form_data(form_data)
 
             if self.is_complete() and self.altcha_verified(save_result=True):
@@ -820,6 +827,10 @@ class FormPage:
         #         f"Flow does not have a complete path. Redirecting to earliest incomplete page"
         #     )
         #     return redirect(self.flow.get_earliest_incomplete_page().get_page_path())
+
+        session.setdefault(self.form_path, {})["created"] = datetime.now(
+            UTC
+        ).timestamp()
 
         view = render_template(
             self.template,
