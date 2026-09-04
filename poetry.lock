@@ -26,18 +26,18 @@ files = [
 
 [[package]]
 name = "boto3"
-version = "1.43.77"
+version = "1.43.82"
 description = "The AWS SDK for Python"
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "boto3-1.43.77-py3-none-any.whl", hash = "sha256:3be161c9edf7645ba09651a442899b5fda9a7e5529f94eb4d9e2a276f1fc1208"},
-    {file = "boto3-1.43.77.tar.gz", hash = "sha256:790082cca710ce8b49b69960731df49fa7cef709823c162e4697412f35d6c813"},
+    {file = "boto3-1.43.82-py3-none-any.whl", hash = "sha256:65319e8bba6e30f74a6e2727a5688725222da2ab71c6069bc484ce5bfd101c73"},
+    {file = "boto3-1.43.82.tar.gz", hash = "sha256:bc5a7824568c117110bac8fe7ccfac63f0a946f253953d42e73a8c1fb65162e0"},
 ]
 
 [package.dependencies]
-botocore = ">=1.43.77,<1.44.0"
+botocore = ">=1.43.82,<1.44.0"
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.19.0,<0.20.0"
 
@@ -46,14 +46,14 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "botocore"
-version = "1.43.77"
+version = "1.43.82"
 description = "Low-level, data-driven core of boto 3."
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "botocore-1.43.77-py3-none-any.whl", hash = "sha256:e88d86643daa1d85e1c4e9644187aca60325955c596ea2eea646730857998631"},
-    {file = "botocore-1.43.77.tar.gz", hash = "sha256:b33300395e2fb994ec8baafff76a600184e426ec7ea462cc59a0e8d1469d557e"},
+    {file = "botocore-1.43.82-py3-none-any.whl", hash = "sha256:97b3e89061decc91e7745d726dae595cbe2053894611c49ea91d6fdcb2ecc36b"},
+    {file = "botocore-1.43.82.tar.gz", hash = "sha256:347573c0bab52e29c923e28128764fcc50f469ed98dc5460220026cd3672ac0c"},
 ]
 
 [package.dependencies]
@@ -66,14 +66,14 @@ crt = ["awscrt (==0.36.0)"]
 
 [[package]]
 name = "cachelib"
-version = "0.16.0"
+version = "0.17.0"
 description = "A collection of cache libraries in the same API interface."
 optional = false
 python-versions = ">=3.11"
 groups = ["main"]
 files = [
-    {file = "cachelib-0.16.0-py3-none-any.whl", hash = "sha256:5f8ef287471936178ccbcaac38d729248d2b4135a5d17a1eb477027bdea1c612"},
-    {file = "cachelib-0.16.0.tar.gz", hash = "sha256:0417107f32beebaf6cb1895112f4cf3c92da32fd9477f2c77b95afa10774d16c"},
+    {file = "cachelib-0.17.0-py3-none-any.whl", hash = "sha256:f83909b6f78741c3a5d76d292d13bf24964ffb13e00ea1d18f92e20599766ce0"},
+    {file = "cachelib-0.17.0.tar.gz", hash = "sha256:f3c7dc8d3c1132ab699681ffdf8a52d341d9425ac1401c538cf0b1d87b1677c8"},
 ]
 
 [package.extras]
@@ -280,18 +280,15 @@ files = [
 
 [[package]]
 name = "click"
-version = "8.4.2"
+version = "8.5.0"
 description = "Composable command line interface toolkit"
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "click-8.4.2-py3-none-any.whl", hash = "sha256:e6f9f66136c816745b9d65817da91d61d957fb16e02e4dcd0552553c5a197b76"},
-    {file = "click-8.4.2.tar.gz", hash = "sha256:9a6cea6e60b17ebe0a44c5cc636d94f09bd66142c1cd7d8b4cd731c4917a15f6"},
+    {file = "click-8.5.0-py3-none-any.whl", hash = "sha256:255bc9599cf7748b4b1a446ccc735421bd08a2ae529a8b88597d3de5664ee360"},
+    {file = "click-8.5.0.tar.gz", hash = "sha256:ba0d2089de75ea0310e2dde03160e6ca10009947fb95a182f9b54021bb272e34"},
 ]
-
-[package.dependencies]
-colorama = {version = "*", markers = "platform_system == \"Windows\""}
 
 [[package]]
 name = "colorama"
@@ -300,11 +297,11 @@ description = "Cross-platform colored terminal text."
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7"
 groups = ["main", "dev"]
+markers = "sys_platform == \"win32\""
 files = [
     {file = "colorama-0.4.6-py2.py3-none-any.whl", hash = "sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6"},
     {file = "colorama-0.4.6.tar.gz", hash = "sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44"},
 ]
-markers = {main = "platform_system == \"Windows\" or sys_platform == \"win32\"", dev = "sys_platform == \"win32\""}
 
 [[package]]
 name = "deepmerge"
@@ -402,19 +399,19 @@ dotenv = ["python-dotenv"]
 
 [[package]]
 name = "flask-caching"
-version = "2.4.1"
+version = "2.5.0"
 description = "Adds caching support to Flask applications."
 optional = false
-python-versions = ">=3.10"
+python-versions = ">=3.11"
 groups = ["main"]
 files = [
-    {file = "flask_caching-2.4.1-py3-none-any.whl", hash = "sha256:5f5555d610ec1f230c8200ae00c1c723ee562f657c22f896b806f4689513b952"},
-    {file = "flask_caching-2.4.1.tar.gz", hash = "sha256:ecef4ca80b9cb1fa01d461373a0fce441527cd57eecee1aa71c1f6d750d7ff77"},
+    {file = "flask_caching-2.5.0-py3-none-any.whl", hash = "sha256:8e625acd99759171a428ceb9b669ba6743c11dd9b37ace4e0ea7a3ee34097ccd"},
+    {file = "flask_caching-2.5.0.tar.gz", hash = "sha256:5a8779b54695f96e1b4a7a149dd8c6d863433ea66327cde4311ce7fd7b57391f"},
 ]
 
 [package.dependencies]
-cachelib = ">=0.9.0"
-flask = ">=2.0"
+cachelib = ">=0.17.0"
+flask = ">=3.0"
 
 [[package]]
 name = "flask-cors"
