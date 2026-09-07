@@ -12,7 +12,7 @@ class SitemapBlueprintTestCase(unittest.TestCase):
     def test_sitemap(self):
         rv = self.client.get("/forms/sitemap.xml")
         self.assertEqual(rv.status_code, 200)
-        self.assertIn(
-            f"<loc>{self.domain}/apply-for-a-discovery-api-key/</loc>", rv.text
-        )
+        self.assertIn(f"<loc>{self.domain}/catalogue/report-an-issue/</loc>", rv.text)
         self.assertNotIn(f"<loc>{self.domain}/example-form/</loc>", rv.text)
+        self.assertNotIn("/test/", rv.text)
+        self.assertNotIn(f"<loc>{self.domain}/test/requires/</loc>", rv.text)

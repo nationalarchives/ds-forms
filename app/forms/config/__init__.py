@@ -68,6 +68,7 @@ def load_config(form_path: str) -> dict:
     if not form_path:
         raise ValueError("Form path must be provided")
 
+    form_path = form_path.removesuffix(".yml")
     config_path = os.path.join(
         current_app.root_path, "forms", "config", f"{form_path}.yml"
     )

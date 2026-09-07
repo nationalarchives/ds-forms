@@ -10,13 +10,20 @@ from app.sitemap import bp
 def index():
     forms_directory = os.path.join(current_app.root_path, "forms", "config")
     forms = []
-    for file in os.listdir(forms_directory):
-        if file.endswith(".yml"):
-            name = file.replace(".yml", "")
-            config = load_config(name)
-            form_flow = form_flow_from_config(config, name)
-            if not form_flow.meta("exclude_from_sitemap", False):
-                forms.append(form_flow.get_starting_page().get_page_path(external=True))
+
+    for root, _dirs, files in os.walk(forms_directory):
+        for file in files:
+            if file.endswith(".yml"):
+                form_config_path = os.path.relpath(
+                    os.path.join(root, file), forms_directory
+                )
+                config = load_config(form_config_path)
+                form_path = form_config_path.replace(".yml", "")
+                form_flow = form_flow_from_config(config, form_path)
+                if not form_flow.meta("exclude_from_sitemap", False):
+                    forms.append(
+                        form_flow.get_starting_page().get_page_path(external=True)
+                    )
 
     xml_sitemap_index = render_template("sitemap.xml", forms=forms)
     response = make_response(xml_sitemap_index)

@@ -83,7 +83,6 @@ class FormFlow:
             content=content,
             template=template,
             form=form,
-            form_path=self.path,
             altcha=altcha,
             yaml_config=yaml_config,
         )
@@ -512,7 +511,6 @@ class FormPage:
         content: dict | None = None,
         template: str = "",
         form: FlaskForm | None = None,
-        form_path: str = "",
         altcha: bool = False,
         yaml_config: dict | None = None,
         altcha_verifier: "AltchaVerifier | None" = None,
@@ -531,7 +529,6 @@ class FormPage:
         # self.clear_pages_on_completion: list[FormPage] = []
         self.form: FlaskForm | None = None
         self.form_class: FlaskForm | None = form if form else None
-        self.form_path: str = form_path
         if self.form_class:
             temp_form = self.form_class()
             for field in temp_form:
@@ -568,7 +565,7 @@ class FormPage:
         """
         Set a single field on this page's saved response data.
         """
-        session.setdefault(self.form_path, {}).setdefault("responses", {}).setdefault(
+        session.setdefault(self.flow.path, {}).setdefault("responses", {}).setdefault(
             self.id, {}
         )[key] = value
 
@@ -649,14 +646,14 @@ class FormPage:
         """
         Get the form data from the session or other storage.
         """
-        return session.get(self.form_path, {}).get("responses", {}).get(self.id, {})
+        return session.get(self.flow.path, {}).get("responses", {}).get(self.id, {})
 
     def save_form_data(self, form_data: dict):
         """
         Save the form data to the session.
         """
         current_app.logger.debug(f"Saving form data for page '{self.id}'")
-        session.setdefault(self.form_path, {}).setdefault("responses", {})[self.id] = (
+        session.setdefault(self.flow.path, {}).setdefault("responses", {})[self.id] = (
             form_data
         )
 
@@ -776,13 +773,13 @@ class FormPage:
                 current_app.config["DEFAULT_MINIMUM_TIME_TO_COMPLETE"],
             )
             if minimum_time_to_complete:
-                start_time = session.get(self.form_path, {}).get("created", None)
+                start_time = session.get(self.flow.path, {}).get("created", None)
                 now_time = datetime.now(UTC).timestamp()
                 if start_time and (now_time - start_time) < minimum_time_to_complete:
                     current_app.logger.warning(
                         f"Form submitted too quickly. Minimum time to complete is {minimum_time_to_complete} seconds."
                     )
-                    session.setdefault(self.form_path, {})["created"] = datetime.now(
+                    session.setdefault(self.flow.path, {})["created"] = datetime.now(
                         UTC
                     ).timestamp()
                     return render_template("errors/rate.html"), 429
@@ -804,9 +801,9 @@ class FormPage:
 
             if self.is_complete() and self.altcha_verified(save_result=True):
                 # for page in self.clear_pages_on_completion:
-                #     if page.id in session.get(self.form_path, {}).get("responses", {}):
+                #     if page.id in session.get(self.flow.path, {}).get("responses", {}):
                 #         current_app.logger.debug(f"Clearing page data for: {page.id}")
-                #         session[self.form_path]["responses"].pop(page.id, None)
+                #         session[self.flow.path]["responses"].pop(page.id, None)
 
                 for rule in self.when_complete:
                     current_app.logger.debug(f"Checking completion rule: {rule}")
@@ -817,10 +814,10 @@ class FormPage:
                         return redirect(rule.resolve())
 
                 raise ValueError("No matching completion rule found")
-        elif self.altcha and f"altcha_{self.id}" in session.get(self.form_path, {}).get(
+        elif self.altcha and f"altcha_{self.id}" in session.get(self.flow.path, {}).get(
             "responses", {}
         ):
-            session[self.form_path]["responses"].pop(f"altcha_{self.id}")
+            session[self.flow.path]["responses"].pop(f"altcha_{self.id}")
 
         # if not self.flow.has_complete_path() and self.flow.get_earliest_incomplete_page() != self:
         #     current_app.logger.warning(
@@ -828,7 +825,7 @@ class FormPage:
         #     )
         #     return redirect(self.flow.get_earliest_incomplete_page().get_page_path())
 
-        session.setdefault(self.form_path, {})["created"] = datetime.now(
+        session.setdefault(self.flow.path, {})["created"] = datetime.now(
             UTC
         ).timestamp()
 
