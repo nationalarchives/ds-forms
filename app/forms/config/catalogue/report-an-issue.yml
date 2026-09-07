@@ -1,6 +1,3 @@
-meta:
-  exclude_from_sitemap: true
-
 startingPage:
   id: info
   name: Report an issue with the catalogue
@@ -10,9 +7,6 @@ startingPage:
   # altcha: true
   content:
     supertitle: Catalogue
-    # description: Report an issue with the catalogue.
-    # body: |
-    #   <p>Completing this form should provide you with a simple email receipt.</p>
     breadcrumbs:
       items:
         - text: Home

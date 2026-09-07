@@ -1,3 +1,6 @@
+meta:
+  exclude_from_sitemap: true
+
 startingPage:
   id: start
   name: Apply for a Discovery API key
