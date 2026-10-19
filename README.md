@@ -31,6 +31,10 @@ docker compose exec app poetry run python -m pytest
 docker compose exec app format
 ```
 
+### Debugging emails
+
+There is a SES mock available on http://localhost:65512/ where you can see emails that would be sent when in production.
+
 ## Environment variables
 
 In addition to the [base Docker image variables](https://github.com/nationalarchives/docker/blob/main/docker/tna-python/README.md#environment-variables), this application has support for:

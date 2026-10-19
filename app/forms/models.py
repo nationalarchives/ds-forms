@@ -814,10 +814,10 @@ class FormPage:
                         return redirect(rule.resolve())
 
                 raise ValueError("No matching completion rule found")
-        elif self.altcha and f"altcha_{self.id}" in session.get(self.flow.path, {}).get(
+        elif self.altcha and "altcha" in session.get(self.flow.path, {}).get(
             "responses", {}
-        ):
-            session[self.flow.path]["responses"].pop(f"altcha_{self.id}")
+        ).get(self.id, {}):
+            session[self.flow.path]["responses"][self.id].pop("altcha")
 
         # if not self.flow.has_complete_path() and self.flow.get_earliest_incomplete_page() != self:
         #     current_app.logger.warning(
@@ -832,6 +832,7 @@ class FormPage:
         view = render_template(
             self.template,
             flow=self.flow,
+            # TODO: Prefix pageTitle with "Error: " if the form was posted but not complete
             pageTitle=self.name,
             content=self.content,
             altcha=self.altcha,
@@ -843,6 +844,7 @@ class FormPage:
             has_complete_path=self.flow.has_complete_path(),
             earliest_incomplete_page=self.flow.get_earliest_incomplete_page(),
             handle_files="fileHandler" in self.yaml_config,
+            extra_assets=self.yaml_config.get("extraAssets", {}),
             completion_handled=self.flow.is_completion_handled(),
             completion_results=self.flow.get_completion_results(),
             reference_number=self.flow.reference_number,
