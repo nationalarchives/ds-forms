@@ -20,16 +20,8 @@ runs:
     - name: Install test dependencies
       run: npm ci
       shell: bash
-    - run: npx playwright install --with-deps
-      if: steps.playwright-cache.outputs.cache-hit != 'true'
-      shell: bash
-    - run: npx playwright install-deps
-      if: steps.playwright-cache.outputs.cache-hit != 'true'
-      shell: bash
-    - name: Install system dependencies for WebKit
-      # Some WebKit dependencies seem to lay outside the cache and will need to be installed separately
-      if: steps.playwright-cache.outputs.cache-hit == 'true'
-      run: npx playwright install-deps webkit
+    - name: Install Playwright dependencies
+      run: npx playwright install --with-deps chromium
       shell: bash
     - name: Start service
       run: docker compose up --detach --wait --wait-timeout 300 app || docker compose logs app
