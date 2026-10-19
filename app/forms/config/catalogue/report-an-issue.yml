@@ -13,6 +13,7 @@ startingPage:
           href: /
         - text: Catalogue
           href: /catalogue/
+    submitButtonText: Submit
   redirectWhenComplete:
     - page: final_page
 
@@ -25,6 +26,7 @@ finalPage:
     body: |
       <p>Thank you for taking the time to help us improve the catalogue. We may contact you within the next 10 days if we need further information.</p>
       <p>We will not be able to notify you if your suggestion is successful. This is due to the high volume of suggestions we receive.</p>
+    submitAgainButtonText: Submit another issue
   template: forms/final.html
   requires:
     - info

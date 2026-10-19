@@ -1,0 +1,15 @@
+@use "@nationalarchives/frontend/nationalarchives/tools/media";
+
+.tna-fieldset {
+  &__body {
+    flex-direction: row;
+
+    > .tna-form-item {
+      flex: 1;
+    }
+
+    @include media.on-tiny {
+      flex-direction: column;
+    }
+  }
+}

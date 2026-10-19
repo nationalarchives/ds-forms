@@ -15,7 +15,7 @@
         {{ content.body | safe }}
         <div class="tna-button-group">
           {{ tnaButton({
-            'text': 'Submit another issue',
+            'text': content.submitAgainButtonText | default('Start again'),
             'href': form_reset_path
           }) }}
         </div>

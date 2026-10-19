@@ -90,14 +90,17 @@ class Production(Features):
     FORM_APPLY_TO_FILM_INBOX: str = os.environ.get(
         "FORM_APPLY_TO_FILM_INBOX", DEFAULT_INBOX
     )
+    FORM_DISCOVERY_API_KEY_INBOX: str = os.environ.get(
+        "FORM_DISCOVERY_API_KEY_INBOX", DEFAULT_INBOX
+    )
     FORM_HOLOCAUST_MEMORIAL_FOUNDATION_TESTIMONY_LICENCE_REQUEST_INBOX: str = (
         os.environ.get(
             "FORM_HOLOCAUST_MEMORIAL_FOUNDATION_TESTIMONY_LICENCE_REQUEST_INBOX",
             DEFAULT_INBOX,
         )
     )
-    FORM_DISCOVERY_API_KEY_INBOX: str = os.environ.get(
-        "FORM_DISCOVERY_API_KEY_INBOX", DEFAULT_INBOX
+    FORM_RECORDS_ENQUIRY_INBOX: str = os.environ.get(
+        "FORM_RECORDS_ENQUIRY_INBOX", DEFAULT_INBOX
     )
     FORM_REPORT_A_CATALOGUE_ISSUE_INBOXES: str = {
         "DIGITAL_DOWNLOADS": os.environ.get(

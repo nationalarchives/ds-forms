@@ -1,0 +1,51 @@
+startingPage:
+  id: enquiry
+  name: Make a records enquiry
+  form: contact.RecordsEnquiry
+  template: forms/form_page.html
+  altcha: true
+  content:
+    supertitle: Contact us
+    breadcrumbs:
+      items:
+        - text: Home
+          href: /
+        - text: Contact us
+          href: /contact-us/
+    description: Use this service if you have a specific question about records held by The National Archives or how to search for them.
+    body: |
+      <ul class="tna-ul">
+        <li>We can provide guidance on how to search our catalogue and advise you on how to carry out your own research.</li>
+        <li>We cannot look at records on your behalf or identify all records that may be relevant to a particular subject.</li>
+      </ul>
+    beforeSubmit: |
+      <p>
+        <small>The National Archives only records personal information, including email addresses, for the purposes provided. We will not share your details with third parties. For more information read our <a href="/terms-and-conditions/privacy-notice/">privacy policy</a>.</small>
+      </p>
+    submitButtonText: Submit
+  extraAssets:
+    css:
+      - make-a-records-and-research-enquiry.css
+  redirectWhenComplete:
+    - page: final_page
+
+finalPage:
+  id: final_page
+  name: Thank you
+  slug: complete
+  content:
+    panelTitle: Request submitted
+    body: |
+      <p>Thank you for taking the time to make a records enquiry. We may contact you within the next 10 days if we need further information.</p>
+    submitAgainButtonText: Submit another enquiry
+  template: forms/final.html
+  requires:
+    - enquiry
+  resultHandlers:
+    - type: email
+      details:
+        process:
+          template: outputs/email_json_dump.html
+        send:
+          toConfigVar: FORM_RECORDS_ENQUIRY_INBOX
+          subject: A records enquiry has been submitted (JSON dump)

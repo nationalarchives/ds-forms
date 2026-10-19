@@ -6,12 +6,24 @@
 {%- from 'forms/macros/altcha_widget.html' import altcha_widget -%}
 {%- from 'forms/macros/form_error_summary.html' import form_error_summary -%}
 
-{% block header %}
+{%- set original_page_title = pageTitle -%}
+{%- if form.errors -%}
+  {%- set pageTitle = "Error: " ~ original_page_title -%}
+{%- endif -%}
+
+{% block stylesheets %}
     {{ super() }}
+
+    {%- if extra_assets.css %}
+    {%- for css_file in extra_assets.css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename=css_file, v=app_config.BUILD_VERSION) }}" media="screen">
+    {%- endfor %}
+    {%- endif %}
+
     {%- if altcha %}
     <link rel="stylesheet" href="{{ url_for('static', filename='altcha.css', v=app_config.BUILD_VERSION) }}" media="screen">
     {%- endif %}
-{% endblock header %}
+{% endblock stylesheets %}
 
 {% block beforeContent %}
 {%- if content.breadcrumbs or content.backLink %}
@@ -47,10 +59,10 @@
         {%- if content.supertitle %}
         <hgroup class="tna-hgroup-xl">
           <p class="tna-hgroup__supertitle">{{ content.supertitle }}</p>
-          <h1 class="tna-hgroup__title">{{ pageTitle }}</h1>
+          <h1 class="tna-hgroup__title">{{ original_page_title }}</h1>
         </hgroup>
         {%- else %}
-        <h1 class="tna-heading-xl">{{ pageTitle }}</h1>
+        <h1 class="tna-heading-xl">{{ original_page_title }}</h1>
         {%- endif %}
         {%- if content.description %}
         <p class="tna-large-paragraph">{{ content.description | safe }}</p>
@@ -77,14 +89,14 @@
           
           {% block submitButton %}
           <div class="tna-button-group">
-            <button class="tna-button" type="submit">Continue</button>
+            <button class="tna-button" type="submit">{{ content.submitButtonText | default('Continue') }}</button>
           </div>
           {% endblock submitButton %}
         </form>
 
+        {%- if content.debug %}
         {% block debug %}
         <hr class="tna-!--margin-top-xl">
-        
         {%- call tnaDetails({
           'title': 'Debug information'
         }) %}
@@ -119,11 +131,11 @@
             {% endfor %}
           </ul>
         {%- endcall %}
-
         <p>
           <a href="{{ form_reset_path }}">Clear data and start again</a>
         </p>
         {% endblock debug %}
+        {%- endif %}
         {% endblock formBody %}
       </div>
     </div>

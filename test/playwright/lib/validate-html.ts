@@ -14,10 +14,30 @@ const config: ConfigData = {
 
 const htmlvalidate = new HtmlValidate(config);
 
-const validateHtml: (page: Page) => void = async (page) => {
+const validateHtml: (page: Page, additionalRules?: object) => void = async (
+  page,
+  additionalRules = {},
+) => {
   await test.step("Validate HTML", async () => {
     const html = await page.content();
-    const report = await htmlvalidate.validateString(html);
+
+    let htmlvalidateInstance = htmlvalidate;
+    if (Object.keys(additionalRules).length > 0) {
+      console.log(
+        "Applying additional HTML validation rules:",
+        additionalRules,
+      );
+      const tempConfig = {
+        ...config,
+        rules: {
+          ...config.rules,
+          ...additionalRules,
+        },
+      };
+      htmlvalidateInstance = new HtmlValidate(tempConfig);
+    }
+
+    const report = await htmlvalidateInstance.validateString(html);
 
     const errors =
       report.results[0]?.messages.filter((message) => message.severity === 2) ||

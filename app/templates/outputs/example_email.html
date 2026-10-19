@@ -1,5 +1,4 @@
-{% extends "outputs/_email-base.html" %}
-
+{%- set content -%}
 <h1>A new form has been submitted</h1>
 
 <p>The users favourite food is: {{ responses.pizza_or_chocolate.food }}</p>
@@ -36,3 +35,6 @@
   </dd>
   {% endfor %}
 </dl>
+{%- endset content -%}
+
+{% include "layouts/email.html" %}
