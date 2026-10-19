@@ -22,6 +22,7 @@ startingPage:
       <p>
         <small>The National Archives only records personal information, including email addresses, for the purposes provided. We will not share your details with third parties. For more information read our <a href="/terms-and-conditions/privacy-notice/">privacy policy</a>.</small>
       </p>
+    submitButtonText: Submit
   extraAssets:
     css:
       - make-a-records-and-research-enquiry.css
