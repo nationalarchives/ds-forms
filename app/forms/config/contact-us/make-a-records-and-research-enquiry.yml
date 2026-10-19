@@ -49,3 +49,36 @@ finalPage:
         send:
           toConfigVar: FORM_RECORDS_ENQUIRY_INBOX
           subject: A records enquiry has been submitted (JSON dump)
+    - type: email
+      details:
+        process:
+          template: outputs/email.html
+          panel:
+            title: Records enquiry received
+            body: <p>Reference number <strong>{{ reference_number }}</strong>.</p>
+          content: |
+            <dl class="tna-dl">
+              <dt>Full name</dt>
+              <dd>{{ data.enquiry.name.first_name }} {{ data.enquiry.name.surname }}</dd>
+              <dt>Email</dt>
+              <dd>{{ data.enquiry.email }}</dd>
+              <dt>Country</dt>
+              <dd>{{ data.enquiry.country }}</dd>
+              <dt>Enquiry</dt>
+              <dd>{{ data.enquiry.enquiry }}</dd>
+            </dl>
+        send:
+          toConfigVar: FORM_RECORDS_ENQUIRY_INBOX
+          subject: A records enquiry has been submitted
+    - type: email
+      details:
+        process:
+          template: outputs/email.html
+          panel:
+            title: Records enquiry received
+            body: <p>Your records enquiry has been received and is being processed.</p><p>Your reference number is <strong>{{ reference_number }}</strong>.</p>
+          content: <p>Thank you for your enquiry.</p>
+          signoff: <p>Kind regards,</p><p>The team</p>
+        send:
+          toVar: data.enquiry.email
+          subject: Your receipt

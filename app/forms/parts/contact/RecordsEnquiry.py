@@ -13,7 +13,7 @@ class NameFields(FlaskForm):
     class Meta:
         csrf = False
 
-    name = StringField(
+    first_name = StringField(
         "First name",
         validators=[DataRequired(message="Enter your first name")],
         widget=TnaTextInputWidget(),
@@ -31,7 +31,7 @@ class NameFields(FlaskForm):
 class RecordsEnquiry(FlaskForm):
     name = FormField(
         NameFields,
-        label="Name",
+        label="Full name",
         widget=TnaFieldsetWidget(),
         render_kw={"headingSize": "m"},
     )

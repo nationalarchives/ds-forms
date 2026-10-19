@@ -33,7 +33,7 @@ docker compose exec app format
 
 ### Debugging emails
 
-There is a SES mock available on http://localhost:65512/ where you can see emails that would be sent when in production.
+There is a SES mock available on http://localhost:65512 where you can see emails that would be sent when in production.
 
 ## Environment variables
 
