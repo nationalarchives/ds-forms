@@ -6,7 +6,7 @@ from tna_frontend_jinja.wtforms import (
     TnaTextInputWidget,
 )
 from wtforms import EmailField, FormField, StringField, TextAreaField
-from wtforms.validators import DataRequired, Email, Optional
+from wtforms.validators import DataRequired, Email, Length, Optional
 
 
 class NameFields(FlaskForm):
@@ -60,6 +60,7 @@ class RecordsEnquiry(FlaskForm):
         description="Please provide specific details of the information you are looking for, including any relevant catalogue references.",
         validators=[
             DataRequired(message="Enter details of your enquiry"),
+            Length(max=100000, message="Enquiry must be 100,000 characters or fewer"),
         ],
         widget=TnaTextareaWidget(),
     )

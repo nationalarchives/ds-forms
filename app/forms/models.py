@@ -832,7 +832,6 @@ class FormPage:
         view = render_template(
             self.template,
             flow=self.flow,
-            # TODO: Prefix pageTitle with "Error: " if the form was posted but not complete
             pageTitle=self.name,
             content=self.content,
             altcha=self.altcha,

@@ -6,7 +6,9 @@ from typing import TypedDict
 
 import boto3
 from flask import current_app, render_template
+from jinja2 import Template
 from requests import codes, get, post
+from tna_utilities.api import SimpleJsonApiClient
 
 
 def deep_get(dictionary, keys, default=None):
@@ -71,23 +73,35 @@ class EmailResultHandler(ResultHandler):
             aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID", None),
             aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY", None),
         )
+        self.template: str = ""
+        self.template_string: str = ""
         self.data: dict = {}
         self.processed = False
         self.content: str = ""
-        self.template: str = ""
         self.result_data: dict = {}
 
     def process(self, data: dict, **kwargs):
-        self.template = kwargs.get("template", "outputs/email_json_dump.html")
-        self.data = {k: v for k, v in kwargs.items() if k != "template"}
+        self.template = kwargs.get("template", "")
+        self.template_string = kwargs.get("templateString", "")
+        self.data = {
+            k: v for k, v in kwargs.items() if k != "template" and k != "templateString"
+        }
         self.data.update(data)
+        current_app.logger.debug(f"Processing email with data: {self.data}")
+        current_app.logger.debug(f"Template: {self.template}")
+        current_app.logger.debug(f"Template string: {self.template_string}")
         self.processed = True
 
     def send(self, **kwargs) -> bool:
         current_app.logger.debug("Sending email")
         if not self.processed:
             raise ValueError("Email not processed. Call process() with data first.")
-        self.content = render_template(self.template, data=self.data)
+        if self.template:
+            self.content = render_template(self.template, data=self.data)
+        elif self.template_string:
+            self.content = Template(self.template_string).render(**self.data)
+        else:
+            raise ValueError("No template or template string provided")
         to_email = kwargs.get("to", "")
         if not to_email and (to_email_var := kwargs.get("toVar", "")):
             to_email = deep_get(self.data, to_email_var, "")
@@ -174,22 +188,97 @@ class APIResultHandler(ResultHandler):
         return {}
 
 
-class MicrosoftDynamicsResultHandler(APIResultHandler):
+class MicrosoftDynamicsResultHandler(ResultHandler):
     """
     Handles the result of a form submission by saving it to Microsoft Dynamics.
     """
 
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+        self.api_url = current_app.config.get("DYNAMICS_ENTRA_ORG_URL", "")
+        if not self.api_url:
+            raise ValueError("API URL must be provided")
+        self.processed = False
+        self.dynamics_api = SimpleJsonApiClient(
+            api_url=self.api_url,
+            default_headers={
+                "Content-Type": "application/json; charset=utf-8",
+                "Accept": "application/json",
+            },
+        )
+
+        tenant_id = current_app.config.get("DYNAMICS_ENTRA_TENANT_ID", "")
+        client_id = current_app.config.get("DYNAMICS_ENTRA_CLIENT_ID", "")
+        client_secret = current_app.config.get("DYNAMICS_ENTRA_CLIENT_SECRET", "")
+        scope = current_app.config.get("DYNAMICS_ENTRA_SCOPE", "")
+        if not tenant_id or not client_id or not client_secret or not scope:
+            raise ValueError(
+                "Tenant ID, Client ID, Client Secret, and Scope must be provided"
+            )
+
+        dynamics_oauth = SimpleJsonApiClient(
+            f"https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/"
+        )
+        current_app.logger.debug("Requesting access token from Microsoft Dynamics")
+        dynamics_token_response = dynamics_oauth.post(
+            "token",
+            data={
+                "grant_type": "client_credentials",
+                "client_id": client_id,
+                "client_secret": client_secret,
+                "scope": scope,
+            },
+        )
+        current_app.logger.debug("Access token response received")
+        access_token = dynamics_token_response.json().get("access_token")
+        current_app.logger.debug("Obtained access token")
+
+        if not access_token:
+            raise ValueError("Failed to obtain access token")
+
+        self.dynamics_api.add_default_header("Authorization", f"Bearer {access_token}")
+
+        self.result_data = {}
 
     def process(self, data: dict, **kwargs):
-        pass
+        current_app.logger.debug("Preparing data for Microsoft Dynamics")
+        self.data = {
+            "title": "Website enquiry",
+            "description": f"New post from {data.get('title')}",
+            "caseorigincode": 3,
+            "objecttypecode": 4212,  # Task
+        }
+        print("=========================")
+        print(data)
+        print(self.data)
+
+        self.processed = True
 
     def send(self, **kwargs) -> bool:
-        return False
+        current_app.logger.debug("Sending to Microsoft Dynamics")
+        if not self.processed:
+            raise ValueError("Data not processed. Call process() with data first.")
+
+        try:
+            response = self.dynamics_api.post(
+                "incidents", json=self.data, headers={"Prefer": "return=representation"}
+            )
+            status_code = response.status_code
+            print(status_code)
+            print(response.text)
+            print(response.json())
+            if status_code == 204:
+                self.result_data = {
+                    "status_code": status_code,
+                    "new_item_id": response.json().get("QueueItemId"),
+                }
+                print(self.result_data)
+            return status_code == codes.ok
+        except Exception:
+            current_app.logger.exception("MicrosoftDynamicsResultHandler error")
+            return False
 
     def result(self) -> dict:
-        return {}
+        return self.result_data
 
 
 class PostgresResultHandler(ResultHandler):
@@ -235,5 +324,5 @@ RESULT_HANDLER_CLASSES: dict[str, type[ResultHandler]] = {
     "postgres": PostgresResultHandler,
     "mongodb": MongoDBResultHandler,
     "api": APIResultHandler,
-    "microsoft_dynamics": MicrosoftDynamicsResultHandler,
+    "dynamics": MicrosoftDynamicsResultHandler,
 }

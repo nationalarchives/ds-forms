@@ -59,7 +59,7 @@ In addition to the [base Docker image variables](https://github.com/nationalarch
 | `SESSION_REDIS_URL`                | A URL to a Redis instance used by session storage                                                       | _none_                                  |
 | `RATELIMIT_REDIS_URL`              | A URL to a Redis instance used by rate limiting                                                         | _none_                                  |
 | `RATELIMIT_DEFAULT`                | The default rate limiting amount[^2] (e.g. `5 per 5 seconds`)                                           | _none_                                  |
-| `DEFAULT_MINIMUM_TIME_TO_COMPLETE` | The default number of seconds required to fill out a form (POST requests quicker than this get a `429`) | `2`                                     |
+| `DEFAULT_MINIMUM_TIME_TO_COMPLETE` | The default number of seconds required to fill out a form (POST requests quicker than this get a `429`) | `0`                                     |
 | `ALTCHA_HMAC_KEY`                  | A secret key to use when generating ALTCHA challenges                                                   | _none_                                  |
 | `CACHE_TYPE`                       | https://flask-caching.readthedocs.io/en/latest/#configuring-flask-caching                               | `FileSystemCache`                       |
 | `CACHE_DEFAULT_TIMEOUT`            | The number of seconds to cache pages for                                                                | `3600`                                  |

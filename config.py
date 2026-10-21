@@ -75,7 +75,7 @@ class Production(Features):
     CACHE_REDIS_URL: str = os.environ.get("CACHE_REDIS_URL", "")
 
     DEFAULT_MINIMUM_TIME_TO_COMPLETE: int = int(
-        os.environ.get("DEFAULT_MINIMUM_TIME_TO_COMPLETE", "2")
+        os.environ.get("DEFAULT_MINIMUM_TIME_TO_COMPLETE", "0")
     )
 
     AWS_REGION: str = os.environ.get("AWS_REGION", "eu-west-2")
@@ -83,6 +83,14 @@ class Production(Features):
     DEFAULT_FROM_EMAIL: str = os.environ.get(
         "SES_FROM_EMAIL", "noreply@nationalarchives.gov.uk"
     )
+
+    DYNAMICS_ENTRA_ORG_URL: str = os.environ.get("DYNAMICS_ENTRA_ORG_URL", "")
+    DYNAMICS_ENTRA_TENANT_ID: str = os.environ.get("DYNAMICS_ENTRA_TENANT_ID", "")
+    DYNAMICS_ENTRA_CLIENT_ID: str = os.environ.get("DYNAMICS_ENTRA_CLIENT_ID", "")
+    DYNAMICS_ENTRA_CLIENT_SECRET: str = os.environ.get(
+        "DYNAMICS_ENTRA_CLIENT_SECRET", ""
+    )
+    DYNAMICS_ENTRA_SCOPE: str = os.environ.get("DYNAMICS_ENTRA_SCOPE", "")
 
     DEFAULT_INBOX: str = os.environ.get(
         "DEFAULT_INBOX", "webmaster@nationalarchives.gov.uk"

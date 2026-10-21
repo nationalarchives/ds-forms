@@ -15,7 +15,7 @@ const errors = {
 test("validate HTML and check accessibility", async ({ page }) => {
   await page.goto("/contact-us/make-a-records-and-research-enquiry/");
   // Ignore invalid IDs because ALTCHA inserts a style block with the invalid ID "__altcha-css"
-  await validateHtml(page, { "valid-id": "warn" });
+  await validateHtml(page, { "valid-id": ["error", { relaxed: true }] });
   await checkAccessibility(page);
 });
 

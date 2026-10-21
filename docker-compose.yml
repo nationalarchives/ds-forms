@@ -27,6 +27,11 @@ services:
       - AWS_SECRET_ACCESS_KEY=
       - SES_ENDPOINT=http://ses:8005
       - DEFAULT_INBOX=DEFAULT_INBOX@nationalarchives.gov.uk
+      - DYNAMICS_ENTRA_SCOPE=https://tnabuild.crm11.dynamics.com/.default
+      - DYNAMICS_ENTRA_ORG_URL=https://tnabuild.crm11.dynamics.com/api/data/v9.2
+      - DYNAMICS_ENTRA_TENANT_ID=abc123
+      - DYNAMICS_ENTRA_CLIENT_ID=abc123
+      - DYNAMICS_ENTRA_CLIENT_SECRET=abc123
     ports:
       - 65514:8080
     volumes:
