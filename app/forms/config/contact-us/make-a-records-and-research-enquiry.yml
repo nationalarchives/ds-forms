@@ -3,7 +3,7 @@ startingPage:
   name: Make a records enquiry
   form: contact.RecordsEnquiry
   template: forms/form_page.html
-  altcha: true
+  # altcha: true
   content:
     supertitle: Contact us
     breadcrumbs:
@@ -45,40 +45,22 @@ finalPage:
     - type: email
       details:
         process:
-          template: outputs/email_json_dump.html
+          templateString: |
+            {{ data | tojson }}
         send:
-          toConfigVar: FORM_RECORDS_ENQUIRY_INBOX
           subject: A records enquiry has been submitted (JSON dump)
     - type: email
       details:
         process:
-          template: outputs/email.html
-          panel:
-            title: Records enquiry received
-            body: <p>Reference number <strong>{{ reference_number }}</strong>.</p>
-          content: |
-            <dl class="tna-dl">
-              <dt>Full name</dt>
-              <dd>{{ data.enquiry.name.first_name }} {{ data.enquiry.name.surname }}</dd>
-              <dt>Email</dt>
-              <dd>{{ data.enquiry.email }}</dd>
-              <dt>Country</dt>
-              <dd>{{ data.enquiry.country }}</dd>
-              <dt>Enquiry</dt>
-              <dd>{{ data.enquiry.enquiry }}</dd>
-            </dl>
+          templateString: |
+            <enquiry_id>TODO</enquiry_id>
+            <title></title>
+            <first_name>{{ data.enquiry.name.first_name }}</first_name>
+            <last_name>{{ data.enquiry.name.surname }}</last_name>
+            <contact_email>{{ data.enquiry.email }}</contact_email>
+            <enquiry>{{ data.enquiry.enquiry }}</enquiry>
+            <contact_country>{{ data.enquiry.country }}</contact_country>
         send:
           toConfigVar: FORM_RECORDS_ENQUIRY_INBOX
-          subject: A records enquiry has been submitted
-    - type: email
-      details:
-        process:
-          template: outputs/email.html
-          panel:
-            title: Records enquiry received
-            body: <p>Your records enquiry has been received and is being processed.</p><p>Your reference number is <strong>{{ reference_number }}</strong>.</p>
-          content: <p>Thank you for your enquiry.</p>
-          signoff: <p>Kind regards,</p><p>The team</p>
-        send:
-          toVar: data.enquiry.email
-          subject: Your receipt
+          subject: "? FOI DIRECT GENAA"
+    # - type: dynamics

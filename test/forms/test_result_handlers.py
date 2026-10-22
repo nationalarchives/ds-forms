@@ -31,14 +31,14 @@ class ResultHandlerRegistryTestCase(unittest.TestCase):
     def test_registry_contains_expected_handler_types(self):
         self.assertEqual(
             set(RESULT_HANDLER_CLASSES.keys()),
-            {"email", "postgres", "mongodb", "api", "microsoft_dynamics"},
+            {"email", "postgres", "mongodb", "api", "dynamics"},
         )
         self.assertIs(RESULT_HANDLER_CLASSES["email"], EmailResultHandler)
         self.assertIs(RESULT_HANDLER_CLASSES["postgres"], PostgresResultHandler)
         self.assertIs(RESULT_HANDLER_CLASSES["mongodb"], MongoDBResultHandler)
         self.assertIs(RESULT_HANDLER_CLASSES["api"], APIResultHandler)
         self.assertIs(
-            RESULT_HANDLER_CLASSES["microsoft_dynamics"],
+            RESULT_HANDLER_CLASSES["dynamics"],
             MicrosoftDynamicsResultHandler,
         )
 
@@ -119,10 +119,24 @@ class MicrosoftDynamicsResultHandlerTestCase(unittest.TestCase):
     def tearDown(self):
         self.ctx.pop()
 
-    def test_send_always_returns_false(self):
-        handler = MicrosoftDynamicsResultHandler(
-            url="https://example.com", method="post"
+    @patch("app.forms.result_handlers.SimpleJsonApiClient")
+    def test_send_returns_false_for_a_failed_response(self, mock_client_class):
+        self.app.config.update(
+            DYNAMICS_ENTRA_ORG_URL="https://example.com",
+            DYNAMICS_ENTRA_TENANT_ID="tenant",
+            DYNAMICS_ENTRA_CLIENT_ID="client",
+            DYNAMICS_ENTRA_CLIENT_SECRET="secret",
+            DYNAMICS_ENTRA_SCOPE="scope",
         )
+        mock_dynamics_api = MagicMock()
+        mock_oauth_api = MagicMock()
+        token_response = MagicMock()
+        token_response.json.return_value = {"access_token": "test-token"}
+        failed_response = MagicMock(status_code=500)
+        mock_oauth_api.post.return_value = token_response
+        mock_dynamics_api.post.return_value = failed_response
+        mock_client_class.side_effect = [mock_dynamics_api, mock_oauth_api]
+        handler = MicrosoftDynamicsResultHandler()
         handler.process(data={"a": 1})
         self.assertFalse(handler.send())
         self.assertEqual(handler.result(), {})
@@ -144,11 +158,21 @@ class EmailResultHandlerTestCase(unittest.TestCase):
             handler.send()
 
     @patch("app.forms.result_handlers.boto3.client")
-    def test_send_requires_a_recipient(self, mock_boto3_client):
+    def test_send_uses_default_recipient_when_none_is_provided(self, mock_boto3_client):
+        mock_ses = MagicMock()
+        mock_ses.send_email.return_value = {"MessageId": "msg-default"}
+        mock_boto3_client.return_value = mock_ses
+
         handler = EmailResultHandler()
-        handler.process(data={}, template="outputs/email_json_dump.html")
-        with self.assertRaises(ValueError):
-            handler.send()
+        handler.process(
+            data={"data": {"value": "content"}}, templateString="{{ data | tojson }}"
+        )
+        self.assertTrue(handler.send())
+        _, kwargs = mock_ses.send_email.call_args
+        self.assertEqual(
+            kwargs["Destination"]["ToAddresses"],
+            [self.app.config["DEFAULT_INBOX"]],
+        )
 
     @patch("app.forms.result_handlers.boto3.client")
     def test_send_success_with_explicit_to_address(self, mock_boto3_client):
@@ -157,7 +181,9 @@ class EmailResultHandlerTestCase(unittest.TestCase):
         mock_boto3_client.return_value = mock_ses
 
         handler = EmailResultHandler()
-        handler.process(data={}, template="outputs/email_json_dump.html")
+        handler.process(
+            data={"data": {"value": "content"}}, templateString="{{ data | tojson }}"
+        )
         self.assertTrue(handler.send(to="person@example.com", subject="Hello"))
         self.assertEqual(handler.result(), {"id": "msg-123"})
 
@@ -174,7 +200,7 @@ class EmailResultHandlerTestCase(unittest.TestCase):
         handler = EmailResultHandler()
         handler.process(
             data={"data": {"start": {"email_address": "found@example.com"}}},
-            template="outputs/email_json_dump.html",
+            templateString="{{ data | tojson }}",
         )
         self.assertTrue(handler.send(toVar="data.start.email_address"))
 
@@ -188,5 +214,7 @@ class EmailResultHandlerTestCase(unittest.TestCase):
         mock_boto3_client.return_value = mock_ses
 
         handler = EmailResultHandler()
-        handler.process(data={}, template="outputs/email_json_dump.html")
+        handler.process(
+            data={"data": {"value": "content"}}, templateString="{{ data | tojson }}"
+        )
         self.assertFalse(handler.send(to="person@example.com"))

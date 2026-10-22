@@ -13,9 +13,13 @@ class Features:
 
 
 class Production(Features):
-    ENVIRONMENT_NAME: str = os.environ.get("ENVIRONMENT_NAME", "production")
-    BUILD_VERSION: str = os.environ.get("BUILD_VERSION", "")
-    CONTAINER_IMAGE: str = os.environ.get("CONTAINER_IMAGE", "")
+    for key in ["SECRET_KEY", "ALTCHA_HMAC_KEY", "ROSETTA_API_URL"]:
+        if key not in os.environ:
+            raise OSError(f"{key} not set")
+
+    ENVIRONMENT_NAME: str = os.getenv("ENVIRONMENT_NAME", "production")
+    BUILD_VERSION: str = os.getenv("BUILD_VERSION", "")
+    CONTAINER_IMAGE: str = os.getenv("CONTAINER_IMAGE", "")
     TNA_FRONTEND_VERSION: str = ""
     try:
         package_lock_json_path = os.path.join(
@@ -32,27 +36,27 @@ class Production(Features):
     except Exception:
         current_app.logger.exception("Error reading the version of TNA Frontend")
 
-    SECRET_KEY: str = os.environ.get("SECRET_KEY", "")
+    SECRET_KEY: str = os.getenv("SECRET_KEY")
 
     DEBUG: bool = False
 
-    COOKIE_DOMAIN: str = os.environ.get("COOKIE_DOMAIN", ".nationalarchives.gov.uk")
-    COOKIE_PREFERENCES_URL: str = os.environ.get("COOKIE_PREFERENCES_URL", "/cookies/")
+    COOKIE_DOMAIN: str = os.getenv("COOKIE_DOMAIN", ".nationalarchives.gov.uk")
+    COOKIE_PREFERENCES_URL: str = os.getenv("COOKIE_PREFERENCES_URL", "/cookies/")
 
-    CSP_REPORT_URI: str = os.environ.get("CSP_REPORT_URI", "")
+    CSP_REPORT_URI: str = os.getenv("CSP_REPORT_URI", "")
     if CSP_REPORT_URI and BUILD_VERSION:
         CSP_REPORT_URI += f"&sentry_release={BUILD_VERSION}" if BUILD_VERSION else ""
     CONTENT_SECURITY_POLICY: ClassVar[dict] = {
-        "connect-src": os.environ.get("CSP_CONNECT_SRC", "").split(","),
-        "font-src": os.environ.get("CSP_FONT_SRC", "").split(","),
-        "frame-ancestors": os.environ.get("CSP_FRAME_ANCESTORS", "").split(","),
-        "frame-src": os.environ.get("CSP_FRAME_SRC", "").split(","),
-        "img-src": os.environ.get("CSP_IMG_SRC", "").split(","),
-        "media-src": os.environ.get("CSP_MEDIA_SRC", "").split(","),
+        "connect-src": os.getenv("CSP_CONNECT_SRC", "").split(","),
+        "font-src": os.getenv("CSP_FONT_SRC", "").split(","),
+        "frame-ancestors": os.getenv("CSP_FRAME_ANCESTORS", "").split(","),
+        "frame-src": os.getenv("CSP_FRAME_SRC", "").split(","),
+        "img-src": os.getenv("CSP_IMG_SRC", "").split(","),
+        "media-src": os.getenv("CSP_MEDIA_SRC", "").split(","),
         "report-uri": CSP_REPORT_URI,
-        "script-src": os.environ.get("CSP_SCRIPT_SRC", "").split(","),
-        "style-src": os.environ.get("CSP_STYLE_SRC", "").split(","),
-        "worker-src": os.environ.get("CSP_WORKER_SRC", "'self',blob:").split(","),
+        "script-src": os.getenv("CSP_SCRIPT_SRC", "").split(","),
+        "style-src": os.getenv("CSP_STYLE_SRC", "").split(","),
+        "worker-src": os.getenv("CSP_WORKER_SRC", "'self',blob:").split(","),
     }
     FORCE_HTTPS: bool = strtobool(os.getenv("FORCE_HTTPS", "False"))
     PREFERRED_URL_SCHEME: str = os.getenv("PREFERRED_URL_SCHEME", "https")
@@ -61,66 +65,66 @@ class Production(Features):
     SESSION_COOKIE_PATH: str = "/"
     SESSION_COOKIE_SECURE: bool = True
     SESSION_COOKIE_HTTPONLY: bool = True
-    SESSION_REDIS_URL: str = os.environ.get("SESSION_REDIS_URL", "")
+    SESSION_REDIS_URL: str = os.getenv("SESSION_REDIS_URL", "")
     if SESSION_REDIS_URL:
         SESSION_TYPE: str = "redis"
         SESSION_REDIS = Redis.from_url(SESSION_REDIS_URL)
 
-    ALTCHA_HMAC_KEY: str = os.getenv("ALTCHA_HMAC_KEY", "")
+    ALTCHA_HMAC_KEY: str = os.getenv("ALTCHA_HMAC_KEY")
 
-    CACHE_TYPE: str = os.environ.get("CACHE_TYPE", "FileSystemCache")
-    CACHE_DEFAULT_TIMEOUT: int = int(os.environ.get("CACHE_DEFAULT_TIMEOUT", "3600"))
+    CACHE_TYPE: str = os.getenv("CACHE_TYPE", "FileSystemCache")
+    CACHE_DEFAULT_TIMEOUT: int = int(os.getenv("CACHE_DEFAULT_TIMEOUT", "3600"))
     CACHE_IGNORE_ERRORS: bool = True
-    CACHE_DIR: str = os.environ.get("CACHE_DIR", "/tmp")
-    CACHE_REDIS_URL: str = os.environ.get("CACHE_REDIS_URL", "")
+    CACHE_DIR: str = os.getenv("CACHE_DIR", "/tmp")
+    CACHE_REDIS_URL: str = os.getenv("CACHE_REDIS_URL", "")
 
     DEFAULT_MINIMUM_TIME_TO_COMPLETE: int = int(
-        os.environ.get("DEFAULT_MINIMUM_TIME_TO_COMPLETE", "2")
+        os.getenv("DEFAULT_MINIMUM_TIME_TO_COMPLETE", "0")
     )
 
-    AWS_REGION: str = os.environ.get("AWS_REGION", "eu-west-2")
-    SES_ENDPOINT: str = os.environ.get("SES_ENDPOINT", None)
-    DEFAULT_FROM_EMAIL: str = os.environ.get(
+    AWS_REGION: str = os.getenv("AWS_REGION", "eu-west-2")
+    SES_ENDPOINT: str = os.getenv("SES_ENDPOINT", None)
+    DEFAULT_FROM_EMAIL: str = os.getenv(
         "SES_FROM_EMAIL", "noreply@nationalarchives.gov.uk"
     )
 
-    DEFAULT_INBOX: str = os.environ.get(
-        "DEFAULT_INBOX", "webmaster@nationalarchives.gov.uk"
-    )
-    FORM_APPLY_TO_FILM_INBOX: str = os.environ.get(
-        "FORM_APPLY_TO_FILM_INBOX", DEFAULT_INBOX
-    )
-    FORM_DISCOVERY_API_KEY_INBOX: str = os.environ.get(
+    DYNAMICS_ENTRA_ORG_URL: str = os.getenv("DYNAMICS_ENTRA_ORG_URL", "")
+    DYNAMICS_ENTRA_TENANT_ID: str = os.getenv("DYNAMICS_ENTRA_TENANT_ID", "")
+    DYNAMICS_ENTRA_CLIENT_ID: str = os.getenv("DYNAMICS_ENTRA_CLIENT_ID", "")
+    DYNAMICS_ENTRA_CLIENT_SECRET: str = os.getenv("DYNAMICS_ENTRA_CLIENT_SECRET", "")
+    DYNAMICS_ENTRA_SCOPE: str = os.getenv("DYNAMICS_ENTRA_SCOPE", "")
+
+    DEFAULT_INBOX: str = os.getenv("DEFAULT_INBOX", "webmaster@nationalarchives.gov.uk")
+    FORM_APPLY_TO_FILM_INBOX: str = os.getenv("FORM_APPLY_TO_FILM_INBOX", DEFAULT_INBOX)
+    FORM_DISCOVERY_API_KEY_INBOX: str = os.getenv(
         "FORM_DISCOVERY_API_KEY_INBOX", DEFAULT_INBOX
     )
-    FORM_HOLOCAUST_MEMORIAL_FOUNDATION_TESTIMONY_LICENCE_REQUEST_INBOX: str = (
-        os.environ.get(
-            "FORM_HOLOCAUST_MEMORIAL_FOUNDATION_TESTIMONY_LICENCE_REQUEST_INBOX",
-            DEFAULT_INBOX,
-        )
+    FORM_HOLOCAUST_MEMORIAL_FOUNDATION_TESTIMONY_LICENCE_REQUEST_INBOX: str = os.getenv(
+        "FORM_HOLOCAUST_MEMORIAL_FOUNDATION_TESTIMONY_LICENCE_REQUEST_INBOX",
+        DEFAULT_INBOX,
     )
-    FORM_RECORDS_ENQUIRY_INBOX: str = os.environ.get(
+    FORM_RECORDS_ENQUIRY_INBOX: str = os.getenv(
         "FORM_RECORDS_ENQUIRY_INBOX", DEFAULT_INBOX
     )
     FORM_REPORT_A_CATALOGUE_ISSUE_INBOXES: str = {
-        "DIGITAL_DOWNLOADS": os.environ.get(
+        "DIGITAL_DOWNLOADS": os.getenv(
             "FORM_REPORT_A_CATALOGUE_ISSUE_DIGITAL_DOWNLOADS_INBOX", DEFAULT_INBOX
         ),
-        "DIGITAL_PRESERVATION": os.environ.get(
+        "DIGITAL_PRESERVATION": os.getenv(
             "FORM_REPORT_A_CATALOGUE_ISSUE_DIGITAL_PRESERVATION_INBOX", DEFAULT_INBOX
         ),
-        "FINDING_ARCHIVES_PROJECT": os.environ.get(
+        "FINDING_ARCHIVES_PROJECT": os.getenv(
             "FORM_REPORT_A_CATALOGUE_ISSUE_FINDING_ARCHIVES_PROJECT_INBOX",
             DEFAULT_INBOX,
         ),
-        "CATALOGUE_AMENDMENTS": os.environ.get(
+        "CATALOGUE_AMENDMENTS": os.getenv(
             "FORM_REPORT_A_CATALOGUE_ISSUE_CATALOGUE_AMENDMENTS_INBOX", DEFAULT_INBOX
         ),
     }
 
-    GA4_ID: str = os.environ.get("GA4_ID", "")
+    GA4_ID: str = os.getenv("GA4_ID", "")
 
-    ROSETTA_API_URL: str = os.environ.get("ROSETTA_API_URL", "")
+    ROSETTA_API_URL: str = os.getenv("ROSETTA_API_URL")
 
 
 class Staging(Production):

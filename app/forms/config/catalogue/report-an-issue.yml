@@ -34,7 +34,7 @@ finalPage:
     - type: email
       details:
         process:
-          template: outputs/email_json_dump.html
+          templateString: "{{ data | tojson }}"
         send:
           toFunction: app.forms.lib.catalogue_issue.report_catalogue_issue_email
           subject: An issue has been reported with the catalogue (JSON dump)

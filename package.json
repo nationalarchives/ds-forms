@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@nationalarchives/frontend": "1.4.1",
-    "altcha": "^2.2.3"
+    "altcha": "^3.0.0"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.2",

@@ -1,8 +1,6 @@
 {%- from 'utilities/forms/form-item.html' import tnaFormItem -%}
 
 {% macro altcha_widget(altcha_verified) %}
-  <!-- TODO: Honeypot -->
-  <!-- <input type="text" name="password" value="" class="tna-visually-hidden" autocomplete="off" tabindex="-1" aria-hidden="true"> -->
   {%- call tnaFormItem({
     'headingSize': 'm',
     'id': 'altcha-wrapper',
@@ -15,10 +13,11 @@
     }
   }) %}
     <altcha-widget
-      challengeurl="{{ url_for('altcha.get_altcha') }}"
-      strings="{&quot;label&quot;:&quot;I am not a robot&quot;}"
+	    name="altcha"
+      type="native"
+      challenge="{{ url_for('altcha.get_altcha') }}"
+      language="en"
       class="{{ 'altcha-widget--error' if not altcha_verified else '' }}"
-      hidelogo
     ></altcha-widget>
   {%- endcall %}
 {% endmacro %}

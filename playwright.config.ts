@@ -33,8 +33,13 @@ export default defineConfig({
   },
   projects: [
     {
+      name: "cleardown",
+      testMatch: /global\.setup\.ts/,
+    },
+    {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
+      dependencies: ["cleardown"],
     },
   ],
 });

@@ -20,7 +20,7 @@ finalPage:
     - type: email
       details:
         process:
-          template: outputs/email_json_dump.html
+          templateString: "{{ data | tojson }}"
         send:
           toVar: data.start.email_address
           subject: Test completion email

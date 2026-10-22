@@ -77,16 +77,12 @@ finalPage:
   resultHandlers:
     - type: email
       details:
-        # process:
-        #   template: outputs/example_email.html
         send:
           from: systems.development@nationalarchives.gov.uk
           toConfigVar: FORM_HOLOCAUST_MEMORIAL_FOUNDATION_TESTIMONY_LICENCE_REQUEST_INBOX
           subject: New Form Submission (original)
     - type: email
       details:
-        # process:
-        #   template: outputs/example_email.html
         send:
           from: systems.development@nationalarchives.gov.uk
           toVar: data.your_details.email_address

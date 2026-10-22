@@ -1,13 +1,16 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from app import create_app
 from app.forms.models import AltchaVerifier
+
+HMAC_SECRET = "test-hmac-secret"
 
 
 class AltchaVerifierTestCase(unittest.TestCase):
     def setUp(self):
         self.app = create_app("config.Test")
+        self.app.config["ALTCHA_HMAC_KEY"] = HMAC_SECRET
         self.ctx = self.app.app_context()
         self.ctx.push()
         self.verifier = AltchaVerifier()
@@ -27,24 +30,23 @@ class AltchaVerifierTestCase(unittest.TestCase):
     @patch("app.forms.models.cache")
     def test_valid_payload_is_verified(self, mock_cache, mock_verify_solution):
         mock_cache.get.return_value = []
-        mock_verify_solution.return_value = (True, None)
+        mock_verify_solution.return_value = MagicMock(verified=True, error=None)
         self.assertTrue(self.verifier.verify("valid-payload"))
 
     @patch("app.forms.models.verify_solution")
     @patch("app.forms.models.cache")
     def test_invalid_payload_is_rejected(self, mock_cache, mock_verify_solution):
         mock_cache.get.return_value = []
-        mock_verify_solution.return_value = (False, None)
+        mock_verify_solution.return_value = MagicMock(verified=False, error=None)
         self.assertFalse(self.verifier.verify("invalid-payload"))
 
     @patch("app.forms.models.verify_solution")
     @patch("app.forms.models.cache")
-    def test_verification_error_is_treated_as_unverified(
-        self, mock_cache, mock_verify_solution
-    ):
+    def test_verification_error_is_raised(self, mock_cache, mock_verify_solution):
         mock_cache.get.return_value = []
         mock_verify_solution.side_effect = Exception("boom")
-        self.assertFalse(self.verifier.verify("error-payload"))
+        with self.assertRaisesRegex(Exception, "boom"):
+            self.verifier.verify("invalid-payload")
 
     @patch("app.forms.models.cache")
     def test_mark_solved_appends_to_the_cached_list(self, mock_cache):
