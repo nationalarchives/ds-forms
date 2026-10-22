@@ -122,7 +122,7 @@ class EmailResultHandler(ResultHandler):
                     f"Error calling function {to_email_function}"
                 )
         if not to_email:
-            raise ValueError("Recipient email address must be provided")
+            to_email = current_app.config["DEFAULT_INBOX"]
         subject = kwargs.get("subject", "Form Submission")
         from_email = kwargs.get("from", current_app.config["DEFAULT_FROM_EMAIL"])
         try:

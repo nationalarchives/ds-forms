@@ -475,17 +475,13 @@ class AltchaVerifier:
             current_app.logger.warning("Previously solved altcha used")
             return False
 
-        try:
-            verified, _err = verify_solution(
-                payload,
-                current_app.config.get(self.hmac_key_config, "secret-hmac-key"),
-                True,
-            )
-        except Exception:
-            current_app.logger.exception("Error verifying altcha")
-            return False
+        result = verify_solution(payload, current_app.config[self.hmac_key_config])
 
-        return verified
+        if result.verified:
+            return True
+
+        current_app.logger.warning(f"Error verifying altcha: {result.error}")
+        return False
 
     def mark_solved(self, payload: str):
         """
