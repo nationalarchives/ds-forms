@@ -99,7 +99,9 @@ class EmailResultHandler(ResultHandler):
         if self.template:
             self.content = render_template(self.template, data=self.data)
         elif self.template_string:
-            self.content = Template(self.template_string).render(**self.data)
+            self.content = Template(self.template_string).render(
+                **self.data, autoescape=True
+            )
         else:
             raise ValueError("No template or template string provided")
         to_email = kwargs.get("to", "")
