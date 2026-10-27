@@ -500,6 +500,20 @@ wtforms = "*"
 email = ["email-validator"]
 
 [[package]]
+name = "grapheme"
+version = "0.6.0"
+description = "Unicode grapheme helpers"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "grapheme-0.6.0.tar.gz", hash = "sha256:44c2b9f21bbe77cfb05835fec230bd435954275267fea1858013b102f8603cca"},
+]
+
+[package.extras]
+test = ["pytest", "sphinx", "sphinx-autobuild", "twine", "wheel"]
+
+[[package]]
 name = "idna"
 version = "3.20"
 description = "Internationalized Domain Names in Applications (IDNA)"
@@ -1172,14 +1186,14 @@ files = [
 
 [[package]]
 name = "tna-frontend-jinja"
-version = "1.4.0"
+version = "1.6.0"
 description = "TNA Frontend Jinja templates"
 optional = false
-python-versions = ">=3.10"
+python-versions = ">=3.11"
 groups = ["main"]
 files = [
-    {file = "tna_frontend_jinja-1.4.0-py3-none-any.whl", hash = "sha256:1031e4102195fa79a9e52dcc255a46857df9a7c29a3acfe939c2827110c7f495"},
-    {file = "tna_frontend_jinja-1.4.0.tar.gz", hash = "sha256:374058bafd75dbae2aa21c9470505d58dfd57e0ab5f8e98864b231aec577ebe1"},
+    {file = "tna_frontend_jinja-1.6.0-py3-none-any.whl", hash = "sha256:35d65233a0c81ecd4c5519b855a14a1ffd6b7a6273eee3276d1f1a924a9d42a9"},
+    {file = "tna_frontend_jinja-1.6.0.tar.gz", hash = "sha256:dad800306422a2decbd07a4bb88b1d8dcbbbd18a1ac61fecbd513a3a0d8530d2"},
 ]
 
 [package.dependencies]
@@ -1390,4 +1404,4 @@ email = ["email-validator (>=2.0)"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.13"
-content-hash = "6f2541791976daac0633f81806d23a9f0a55b4e6c62ef30da73b0decb58a259f"
+content-hash = "073f16ab307d05f3a9e29e7ba151706af09be5063fe9aa2fa27ab675efa39214"
