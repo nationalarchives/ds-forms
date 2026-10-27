@@ -8,6 +8,8 @@ from tna_frontend_jinja.wtforms import (
 from wtforms import EmailField, FormField, StringField, TextAreaField
 from wtforms.validators import DataRequired, Email, Length, Optional
 
+from app.forms.validators.Characters import Characters
+
 
 class NameFields(FlaskForm):
     class Meta:
@@ -15,14 +17,20 @@ class NameFields(FlaskForm):
 
     first_name = StringField(
         "First name",
-        validators=[DataRequired(message="Enter your first name")],
+        validators=[
+            DataRequired(message="Enter your first name"),
+            Length(max=1000, message="First name must be %(max)d characters or fewer"),
+        ],
         widget=TnaTextInputWidget(),
         render_kw={"headingSize": "xs", "autocomplete": "given-name"},
     )
 
     surname = StringField(
         "Surname",
-        validators=[DataRequired(message="Enter your surname")],
+        validators=[
+            DataRequired(message="Enter your surname"),
+            Length(max=1000, message="Surname must be %(max)d characters or fewer"),
+        ],
         widget=TnaTextInputWidget(),
         render_kw={"headingSize": "xs", "autocomplete": "family-name"},
     )
@@ -40,6 +48,7 @@ class RecordsEnquiry(FlaskForm):
         "Email address",
         validators=[
             DataRequired(message="Enter your email address"),
+            Length(max=1000, message="Email must be %(max)d characters or fewer"),
             Email(
                 message="Enter an email address in the correct format, like name@example.com"
             ),
@@ -50,7 +59,11 @@ class RecordsEnquiry(FlaskForm):
 
     country = StringField(
         "Country (optional)",
-        validators=[Optional(), DataRequired(message="Enter your country")],
+        validators=[
+            Optional(),
+            DataRequired(message="Enter your country"),
+            Length(max=1000, message="Country must be %(max)d characters or fewer"),
+        ],
         widget=TnaTextInputWidget(),
         render_kw={"autocomplete": "country-name", "size": "m"},
     )
@@ -60,7 +73,8 @@ class RecordsEnquiry(FlaskForm):
         description="Please provide specific details of the information you are looking for, including any relevant catalogue references.",
         validators=[
             DataRequired(message="Enter details of your enquiry"),
-            Length(max=100000, message="Enquiry must be 100,000 characters or fewer"),
+            Characters(max=1000, message="Enquiry must be {max:,} characters or fewer"),
         ],
         widget=TnaTextareaWidget(),
+        render_kw={"characterCount": {"max": 1000, "threshold": 90}},
     )
