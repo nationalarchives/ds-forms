@@ -2,13 +2,15 @@ from flask_wtf import FlaskForm
 from tna_frontend_jinja.wtforms import (
     TnaEmailInputWidget,
     TnaFieldsetWidget,
+    TnaSelectWidget,
     TnaTextareaWidget,
     TnaTextInputWidget,
 )
-from wtforms import EmailField, FormField, StringField, TextAreaField
+from wtforms import EmailField, FormField, SelectField, StringField, TextAreaField
 from wtforms.validators import DataRequired, Email, Length, Optional
 
 from app.forms.validators.Characters import Characters
+from app.lib.constants import COUNTRIES
 
 
 class NameFields(FlaskForm):
@@ -57,24 +59,31 @@ class RecordsEnquiry(FlaskForm):
         render_kw={"autocomplete": "email", "size": "l"},
     )
 
-    country = StringField(
+    country = SelectField(
         "Country (optional)",
+        choices=[("", "Select country"), ("GB", "United Kingdom")]
+        + [country for country in COUNTRIES if country[0] != "GB"],
         validators=[
             Optional(),
             DataRequired(message="Enter your country"),
-            Length(max=1000, message="Country must be %(max)d characters or fewer"),
         ],
-        widget=TnaTextInputWidget(),
+        widget=TnaSelectWidget(),
         render_kw={"autocomplete": "country-name", "size": "m"},
     )
 
     enquiry = TextAreaField(
-        "Enter your enquiry",
+        "Your enquiry",
         description="Please provide specific details of the information you are looking for, including any relevant catalogue references.",
         validators=[
             DataRequired(message="Enter details of your enquiry"),
+            # Limit the enquiry to a maximum of 1000 logical characters
             Characters(max=1000, message="Enquiry must be {max:,} characters or fewer"),
+            # Limit the enquiry to a maximum of 100000 raw characters to account for multi-byte characters
+            Length(
+                max=100000,
+                message="Enquiry must be %(max)d characters or fewer, including emojis and non-Latin characters",
+            ),
         ],
         widget=TnaTextareaWidget(),
-        render_kw={"characterCount": {"max": 1000, "threshold": 90}},
+        render_kw={"characterCount": {"max": 1000, "countType": "characters"}},
     )

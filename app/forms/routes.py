@@ -1,4 +1,5 @@
 from flask import current_app, redirect, render_template, request
+from tna_utilities.flask import do_not_cache
 
 from app.forms import bp
 from app.forms.config import form_flow_from_config, load_config
@@ -11,6 +12,7 @@ def get_form_flow(form_path: str):
 
 
 @bp.route("/<path:form_path>/", methods=["GET", "POST"])
+@do_not_cache()
 def start_page(form_path):
     try:
         form_flow = get_form_flow(form_path)
@@ -30,6 +32,7 @@ def start_page(form_path):
 
 
 @bp.route("/<path:form_path>/reset/")
+@do_not_cache()
 @limiter.exempt
 def reset_form(form_path):
     try:
@@ -49,6 +52,7 @@ def reset_form(form_path):
 
 
 @bp.route("/<path:form_path>/<string:page_slug>/", methods=["GET", "POST"])
+@do_not_cache()
 def page(form_path, page_slug):
     try:
         form_flow = get_form_flow(form_path)
