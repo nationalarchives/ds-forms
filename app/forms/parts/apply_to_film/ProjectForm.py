@@ -6,7 +6,7 @@ from tna_frontend_jinja.wtforms import (
     TnaTextareaWidget,
 )
 from tna_frontend_jinja.wtforms import validators as tna_frontend_validators
-from wtforms import BooleanField, RadioField, TextAreaField
+from wtforms import BooleanField, RadioField, SelectChoice, TextAreaField
 from wtforms.validators import DataRequired, Optional
 
 
@@ -25,10 +25,10 @@ class ProjectForm(FlaskForm):
     time = RadioField(
         "Preferred time of filming (optional)",
         choices=[
-            ("morning", "Morning (9am to 11am)"),
-            ("midday", "Midday (11am to 1pm)"),
-            ("afternoon", "Afternoon (1pm to 3pm)"),
-            ("evening", "Late afternoon/evening (3pm to 5pm)"),
+            SelectChoice("morning", "Morning (9am to 11am)"),
+            SelectChoice("midday", "Midday (11am to 1pm)"),
+            SelectChoice("afternoon", "Afternoon (1pm to 3pm)"),
+            SelectChoice("evening", "Late afternoon/evening (3pm to 5pm)"),
         ],
         validators=[
             Optional(),
