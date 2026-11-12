@@ -106,7 +106,7 @@ class Production(Features):
     FORM_RECORDS_ENQUIRY_INBOX: str = os.getenv(
         "FORM_RECORDS_ENQUIRY_INBOX", DEFAULT_INBOX
     )
-    FORM_REPORT_A_CATALOGUE_ISSUE_INBOXES: str = {
+    FORM_REPORT_A_CATALOGUE_ISSUE_INBOXES: ClassVar[dict[str, str]] = {
         "DIGITAL_DOWNLOADS": os.getenv(
             "FORM_REPORT_A_CATALOGUE_ISSUE_DIGITAL_DOWNLOADS_INBOX", DEFAULT_INBOX
         ),
@@ -121,6 +121,7 @@ class Production(Features):
             "FORM_REPORT_A_CATALOGUE_ISSUE_CATALOGUE_AMENDMENTS_INBOX", DEFAULT_INBOX
         ),
     }
+    FORM_YOUR_VIEWS_INBOX: str = os.getenv("FORM_YOUR_VIEWS_INBOX", DEFAULT_INBOX)
 
     GA4_ID: str = os.getenv("GA4_ID", "")
 
