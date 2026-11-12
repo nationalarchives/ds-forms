@@ -6,7 +6,14 @@ from tna_frontend_jinja.wtforms import (
     TnaTextareaWidget,
     TnaTextInputWidget,
 )
-from wtforms import EmailField, FormField, SelectField, StringField, TextAreaField
+from wtforms import (
+    EmailField,
+    FormField,
+    SelectChoice,
+    SelectField,
+    StringField,
+    TextAreaField,
+)
 from wtforms.validators import DataRequired, Email, Length, Optional
 
 from app.forms.validators.Characters import Characters
@@ -61,8 +68,11 @@ class RecordsEnquiry(FlaskForm):
 
     country = SelectField(
         "Country (optional)",
-        choices=[("", "Select country"), ("GB", "United Kingdom")]
-        + [country for country in COUNTRIES if country[0] != "GB"],
+        choices=[
+            SelectChoice("", "Select country"),
+            SelectChoice("GB", "United Kingdom"),
+        ]
+        + [SelectChoice(code, name) for code, name in COUNTRIES if code != "GB"],
         validators=[
             Optional(),
             DataRequired(message="Enter your country"),

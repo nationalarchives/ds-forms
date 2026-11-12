@@ -1,0 +1,59 @@
+startingPage:
+  id: views
+  name: Your views
+  form: contact.YourViews
+  template: forms/form_page.html
+  # altcha: true
+  content:
+    supertitle: Contact us
+    breadcrumbs:
+      items:
+        - text: Home
+          href: /
+        - text: Contact us
+          href: /contact-us/
+    description: Use this form to send us your compliments, suggestions, comments, and complaints about any of our services, including our website and online resources.
+    body: |
+      <p>We hope you find your visit to The National Archives building and website productive and enjoyable. We are committed to providing you with the highest possible standard of service.</p>
+      <p>Use this form to send us your compliments, suggestions, comments, and complaints about any of our services, including our website and online resources.</p>
+    beforeSubmit: |
+      <p>
+        <small>The National Archives only records personal information, including email addresses, for the purposes provided. We will not share your details with third parties. For more information read our <a href="/terms-and-conditions/privacy-notice/">privacy policy</a>.</small>
+      </p>
+    submitButtonText: Submit
+  redirectWhenComplete:
+    - page: final_page
+
+finalPage:
+  id: final_page
+  name: Thank you
+  slug: complete
+  content:
+    panelTitle: Your view was submitted
+    body: |
+      <p>Thank you for taking the time to share your views. We may contact you within the next 10 days if we need further information.</p>
+    submitAgainButtonText: Submit another view
+  template: forms/final.html
+  requires:
+    - enquiry
+  resultHandlers:
+    - type: email
+      details:
+        process:
+          templateString: |
+            {{ data | tojson }}
+        send:
+          subject: A view has been submitted (JSON dump)
+    - type: email
+      details:
+        process:
+          templateString: |
+            <name>{{ data.views.details.name }}</name>
+            <email>{{ data.views.details.email }}</email>
+            <reason>{{ data.views.reason }}</reason>
+            <enquiry>{{ data.views.enquiry }}</enquiry>
+            <additional>{{ data.views.additional }}</additional>
+        send:
+          toConfigVar: FORM_YOUR_VIEWS_INBOX
+          subject: "A view has been submitted"
+    # - type: dynamics
