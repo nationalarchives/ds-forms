@@ -47,15 +47,27 @@ class FormFlow:
             current_app.logger.warning("Form configuration has changed, resetting flow")
             self.reset()
             session.setdefault(self.path, {})["config_hash"] = config_hash
-        self.reference_number: str = hashlib.md5(
-            session.sid.encode("utf-8") + self.path.encode("utf-8")
-        ).hexdigest()[:8]
+        self.reference_number: str = self.get_reference_number()
 
     def meta(self, key: str, default=None):
         """
         Get metadata for the flow.
         """
         return self.metadata.get(key, default)
+
+    def get_reference_number(self):
+        return session.get(self.path, {}).get("reference_number", "")
+
+    def update_reference_number(self):
+        reference_number = f"TNA-{
+            hashlib.md5(self.path.encode('utf-8')).hexdigest()[:4].upper()
+        }-{
+            hashlib.md5(session.sid.encode('utf-8') + os.urandom(16))
+            .hexdigest()[:8]
+            .upper()
+        }"
+        self.reference_number = reference_number
+        session.setdefault(self.path, {})["reference_number"] = reference_number
 
     def create_page(
         self,
@@ -325,9 +337,7 @@ class FormFlow:
         success = True
         results = []
 
-        self.reference_number = hashlib.md5(
-            session.sid.encode("utf-8") + self.path.encode("utf-8") + os.urandom(16)
-        ).hexdigest()[:8]
+        self.update_reference_number()
 
         if self.result_handlers_config:
             for result_handler in self.result_handlers_config:
