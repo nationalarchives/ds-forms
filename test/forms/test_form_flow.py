@@ -142,6 +142,32 @@ class FormFlowTestCase(unittest.TestCase):
 
         self.assertTrue(flow.is_completion_handled())
 
+    def test_handle_completion_persists_reference_number(self):
+        mock_handler_class = MagicMock()
+        mock_handler_class.return_value.send.return_value = True
+
+        flow, _, _ = self._build_flow(path="persistent-reference-flow")
+        flow.result_handlers_config = [
+            {"type": "fake", "details": {"init": {}, "process": {}, "send": {}}}
+        ]
+
+        with patch.dict(
+            "app.forms.models.RESULT_HANDLER_CLASSES", {"fake": mock_handler_class}
+        ):
+            self.assertTrue(flow.handle_completion())
+
+            reference_number = flow.reference_number
+            reloaded_flow, _, _ = self._build_flow(path="persistent-reference-flow")
+
+            self.assertEqual(reloaded_flow.reference_number, reference_number)
+            self.assertTrue(reloaded_flow.handle_completion())
+            self.assertEqual(reloaded_flow.reference_number, reference_number)
+
+        processed_data = mock_handler_class.return_value.process.call_args.kwargs[
+            "data"
+        ]
+        self.assertEqual(processed_data["reference_number"], reference_number)
+
     def test_handle_completion_records_failure_result(self):
         mock_handler_class = MagicMock()
         mock_handler = mock_handler_class.return_value

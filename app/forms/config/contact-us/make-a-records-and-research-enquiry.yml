@@ -53,7 +53,7 @@ finalPage:
       details:
         process:
           templateString: |
-            <enquiry_id>TODO</enquiry_id>
+            <enquiry_id>{{ reference_number }}</enquiry_id>
             <title></title>
             <first_name>{{ data.enquiry.name.first_name }}</first_name>
             <last_name>{{ data.enquiry.name.surname }}</last_name>
