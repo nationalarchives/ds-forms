@@ -1,5 +1,5 @@
 startingPage:
-  id: enquiry
+  id: records_enquiry
   name: Make a records enquiry
   form: contact.RecordsEnquiry
   template: forms/form_page.html
@@ -40,26 +40,39 @@ finalPage:
     submitAgainButtonText: Submit another enquiry
   template: forms/final.html
   requires:
-    - enquiry
+    - records_enquiry
   resultHandlers:
-    - type: email
+    - type: email # debug
       details:
         process:
           templateString: |
             {{ data | tojson }}
         send:
           subject: A records enquiry has been submitted (JSON dump)
+    - type: email # debug
+      details:
+        process:
+          templateString: |
+            <enquiry_id>{{ reference_number }}</enquiry_id>
+            <title></title>
+            <first_name>{{ data.records_enquiry.name.first_name }}</first_name>
+            <last_name>{{ data.records_enquiry.name.surname }}</last_name>
+            <contact_email>{{ data.records_enquiry.email }}</contact_email>
+            <enquiry>{{ data.records_enquiry.enquiry }}</enquiry>
+            <contact_country>{{ data.records_enquiry.country }}</contact_country>
+        send:
+          subject: A records enquiry has been submitted
     - type: email
       details:
         process:
           templateString: |
             <enquiry_id>{{ reference_number }}</enquiry_id>
             <title></title>
-            <first_name>{{ data.enquiry.name.first_name }}</first_name>
-            <last_name>{{ data.enquiry.name.surname }}</last_name>
-            <contact_email>{{ data.enquiry.email }}</contact_email>
-            <enquiry>{{ data.enquiry.enquiry }}</enquiry>
-            <contact_country>{{ data.enquiry.country }}</contact_country>
+            <first_name>{{ data.records_enquiry.name.first_name }}</first_name>
+            <last_name>{{ data.records_enquiry.name.surname }}</last_name>
+            <contact_email>{{ data.records_enquiry.email }}</contact_email>
+            <enquiry>{{ data.records_enquiry.enquiry }}</enquiry>
+            <contact_country>{{ data.records_enquiry.country }}</contact_country>
         send:
           toConfigVar: FORM_RECORDS_ENQUIRY_INBOX
           subject: "? FOI DIRECT GENAA"

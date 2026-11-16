@@ -53,12 +53,12 @@ test("invalid email", async ({ page }) => {
 });
 
 test("prefilled IAID", async ({ page }) => {
-  await page.goto("/catalogue/report-an-issue/?iaid=C4");
+  await page.goto("/catalogue/report-an-issue/?iaid=C1234");
 
   await expect(page.locator("main")).toHaveText(/Selected record/);
-  await expect(page.locator("main")).toHaveText(/C4/);
+  await expect(page.locator("main")).toHaveText(/C1234/);
   await expect(page.locator("main")).toHaveText(/Reference number/);
-  await expect(page.locator("main")).toHaveText(/ADM/);
+  await expect(page.locator("main")).toHaveText(/BA/);
 });
 
 test("complete", async ({ page }) => {

@@ -7,6 +7,9 @@
 docker compose up -d
 ```
 
+The local app uses a WireMock service for Rosetta. It returns the report-issue record fixture for
+`C1234` and an empty data list for other IAIDs.
+
 ### Add the static assets
 
 During the first time install, your `app/static/assets` directory will be empty.

@@ -1,0 +1,107 @@
+{
+  "data": [
+    {
+      "@template": {
+        "details": {
+          "administrativeBackground": "<span class=\"bioghist\"><span class=\"bioghist\"><p>Management Services existed from 1968 to 1972, and was renamed the Management Group in 1973.</p></span></span>",
+          "catalogueContext": ["Records of the Civil Service Department"],
+          "catalogueId": "806",
+          "creator": [
+            "Civil Service Department, Management Group, 1973-1981",
+            "Civil Service Department, Management Services, 1968-1972"
+          ],
+          "dateCovering": "1956-1985",
+          "description": {
+            "value": "<span class=\"scopecontent\"><p>Records of Management Group and predecessor. Machinery of Government Group files are in <a class=\"extref\" href=\"C15160\">BA 17</a>. Files on organisation and methods are in <a class=\"extref\" href=\"C15665\">BA 26</a>.</p><p>Registered files of the Structure Review Working Party are in <a class=\"extref\" href=\"C16243\">BA 29</a>.</p></span>",
+            "raw": "<scopecontent><head></head><p>Records of Management Group and predecessor. Machinery of Government Group files are in <extref href=&#34http://discovery.nationalarchives.gov.uk/SearchUI/details?Uri=C15160&#34>BA 17</extref>. Files on organisation and methods are in <extref href=&#34http://discovery.nationalarchives.gov.uk/SearchUI/details?Uri=C15665&#34>BA 26</extref>.</p> <p>Registered files of the Structure Review Working Party are in <extref href=&#34http://discovery.nationalarchives.gov.uk/SearchUI/details?Uri=C16243&#34>BA 29</extref>.</p></scopecontent>",
+            "short": "Records of Management Group and predecessor. Machinery of Government Group files are in BA 17. Files on organisation and methods are in BA 26. Registered files of the Structure Review Working Party are in BA 29",
+            "noHtml": "Records of Management Group and predecessor. Machinery of Government Group files are in BA 17. Files on organisation and methods are in BA 26. Registered files of the Structure Review Working Party are in BA 29."
+          },
+          "digitised": false,
+          "group": "tna",
+          "groupArray": [
+            {
+              "value": "aggregation"
+            },
+            {
+              "value": "tna"
+            }
+          ],
+          "heldBy": "The National Archives, Kew",
+          "heldById": "A13530124",
+          "heldByCount": 29698846,
+          "@hierarchy": [
+            {
+              "@admin": {
+                "id": "C24"
+              },
+              "identifier": [
+                {
+                  "reference_number": "BA"
+                }
+              ],
+              "level": {
+                "code": 1
+              },
+              "source": {
+                "value": "CAT"
+              },
+              "summary": {
+                "title": "Records of the Civil Service Department"
+              }
+            },
+            {
+              "@admin": {
+                "id": "C1234"
+              },
+              "level": {
+                "code": 2
+              },
+              "source": {
+                "value": "CAT"
+              },
+              "summary": {
+                "title": "Records of Management Group and predecessor"
+              }
+            }
+          ],
+          "iaid": "C1234",
+          "id": "C1234",
+          "language": "English",
+          "legalStatus": "Public Record(s)",
+          "level": {
+            "code": 2,
+            "value": "Division"
+          },
+          "parent": {
+            "@admin": {
+              "id": "C24"
+            },
+            "identifier": [
+              {
+                "reference_number": "BA"
+              }
+            ],
+            "level": {
+              "code": 1
+            },
+            "source": {
+              "value": "CAT"
+            },
+            "summary": {
+              "title": "Records of the Civil Service Department"
+            }
+          },
+          "physicalDescription": "3 series",
+          "primaryIdentifier": "C1234",
+          "referenceNumber": "Division within BA",
+          "source": "CAT",
+          "summaryTitle": "Records of Management Group and predecessor",
+          "cleanTitle": "Records of Management Group and predecessor",
+          "title": "<span class=\"unittitle\" type=\"Title\">Records of Management Group and predecessor</span>",
+          "type": "aggregation"
+        }
+      }
+    }
+  ]
+}

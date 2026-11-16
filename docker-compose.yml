@@ -21,7 +21,7 @@ services:
       - CACHE_REDIS_URL=redis://redis:6379/2
       - SESSION_COOKIE_SECURE=False
       # - RATELIMIT_DEFAULT=5 per 5 seconds
-      - ROSETTA_API_URL=https://rosetta-dev.k-int.com/rosetta/data
+      - ROSETTA_API_URL=http://rosetta-mock:8080/rosetta/data
       - AWS_REGION=aws-ses-v2-local
       - AWS_ACCESS_KEY_ID=
       - AWS_SECRET_ACCESS_KEY=
@@ -38,9 +38,15 @@ services:
     depends_on:
       - redis
       - ses
+      - rosetta-mock
     healthcheck:
       start_period: 10s
       start_interval: 2s
+
+  rosetta-mock:
+    image: wiremock/wiremock:3.9.1
+    volumes:
+      - ./test/rosetta-mock:/home/wiremock:ro
 
   redis:
     image: redis:latest
