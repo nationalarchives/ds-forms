@@ -70,7 +70,7 @@ In addition to the [base Docker image variables](https://github.com/nationalarch
 | `CACHE_REDIS_URL`                  | The connection string for Redis when using `CACHE_TYPE=RedisCache`                                      | _none_                                  |
 | `AWS_REGION`                       | The AWS region to use                                                                                   | `eu-west-2`                             |
 | `SES_ENDPOINT`                     | The SES endpoint                                                                                        | _none_ (`email.<region>.amazonaws.com`) |
-| `SES_FROM_EMAIL`                   | The default "from" email to use                                                                         | `noreply@nationalarchives.gov.uk`       |
+| `DEFAULT_FROM_EMAIL`               | The default "from" email to use                                                                         | `noreply@nationalarchives.gov.uk`       |
 | `GA4_ID`                           | The Google Analytics 4 ID                                                                               | _none_                                  |
 
 [^1] [Debugging in Flask](https://flask.palletsprojects.com/en/2.3.x/debugging/)
