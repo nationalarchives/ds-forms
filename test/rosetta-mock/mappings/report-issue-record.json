@@ -1,0 +1,19 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "GET",
+    "urlPath": "/rosetta/data/get",
+    "queryParameters": {
+      "id": {
+        "equalTo": "C1234"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "report-issue-record.json"
+  }
+}

@@ -225,7 +225,8 @@ class FormFlow:
         """
         data = {}
         for page in self.get_all_pages():
-            data[page.id] = page.get_saved_form_data()
+            if page.id != self.final_page_id:
+                data[page.id] = page.get_saved_form_data()
         return data
 
     def has_complete_path(self) -> bool:
