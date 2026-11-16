@@ -85,7 +85,7 @@ class Production(Features):
     AWS_REGION: str = os.getenv("AWS_REGION", "eu-west-2")
     SES_ENDPOINT: str | None = os.getenv("SES_ENDPOINT", None)
     DEFAULT_FROM_EMAIL: str = os.getenv(
-        "SES_FROM_EMAIL", "noreply@nationalarchives.gov.uk"
+        "DEFAULT_FROM_EMAIL", "noreply@nationalarchives.gov.uk"
     )
 
     DYNAMICS_ENTRA_ORG_URL: str = os.getenv("DYNAMICS_ENTRA_ORG_URL", "")
