@@ -76,7 +76,7 @@ class FormFlowTestCase(unittest.TestCase):
     def test_get_data_returns_saved_data_per_page(self):
         flow, start, _ = self._build_flow(path="data-flow")
         start.save_form_data({"option": "a"})
-        self.assertEqual(flow.get_data(), {"start": {"option": "a"}, "final": {}})
+        self.assertEqual(flow.get_data(), {"start": {"option": "a"}})
 
     def test_has_complete_path_false_until_requirements_met(self):
         flow, start, final = self._build_flow(path="completion-flow")
