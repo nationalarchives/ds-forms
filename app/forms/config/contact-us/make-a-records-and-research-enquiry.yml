@@ -46,13 +46,6 @@ finalPage:
       details:
         process:
           templateString: |
-            {{ data | tojson }}
-        send:
-          subject: A records enquiry has been submitted (JSON dump)
-    - type: email # debug
-      details:
-        process:
-          templateString: |
             <enquiry_id>{{ reference_number }}</enquiry_id>
             <title></title>
             <first_name>{{ data.records_enquiry.name.first_name }}</first_name>
@@ -61,7 +54,10 @@ finalPage:
             <enquiry>{{ data.records_enquiry.enquiry }}</enquiry>
             <contact_country>{{ data.records_enquiry.country }}</contact_country>
         send:
-          subject: A records enquiry has been submitted
+          to:
+            - chris.owens@nationalarchives.gov.uk
+            - andrew.hosgood@nationalarchives.gov.uk
+          subject: "? FOI DIRECT GENAA"
     - type: email
       details:
         process:
