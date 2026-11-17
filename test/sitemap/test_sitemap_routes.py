@@ -7,11 +7,7 @@ class SitemapBlueprintTestCase(unittest.TestCase):
     def setUp(self):
         self.app = create_app("config.Test")
         self.client = self.app.test_client()
-        self.domain = (
-            "https://localhost"
-            if self.app.config["FORCE_HTTPS"]
-            else "http://localhost"
-        )
+        self.domain = "https://localhost"
 
     def test_sitemap(self):
         rv = self.client.get("/forms/sitemap.xml")
