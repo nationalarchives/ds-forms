@@ -55,13 +55,14 @@ test("invalid email", async ({ page }) => {
 });
 
 test("user input cannot inject executable markup", async ({ page }) => {
-  const payload =
-    `"><img src=x onerror="document.body.dataset.xssExecuted='true'">`;
+  const payload = `"><img src=x onerror="document.body.dataset.xssExecuted='true'">`;
 
   await page.goto("/catalogue/report-an-issue/");
   await page.waitForTimeout(3000);
   await page.getByLabel("Record IAID").fill("invalid");
-  await page.getByLabel("What is the error?").fill("A description of the issue");
+  await page
+    .getByLabel("What is the error?")
+    .fill("A description of the issue");
   await page
     .getByLabel("What is the correct information?")
     .fill("The expected information");
