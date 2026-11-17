@@ -59,6 +59,7 @@ In addition to the [base Docker image variables](https://github.com/nationalarch
 | `CSP_FRAME_ANCESTORS`              | A comma separated list of CSP rules for `frame-accestors`                                               | `'self'`                                |
 | `CSP_REPORT_URI`                   | The URL to report CSP violations to                                                                     | _none_                                  |
 | `FORCE_HTTPS`                      | Redirect requests to HTTPS as part of the CSP                                                           | _none_                                  |
+| `PROXY_DEPTH`                      | The number of proxies to trust for `X-Forwarded-` headers                                               | `0`                                     |
 | `SESSION_COOKIE_SECURE`            | Set the session cookie's Secure attribute; configurable only with `config.Develop`                      | `True`                                  |
 | `SESSION_REDIS_URL`                | A URL to a Redis instance used by session storage                                                       | _none_                                  |
 | `RATELIMIT_REDIS_URL`              | A URL to a Redis instance used by rate limiting                                                         | _none_                                  |

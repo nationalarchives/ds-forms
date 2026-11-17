@@ -20,6 +20,7 @@ class Production(Features):
     ENVIRONMENT_NAME: str = os.getenv("ENVIRONMENT_NAME", "production")
     BUILD_VERSION: str = os.getenv("BUILD_VERSION", "")
     CONTAINER_IMAGE: str = os.getenv("CONTAINER_IMAGE", "")
+    PROXY_DEPTH: int = int(os.environ.get("PROXY_DEPTH", "0"))
     TNA_FRONTEND_VERSION: str = ""
     try:
         package_lock_json_path = os.path.join(

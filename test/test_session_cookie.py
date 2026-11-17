@@ -2,10 +2,41 @@ from http.cookies import SimpleCookie
 from unittest.mock import patch
 
 import pytest
+from flask import jsonify, request
 from redis import Redis
 
 from app import create_app
 from config import Test as TestConfig
+
+
+def test_proxy_fix_uses_configured_proxy_depth():
+    class Config(TestConfig):
+        PROXY_DEPTH = 2
+
+    app = create_app(Config)
+
+    @app.get("/proxy-test")
+    def proxy_test():
+        return jsonify(
+            remote_addr=request.remote_addr,
+            scheme=request.scheme,
+            host=request.host,
+        )
+
+    response = app.test_client().get(
+        "/proxy-test",
+        headers={
+            "X-Forwarded-For": "198.51.100.1, 203.0.113.2",
+            "X-Forwarded-Proto": "https, http",
+            "X-Forwarded-Host": "trusted.example, proxy.example",
+        },
+    )
+
+    assert response.json == {
+        "remote_addr": "198.51.100.1",
+        "scheme": "https",
+        "host": "trusted.example",
+    }
 
 
 @pytest.mark.parametrize(
@@ -22,6 +53,7 @@ def test_session_cookie_respects_configuration_behind_proxy(secure, debug, force
     class Config(TestConfig):
         SESSION_TYPE = "redis"
         SESSION_REDIS = Redis()
+        PROXY_DEPTH = 1
         SESSION_COOKIE_SECURE = secure
         DEBUG = debug
         FORCE_HTTPS = force_https

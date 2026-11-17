@@ -21,7 +21,14 @@ def create_app(config_class):
 
     app = Flask(__name__, static_url_path=f"{application_path_prefix}/static")
     app.config.from_object(config_class)
-    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+    proxy_depth = app.config["PROXY_DEPTH"]
+    if proxy_depth:
+        app.wsgi_app = ProxyFix(
+            app.wsgi_app,
+            x_for=proxy_depth,
+            x_proto=proxy_depth,
+            x_host=proxy_depth,
+        )
 
     gunicorn_error_logger = logging.getLogger("gunicorn.error")
     app.logger.handlers.extend(gunicorn_error_logger.handlers)
