@@ -41,23 +41,6 @@ finalPage:
   requires:
     - records_enquiry
   resultHandlers:
-    - type: email # debug
-      details:
-        process:
-          templateString: |
-            <enquiry_id>{{ reference_number }}</enquiry_id>
-            <title></title>
-            <first_name>{{ data.records_enquiry.name.first_name }}</first_name>
-            <last_name>{{ data.records_enquiry.name.surname }}</last_name>
-            <contact_email>{{ data.records_enquiry.email }}</contact_email>
-            <enquiry>{{ data.records_enquiry.enquiry }}</enquiry>
-            <contact_country>{{ data.records_enquiry.country }}</contact_country>
-          html: false
-        send:
-          to:
-            - chris.owens@nationalarchives.gov.uk
-            - andrew.hosgood@nationalarchives.gov.uk
-          subject: "? FOI DIRECT GENAA"
     - type: email
       details:
         process:
