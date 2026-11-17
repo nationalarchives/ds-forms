@@ -585,12 +585,14 @@ class FormPage:
                 "forms.start_page",
                 form_path=self.flow.path,
                 _external=external,
+                _scheme="https" if external else None,
             )
         return url_for(
             "forms.page",
             form_path=self.flow.path,
             page_slug=self.slug,
             _external=external,
+            _scheme="https" if external else None,
         )
 
     def require_completion_of(self, *pages: "FormPage"):
