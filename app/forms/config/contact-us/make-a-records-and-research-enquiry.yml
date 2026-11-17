@@ -45,13 +45,13 @@ finalPage:
       details:
         process:
           templateString: |
-            <enquiry_id>{{ reference_number }}</enquiry_id>
+            <enquiry_id>{{ reference_number | escape }}</enquiry_id>
             <title></title>
-            <first_name>{{ data.records_enquiry.name.first_name }}</first_name>
-            <last_name>{{ data.records_enquiry.name.surname }}</last_name>
-            <contact_email>{{ data.records_enquiry.email }}</contact_email>
-            <enquiry>{{ data.records_enquiry.enquiry }}</enquiry>
-            <contact_country>{{ data.records_enquiry.country }}</contact_country>
+            <first_name>{{ data.records_enquiry.name.first_name | escape }}</first_name>
+            <last_name>{{ data.records_enquiry.name.surname | escape }}</last_name>
+            <contact_email>{{ data.records_enquiry.email | escape }}</contact_email>
+            <enquiry>{{ data.records_enquiry.enquiry | escape }}</enquiry>
+            <contact_country>{{ data.records_enquiry.country | escape }}</contact_country>
           html: false
         send:
           toConfigVar: FORM_RECORDS_ENQUIRY_INBOX
