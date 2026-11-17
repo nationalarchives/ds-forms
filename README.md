@@ -59,6 +59,7 @@ In addition to the [base Docker image variables](https://github.com/nationalarch
 | `CSP_FRAME_ANCESTORS`              | A comma separated list of CSP rules for `frame-accestors`                                               | `'self'`                                |
 | `CSP_REPORT_URI`                   | The URL to report CSP violations to                                                                     | _none_                                  |
 | `FORCE_HTTPS`                      | Redirect requests to HTTPS as part of the CSP                                                           | _none_                                  |
+| `SESSION_COOKIE_SECURE`            | Set the session cookie's Secure attribute; configurable only with `config.Develop`                      | `True`                                  |
 | `SESSION_REDIS_URL`                | A URL to a Redis instance used by session storage                                                       | _none_                                  |
 | `RATELIMIT_REDIS_URL`              | A URL to a Redis instance used by rate limiting                                                         | _none_                                  |
 | `RATELIMIT_DEFAULT`                | The default rate limiting amount[^2] (e.g. `5 per 5 seconds`)                                           | _none_                                  |
@@ -72,6 +73,9 @@ In addition to the [base Docker image variables](https://github.com/nationalarch
 | `SES_ENDPOINT`                     | The SES endpoint                                                                                        | _none_ (`email.<region>.amazonaws.com`) |
 | `DEFAULT_FROM_EMAIL`               | The default "from" email to use                                                                         | `noreply@nationalarchives.gov.uk`       |
 | `GA4_ID`                           | The Google Analytics 4 ID                                                                               | _none_                                  |
+
+Session cookie security is independent of `FORCE_HTTPS` and debug mode. For local
+HTTP-only development, `config.Develop` can set `SESSION_COOKIE_SECURE=False`.
 
 [^1] [Debugging in Flask](https://flask.palletsprojects.com/en/2.3.x/debugging/)
 [^2] [Rate limit notation](https://limits.readthedocs.io/en/stable/quickstart.html#rate-limit-string-notation)

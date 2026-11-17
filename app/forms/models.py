@@ -584,14 +584,12 @@ class FormPage:
             return url_for(
                 "forms.start_page",
                 form_path=self.flow.path,
-                _scheme="https" if external else None,
                 _external=external,
             )
         return url_for(
             "forms.page",
             form_path=self.flow.path,
             page_slug=self.slug,
-            _scheme="https" if external else None,
             _external=external,
         )
 

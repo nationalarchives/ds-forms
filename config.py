@@ -59,7 +59,6 @@ class Production(Features):
         "worker-src": os.getenv("CSP_WORKER_SRC", "'self',blob:").split(","),
     }
     FORCE_HTTPS: bool = strtobool(os.getenv("FORCE_HTTPS", "False"))
-    PREFERRED_URL_SCHEME: str = os.getenv("PREFERRED_URL_SCHEME", "https")
 
     SESSION_COOKIE_NAME: str = "ds_forms_session"
     SESSION_COOKIE_PATH: str = "/"
@@ -145,8 +144,5 @@ class Test(Production):
     DEBUG: bool = True
     TESTING: bool = True
     EXPLAIN_TEMPLATE_LOADING: bool = True
-
-    FORCE_HTTPS: bool = False
-    PREFERRED_URL_SCHEME: str = "http"
 
     DEFAULT_MINIMUM_TIME_TO_COMPLETE: int = 0
