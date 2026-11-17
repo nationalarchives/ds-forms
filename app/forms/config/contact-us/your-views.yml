@@ -35,7 +35,7 @@ finalPage:
     submitAgainButtonText: Submit another view
   template: forms/final.html
   requires:
-    - enquiry
+    - views
   resultHandlers:
     - type: email
       details:
@@ -48,11 +48,11 @@ finalPage:
       details:
         process:
           templateString: |
-            <name>{{ data.views.details.name }}</name>
-            <email>{{ data.views.details.email }}</email>
-            <reason>{{ data.views.reason }}</reason>
-            <enquiry>{{ data.views.enquiry }}</enquiry>
-            <additional>{{ data.views.additional }}</additional>
+            <name>{{ data.views.details.name | escape }}</name>
+            <email>{{ data.views.details.email | escape }}</email>
+            <reason>{{ data.views.reason | escape }}</reason>
+            <enquiry>{{ data.views.enquiry | escape }}</enquiry>
+            <additional>{{ data.views.additional | escape }}</additional>
           html: false
         send:
           toConfigVar: FORM_YOUR_VIEWS_INBOX

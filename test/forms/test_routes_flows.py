@@ -1,3 +1,4 @@
+import re
 import unittest
 from unittest.mock import MagicMock, patch
 
@@ -114,3 +115,55 @@ class EmailCompletionRouteTestCase(unittest.TestCase):
             self.assertEqual(
                 kwargs["Destination"]["ToAddresses"], ["person@example.com"]
             )
+
+
+class CatalogueIssueInputRenderingTestCase(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app("config.Test")
+        self.client = self.app.test_client()
+
+    def _submit_invalid_record(self, **overrides):
+        rv = self.client.get("/catalogue/report-an-issue/")
+        self.assertEqual(rv.status_code, 200)
+        csrf_token = re.search(
+            r'<input[^>]*name="csrf_token"[^>]*value="([^"]+)"', rv.text
+        )
+        self.assertIsNotNone(csrf_token)
+
+        with self.client.session_transaction() as session:
+            session["catalogue/report-an-issue"]["created"] = 1
+
+        data = {
+            "record_iaid": "invalid-iaid",
+            "error_details-error": "A description of the issue",
+            "error_details-expected": "The expected information",
+            "csrf_token": csrf_token.group(1),
+        }
+        data.update(overrides)
+        with patch("app.lib.validators.is_iaid_valid", return_value=False):
+            return self.client.post("/catalogue/report-an-issue/", data=data)
+
+    def test_xss_input_is_escaped_when_form_is_redisplayed(self):
+        payload = "<script>alert(1)</script>"
+
+        rv = self._submit_invalid_record(**{"error_details-error": payload})
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertIn("&lt;script&gt;alert(1)&lt;/script&gt;", rv.text)
+        self.assertNotIn(payload, rv.text)
+
+    def test_right_to_left_text_is_preserved_when_form_is_redisplayed(self):
+        arabic_text = "مرحبا بالعالم"
+
+        rv = self._submit_invalid_record(**{"error_details-error": arabic_text})
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertIn(arabic_text, rv.text)
+
+    def test_unicode_input_is_preserved_when_form_is_redisplayed(self):
+        name = "Zoë 李 🧪"
+
+        rv = self._submit_invalid_record(**{"reporter-name": name})
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertIn(f'value="{name}"', rv.text)
