@@ -192,6 +192,22 @@ class EmailResultHandlerTestCase(unittest.TestCase):
         self.assertEqual(kwargs["Message"]["Subject"]["Data"], "Hello")
 
     @patch("app.forms.result_handlers.boto3.client")
+    def test_send_success_with_multiple_explicit_to_addresses(self, mock_boto3_client):
+        mock_ses = MagicMock()
+        mock_ses.send_email.return_value = {"MessageId": "msg-multiple"}
+        mock_boto3_client.return_value = mock_ses
+
+        handler = EmailResultHandler()
+        handler.process(
+            data={"data": {"value": "content"}}, templateString="{{ data | tojson }}"
+        )
+        recipients = ["one@example.com", "two@example.com"]
+        self.assertTrue(handler.send(to=recipients))
+
+        _, kwargs = mock_ses.send_email.call_args
+        self.assertEqual(kwargs["Destination"]["ToAddresses"], recipients)
+
+    @patch("app.forms.result_handlers.boto3.client")
     def test_send_resolves_recipient_via_to_var(self, mock_boto3_client):
         mock_ses = MagicMock()
         mock_ses.send_email.return_value = {"MessageId": "msg-456"}

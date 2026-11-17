@@ -125,12 +125,13 @@ class EmailResultHandler(ResultHandler):
                 )
         if not to_email:
             to_email = current_app.config["DEFAULT_INBOX"]
+        to_addresses = to_email if isinstance(to_email, list) else [to_email]
         subject = kwargs.get("subject", "Form Submission")
         from_email = kwargs.get("from", current_app.config["DEFAULT_FROM_EMAIL"])
         try:
             response = self.client.send_email(
                 Source=from_email,
-                Destination={"ToAddresses": [to_email]},
+                Destination={"ToAddresses": to_addresses},
                 Message={
                     "Subject": {"Data": subject},
                     "Body": {"Html": {"Charset": "UTF-8", "Data": self.content}},
