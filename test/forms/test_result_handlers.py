@@ -192,6 +192,47 @@ class EmailResultHandlerTestCase(unittest.TestCase):
         self.assertEqual(kwargs["Message"]["Subject"]["Data"], "Hello")
 
     @patch("app.forms.result_handlers.boto3.client")
+    def test_send_sends_plaintext_email_body(self, mock_boto3_client):
+        mock_ses = MagicMock()
+        mock_ses.send_email.return_value = {"MessageId": "msg-text"}
+        mock_boto3_client.return_value = mock_ses
+
+        handler = EmailResultHandler()
+        handler.process(
+            data={"name": "Ada"},
+            templateString="Hello {{ name }}",
+        )
+
+        self.assertTrue(handler.send(to="person@example.com"))
+
+        _, kwargs = mock_ses.send_email.call_args
+        self.assertEqual(
+            kwargs["Message"]["Body"],
+            {"Text": {"Charset": "UTF-8", "Data": "Hello Ada"}},
+        )
+
+    @patch("app.forms.result_handlers.boto3.client")
+    def test_send_sends_html_email_body(self, mock_boto3_client):
+        mock_ses = MagicMock()
+        mock_ses.send_email.return_value = {"MessageId": "msg-html"}
+        mock_boto3_client.return_value = mock_ses
+
+        handler = EmailResultHandler()
+        handler.process(
+            data={"name": "Ada"},
+            templateString="<p>Hello {{ name }}</p>",
+            html=True,
+        )
+
+        self.assertTrue(handler.send(to="person@example.com"))
+
+        _, kwargs = mock_ses.send_email.call_args
+        self.assertEqual(
+            kwargs["Message"]["Body"],
+            {"Html": {"Charset": "UTF-8", "Data": "<p>Hello Ada</p>"}},
+        )
+
+    @patch("app.forms.result_handlers.boto3.client")
     def test_send_success_with_multiple_explicit_to_addresses(self, mock_boto3_client):
         mock_ses = MagicMock()
         mock_ses.send_email.return_value = {"MessageId": "msg-multiple"}

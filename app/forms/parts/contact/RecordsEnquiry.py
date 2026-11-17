@@ -83,7 +83,7 @@ class RecordsEnquiry(FlaskForm):
 
     enquiry = TextAreaField(
         "Your enquiry",
-        description="Please provide specific details of the information you are looking for, including any relevant catalogue references.",
+        description="Please provide specific details of the information you are looking for, including any relevant catalogue references you have found and research guides you have used.",
         validators=[
             DataRequired(message="Enter details of your enquiry"),
             # Limit the enquiry to a maximum of 1000 logical characters
