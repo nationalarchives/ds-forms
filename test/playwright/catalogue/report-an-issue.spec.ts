@@ -54,6 +54,29 @@ test("invalid email", async ({ page }) => {
   await expect(page.locator("main")).toHaveText(errors.invalidEmail);
 });
 
+test("user input cannot inject executable markup", async ({ page }) => {
+  const payload =
+    `"><img src=x onerror="document.body.dataset.xssExecuted='true'">`;
+
+  await page.goto("/catalogue/report-an-issue/");
+  await page.waitForTimeout(3000);
+  await page.getByLabel("Record IAID").fill("invalid");
+  await page.getByLabel("What is the error?").fill("A description of the issue");
+  await page
+    .getByLabel("What is the correct information?")
+    .fill("The expected information");
+  await page.getByLabel("Full name (optional)").fill(payload);
+  await page.getByRole("button", { name: "Submit issue" }).click();
+
+  await expect(page.locator("main")).toHaveText(errors.invalidIaid);
+  await expect(page.locator("main img[onerror]")).toHaveCount(0);
+  await expect(page.locator("body")).not.toHaveAttribute(
+    "data-xss-executed",
+    "true",
+  );
+  await expect(page.getByLabel("Full name (optional)")).toHaveValue(payload);
+});
+
 test("prefilled IAID", async ({ page }) => {
   await page.goto(`/catalogue/report-an-issue/?iaid=${recordIaid}`);
 
