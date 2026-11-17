@@ -77,6 +77,7 @@ class EmailResultHandler(ResultHandler):
         self.template_string: str = ""
         self.data: dict = {}
         self.processed = False
+        self.html: bool = False
         self.content: str = ""
         self.result_data: dict = {}
 
@@ -84,12 +85,19 @@ class EmailResultHandler(ResultHandler):
         self.template = kwargs.get("template", "")
         self.template_string = kwargs.get("templateString", "")
         self.data = {
-            k: v for k, v in kwargs.items() if k != "template" and k != "templateString"
+            k: v
+            for k, v in kwargs.items()
+            if k != "template" and k != "templateString" and k != "html"
         }
         self.data.update(data)
-        current_app.logger.debug(f"Processing email with data: {self.data}")
-        current_app.logger.debug(f"Template: {self.template}")
-        current_app.logger.debug(f"Template string: {self.template_string}")
+        self.html: bool = kwargs.get("html", False)
+        current_app.logger.debug(
+            f"Processing {'HTML' if self.html else 'plain text'} email with data: {self.data}"
+        )
+        if self.template:
+            current_app.logger.debug(f"Template: {self.template}")
+        if self.template_string:
+            current_app.logger.debug(f"Template string: {self.template_string}")
         self.processed = True
 
     def send(self, **kwargs) -> bool:
@@ -129,12 +137,15 @@ class EmailResultHandler(ResultHandler):
         subject = kwargs.get("subject", "Form Submission")
         from_email = kwargs.get("from", current_app.config["DEFAULT_FROM_EMAIL"])
         try:
+            email_content = {"Charset": "UTF-8", "Data": self.content}
             response = self.client.send_email(
                 Source=from_email,
                 Destination={"ToAddresses": to_addresses},
                 Message={
-                    "Subject": {"Data": subject},
-                    "Body": {"Html": {"Charset": "UTF-8", "Data": self.content}},
+                    "Subject": {"Data": subject, "Charset": "UTF-8"},
+                    "Body": {"Html": email_content}
+                    if self.html
+                    else {"Text": email_content},
                 },
             )
             id = response.get("MessageId")

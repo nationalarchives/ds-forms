@@ -37,6 +37,7 @@ finalPage:
             body: <p>Your application has been received and is being processed.</p><p>Your reference number is <strong>{{ reference_number }}</strong>.</p>
           content: <p>TEST EMAIL</p><p>Filled out by {{ email.email_address }}</p>
           signoff: <p>Kind regards,</p><p>The team</p>
+          html: true
         send:
           toVar: data.email.email_address
           subject: Your receipt

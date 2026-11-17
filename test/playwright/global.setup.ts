@@ -1,4 +1,4 @@
-import { test as setup, expect } from "@playwright/test";
+import { test as setup, expect } from "./fixtures";
 
 setup("clear out previous emails", async ({ page }) => {
   await page.goto("http://localhost:65512");

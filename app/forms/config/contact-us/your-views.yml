@@ -53,6 +53,7 @@ finalPage:
             <reason>{{ data.views.reason }}</reason>
             <enquiry>{{ data.views.enquiry }}</enquiry>
             <additional>{{ data.views.additional }}</additional>
+          html: false
         send:
           toConfigVar: FORM_YOUR_VIEWS_INBOX
           subject: "A view has been submitted"

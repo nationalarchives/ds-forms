@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../fixtures";
 import validateHtml from "../lib/validate-html.ts";
 import checkAccessibility from "../lib/check-accessibility.ts";
 

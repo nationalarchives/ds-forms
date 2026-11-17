@@ -12,12 +12,11 @@ startingPage:
           href: /
         - text: Contact us
           href: /contact-us/
-    description: Use this service if you have a specific question about records held by The National Archives or how to search for them.
+    description: Use this form to email us with a specific question about records held by The National Archives or how to search for them.
     body: |
-      <ul class="tna-ul">
-        <li>We can provide guidance on how to search our catalogue and advise you on how to carry out your own research.</li>
-        <li>We cannot look at records on your behalf or identify all records that may be relevant to a particular subject.</li>
-      </ul>
+      <p>We can provide guidance on which research guides to consult and how to search our catalogue so you can carry out your own research. We cannot look at records on your behalf or identify all records that may be relevant to a particular subject.</p>
+      <p>Read our guide for <a href="https://www.nationalarchives.gov.uk/explore-the-collection/the-collection-blog/getting-the-most-out-of-a-record-enquiry/">getting the most out of a research enquiry</a>, especially if you are using artificial intelligence (AI) in your research. We are unlikely to be able to respond to enquiries that do not meet our guidelines.</p>
+      <p>We respond to enquiries submitted using this form within 10 working days.</p>
     beforeSubmit: |
       <p>
         <small>The National Archives only records personal information, including email addresses, for the purposes provided. We will not share your details with third parties. For more information read our <a href="/terms-and-conditions/privacy-notice/">privacy policy</a>.</small>
@@ -31,12 +30,12 @@ startingPage:
 
 finalPage:
   id: final_page
-  name: Thank you
+  name: Enquiry submitted
   slug: complete
   content:
-    panelTitle: Request submitted
+    panelTitle: Enquiry submitted
     body: |
-      <p>Thank you for taking the time to make a records enquiry. We may contact you within the next 10 days if we need further information.</p>
+      <p>Thank you for taking the time to make a records enquiry. We respond to enquiries submitted using this form within 10 working days.</p>
     submitAgainButtonText: Submit another enquiry
   template: forms/final.html
   requires:
@@ -53,6 +52,7 @@ finalPage:
             <contact_email>{{ data.records_enquiry.email }}</contact_email>
             <enquiry>{{ data.records_enquiry.enquiry }}</enquiry>
             <contact_country>{{ data.records_enquiry.country }}</contact_country>
+          html: false
         send:
           to:
             - chris.owens@nationalarchives.gov.uk
@@ -69,6 +69,7 @@ finalPage:
             <contact_email>{{ data.records_enquiry.email }}</contact_email>
             <enquiry>{{ data.records_enquiry.enquiry }}</enquiry>
             <contact_country>{{ data.records_enquiry.country }}</contact_country>
+          html: false
         send:
           toConfigVar: FORM_RECORDS_ENQUIRY_INBOX
           subject: "? FOI DIRECT GENAA"
