@@ -1,7 +1,7 @@
 import logging
 import os
 
-from flask import Flask, render_template, render_template_string
+from flask import Flask, render_template, render_template_string, request
 from flask_cors import CORS
 from flask_session import Session
 from jinja2 import ChoiceLoader, PackageLoader
@@ -28,6 +28,15 @@ def create_app(config_class):
             x_for=proxy_depth,
             x_proto=proxy_depth,
             x_host=proxy_depth,
+        )
+
+    @app.before_request
+    def log_request_headers():
+        app.logger.debug("==============================")
+        app.logger.debug(f"Request path:    {request.path}")
+        app.logger.debug(f"Proxy depth:     {proxy_depth}")
+        app.logger.debug(
+            f"Request headers: {[header for header in request.headers if header[0].lower().startswith('x-forwarded-')]}"
         )
 
     gunicorn_error_logger = logging.getLogger("gunicorn.error")
