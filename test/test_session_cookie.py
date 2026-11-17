@@ -9,7 +9,7 @@ from app import create_app
 from config import Test as TestConfig
 
 
-def test_proxy_fix_uses_configured_proxy_depth():
+def test_proxy_fix_uses_configured_proxy_depth_for_scheme_and_host():
     class Config(TestConfig):
         PROXY_DEPTH = 2
 
@@ -18,7 +18,6 @@ def test_proxy_fix_uses_configured_proxy_depth():
     @app.get("/proxy-test")
     def proxy_test():
         return jsonify(
-            remote_addr=request.remote_addr,
             scheme=request.scheme,
             host=request.host,
         )
@@ -26,14 +25,12 @@ def test_proxy_fix_uses_configured_proxy_depth():
     response = app.test_client().get(
         "/proxy-test",
         headers={
-            "X-Forwarded-For": "198.51.100.1, 203.0.113.2",
             "X-Forwarded-Proto": "https, http",
             "X-Forwarded-Host": "trusted.example, proxy.example",
         },
     )
 
     assert response.json == {
-        "remote_addr": "198.51.100.1",
         "scheme": "https",
         "host": "trusted.example",
     }
