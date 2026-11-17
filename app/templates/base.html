@@ -12,20 +12,10 @@
 } -%}
 
 {% block headIcons %}
-    <link rel="shortcut icon" sizes="16x16 32x32 48x48" href="{{ url_for('static', filename='assets/images/favicon.ico') }}" type="image/x-icon">
+    <link rel="icon" sizes="48x48" href="{{ url_for('static', filename='images/favicon.ico') }}">
+    <link rel="icon" sizes="any" href="{{ url_for('static', filename='images/favicon.svg') }}" type="image/svg+xml">
     <link rel="mask-icon" href="{{ url_for('static', filename='assets/images/mask-icon.svg') }}" color="{{ themeColor | default('#010101') }}">
-    <link rel="apple-touch-icon" sizes="48x48" href="{{ url_for('static', filename='assets/images/icon-48x48.png') }}">
-    <link rel="apple-touch-icon" sizes="72x72" href="{{ url_for('static', filename='assets/images/icon-72x72.png') }}">
-    <link rel="apple-touch-icon" sizes="96x96" href="{{ url_for('static', filename='assets/images/icon-96x96.png') }}">
-    <link rel="apple-touch-icon" sizes="120x120" href="{{ url_for('static', filename='assets/images/icon-120x120.png') }}">
-    <link rel="apple-touch-icon" sizes="144x144" href="{{ url_for('static', filename='assets/images/icon-144x144.png') }}">
-    <link rel="apple-touch-icon" sizes="152x152" href="{{ url_for('static', filename='assets/images/icon-152x152.png') }}">
-    <link rel="apple-touch-icon" sizes="167x167" href="{{ url_for('static', filename='assets/images/icon-167x167.png') }}">
     <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='assets/images/icon-180x180.png') }}">
-    <link rel="apple-touch-icon" sizes="192x192" href="{{ url_for('static', filename='assets/images/icon-192x192.png') }}">
-    <link rel="apple-touch-icon" sizes="256x256" href="{{ url_for('static', filename='assets/images/icon-256x256.png') }}">
-    <link rel="apple-touch-icon" sizes="512x512" href="{{ url_for('static', filename='assets/images/icon-512x512.png') }}">
-    <link rel="apple-touch-icon" sizes="1024x1024" href="{{ url_for('static', filename='assets/images/icon-1024x1024.png') }}">
 {% endblock headIcons %}
 
 {% block head %}
@@ -36,6 +26,27 @@
     <meta name="tna.app.tna-frontend" content="{{ app_config.TNA_FRONTEND_VERSION }}">
     <meta name="tna.settings.theme" content="{{ theme }}">
     <meta name="robots" content="noindex, nofollow, noarchive, noai">
+    <meta property="og:logo" content="https://www.nationalarchives.gov.uk/static/assets/images/icon-1024x1024.png">
+    <meta property="og:site_name" content="The National Archives">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="en_GB">
+    <meta property="og:title" content="The National Archives">
+    <meta property="og:description" content="Explore 1,000 years of history with the official national archive of the UK Government.">
+    <meta property="og:url" content="https://www.nationalarchives.gov.uk{{ request.path }}">
+    <meta property="og:image" content="https://www.nationalarchives.gov.uk/og{{ request.path }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:image:alt" content="The path to The National Archives&#39; building, with a brutalist structure on the left, a glass section in the middle, and angled roofs on the right, above a lake and some plants.">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@UKNatArchives">
+    <meta name="twitter:title" content="The National Archives">
+    <meta name="twitter:description" content="Explore 1,000 years of history with the official national archive of the UK Government.">
+    <meta name="twitter:image" content="https://www.nationalarchives.gov.uk/og{{ request.path }}">
+    <meta name="twitter:image:width" content="1200">
+    <meta name="twitter:image:height" content="630">
+    <meta name="twitter:image:type" content="image/jpeg">
+    <link rel="describedby" href="https://www.nationalarchives.gov.uk/llms.txt">
 {% endblock head %}
 
 {% block stylesheets %}
