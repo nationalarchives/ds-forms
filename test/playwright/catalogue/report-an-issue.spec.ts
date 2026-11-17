@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../fixtures";
 import validateHtml from "../lib/validate-html.ts";
 import checkAccessibility from "../lib/check-accessibility.ts";
 
@@ -10,6 +10,8 @@ const errors = {
   invalidEmail:
     /Enter an email address in the correct format, like name@example.com/,
 };
+
+const recordIaid = "C1234";
 
 test("validate HTML and check accessibility", async ({ page }) => {
   await page.goto("/catalogue/report-an-issue/");
@@ -53,10 +55,10 @@ test("invalid email", async ({ page }) => {
 });
 
 test("prefilled IAID", async ({ page }) => {
-  await page.goto("/catalogue/report-an-issue/?iaid=C1234");
+  await page.goto(`/catalogue/report-an-issue/?iaid=${recordIaid}`);
 
   await expect(page.locator("main")).toHaveText(/Selected record/);
-  await expect(page.locator("main")).toHaveText(/C1234/);
+  await expect(page.locator("main")).toContainText(recordIaid);
   await expect(page.locator("main")).toHaveText(/Reference number/);
   await expect(page.locator("main")).toHaveText(/BA/);
 });
@@ -66,7 +68,7 @@ test("complete", async ({ page }) => {
 
   await page.waitForTimeout(3000);
 
-  await page.getByLabel("Record IAID").fill("C1234");
+  await page.getByLabel("Record IAID").fill(recordIaid);
   await page.getByLabel("What is the error?").fill("Something");
   await page.getByLabel("What is the correct information?").fill("Nothing");
   await page.getByRole("button", { name: "Submit issue" }).click();

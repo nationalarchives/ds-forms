@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures";
 
 test("single require", async ({ page }) => {
   await page.goto("/test/requires/alpha/");

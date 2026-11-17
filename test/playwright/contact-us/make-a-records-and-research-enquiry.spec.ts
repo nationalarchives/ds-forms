@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../fixtures";
 import validateHtml from "../lib/validate-html.ts";
 import checkAccessibility from "../lib/check-accessibility.ts";
 
@@ -59,7 +59,7 @@ test("complete", async ({ page }) => {
   await page.getByRole("button", { name: "Submit" }).click();
   await validateHtml(page, { "valid-id": ["error", { relaxed: true }] });
   await checkAccessibility(page);
-  await expect(page.locator("main")).toHaveText(/Request submitted/);
+  await expect(page.locator("main")).toHaveText(/Enquiry submitted/);
 
   await page.goto("http://localhost:65512");
   await page.waitForTimeout(1000);
