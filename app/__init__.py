@@ -25,19 +25,19 @@ def create_app(config_class):
     if proxy_depth:
         app.wsgi_app = ProxyFix(
             app.wsgi_app,
-            x_for=proxy_depth,
             x_proto=proxy_depth,
             x_host=proxy_depth,
         )
 
     @app.before_request
     def log_request_headers():
-        app.logger.debug("==============================")
-        app.logger.debug(f"Request path:    {request.path}")
-        app.logger.debug(f"Proxy depth:     {proxy_depth}")
-        app.logger.debug(
-            f"Request headers: {[header for header in request.headers if header[0].lower().startswith('x-forwarded-')]}"
-        )
+        if not request.path.startswith("/healthcheck"):
+            app.logger.debug("==============================")
+            app.logger.debug(f"Request path:    {request.path}")
+            app.logger.debug(f"Proxy depth:     {proxy_depth}")
+            app.logger.debug(
+                f"Request headers:  {[header for header in request.headers if header[0].lower().startswith('x-forwarded-')]}"
+            )
 
     gunicorn_error_logger = logging.getLogger("gunicorn.error")
     app.logger.handlers.extend(gunicorn_error_logger.handlers)
