@@ -1,9 +1,11 @@
+meta:
+  exclude_from_sitemap: true
+
 startingPage:
   id: views
   name: Your views
   form: contact.YourViews
   template: forms/form_page.html
-  # altcha: true
   content:
     supertitle: Contact us
     breadcrumbs:
