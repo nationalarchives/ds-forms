@@ -1,10 +1,12 @@
+meta:
+  exclude_from_sitemap: true
+
 startingPage:
   id: info
   name: Report an issue with the catalogue
   form: CatalogueIssue
   minimumTimeToComplete: 3
   template: forms/catalogue_issue.html
-  # altcha: true
   content:
     supertitle: Catalogue
     breadcrumbs:

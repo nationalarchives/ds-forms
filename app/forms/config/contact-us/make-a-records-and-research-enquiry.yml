@@ -3,7 +3,6 @@ startingPage:
   name: Make a records enquiry
   form: contact.RecordsEnquiry
   template: forms/form_page.html
-  # altcha: true
   content:
     supertitle: Contact us
     breadcrumbs:
