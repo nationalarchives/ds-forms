@@ -1,7 +1,9 @@
 name: Resolve Playwright image
 
 outputs:
-  image: ${{ steps.image.outputs.image }}
+  image:
+    description: Playwright image
+    value: ${{ steps.image.outputs.image }}
 
 runs:
   using: "composite"
