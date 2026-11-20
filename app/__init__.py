@@ -13,7 +13,7 @@ from app.lib.context_processor import cookie_preference, now_iso_8601, now_times
 from app.lib.limiter import limiter
 from app.lib.records_api import record_details
 from app.lib.talisman import talisman
-from app.lib.template_filters import slugify
+from app.lib.template_filters import slugify, url_encode
 
 
 def create_app(config_class):
@@ -89,6 +89,7 @@ def create_app(config_class):
         Session(app)
 
     app.add_template_filter(slugify)
+    app.add_template_filter(url_encode)
 
     @app.context_processor
     def context_processor():
