@@ -20,5 +20,3 @@ runs:
         fs.appendFileSync(process.env.GITHUB_OUTPUT, `image=mcr.microsoft.com/playwright:v${version}-noble\n`);
         NODE
       shell: bash
-    outputs:
-      image: ${{ steps.image.outputs.image }}
