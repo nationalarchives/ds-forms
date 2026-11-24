@@ -14,8 +14,8 @@ startingPage:
     description: Use this form to email us with a specific question about records held by The National Archives or how to search for them.
     body: |
       <p>We can provide guidance on which research guides to consult and how to search our catalogue so you can carry out your own research. We cannot look at records on your behalf or identify all records that may be relevant to a particular subject.</p>
-      <p>Read our guide for <a href="https://www.nationalarchives.gov.uk/explore-the-collection/the-collection-blog/getting-the-most-out-of-a-record-enquiry/">getting the most out of a research enquiry</a>, especially if you are using artificial intelligence (AI) in your research. We are unlikely to be able to respond to enquiries that do not meet our guidelines.</p>
-      <p>We respond to enquiries submitted using this form within 10 working days.</p>
+      <p>Read our guide for <a href="https://www.nationalarchives.gov.uk/explore-the-collection/the-collection-blog/getting-the-most-out-of-a-record-enquiry/">getting the most out of a records enquiry</a>, especially if you are using artificial intelligence (AI) in your research. We are unlikely to be able to respond to enquiries that do not meet our guidelines.</p>
+      <p>We aim to respond to enquiries submitted using this form within 10 working days.</p>
     beforeSubmit: |
       <p>
         <small>The National Archives only records personal information, including email addresses, for the purposes provided. We will not share your details with third parties. For more information read our <a href="/terms-and-conditions/privacy-notice/">privacy policy</a>.</small>
